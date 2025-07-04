@@ -48,7 +48,7 @@
 
 dashboard:
   title: "Slate"
-  theme: "dark"
+  theme: "tokyo-night"
   columns: 12              # Total number of columns in the grid
   gap: "1rem"              # Space between grid items
 
@@ -73,28 +73,19 @@ components:
     widget: "clock"
     position: 
       row: "1"               # First row
-      column: "3 / 8"        # Center-left (columns 3-7)
+      column: "3 / 11"       # Center (columns 3-10, expanded)
     config:
       format: "12h"
       showDate: true
-
-  - id: "status-summary"
-    type: "widget"
-    widget: "status-summary"
-    position: 
-      row: "1"               # First row
-      column: "8 / 11"       # Center-right (columns 8-10)
-    config:
-      refreshInterval: 30000
       
   - id: "theme-switcher"
     type: "widget"
     widget: "theme-switcher"
     position: 
       row: "1"               # First row
-      column: "11 / -1"      # Right side (columns 11-12, smaller due to 50% scale)
+      column: "11 / -1"      # Right side (columns 11-12)
     config:
-      availableThemes: ["dark", "light", "retro", "synthwave"]
+      availableThemes: ["dark", "light", "retro", "synthwave", "tokyo-night"]
       
   # LEFT GROUP - Development links (half width)
   - id: "dev-group"
@@ -141,7 +132,7 @@ components:
         url: "http://localhost:9090"
         icon: "prometheus"
         description: "Monitoring system"
-        statusCheck: true
+        statusCheck: false
 
   # SEARCH & DISCOVERY GROUP - Left side of third row
   - id: "search-group"
@@ -397,6 +388,25 @@ themes:
     font-weight-normal: "500"    # Heavier normal weight for that bold neon look
     font-weight-medium: "600"    # Medium-bold for emphasis
     font-weight-bold: "800"      # Extra bold for headers - neon sign effect
+
+  tokyo-night:
+    # TOKYO NIGHT THEME - Modern cyberpunk aesthetic inspired by Tokyo's neon-lit nights
+    bg-primary: "linear-gradient(135deg, #1a1b26 0%, #16161e 50%, #0f0f14 100%)"  # Deep night gradient: dark blue to black
+    bg-secondary: "linear-gradient(135deg, #24283b 0%, #1f2335 100%)"  # Card gradient: midnight blue blend
+    bg-tertiary: "linear-gradient(135deg, #414868 0%, #565f89 100%)"   # Hover: storm blue gradient
+    text-primary: "#c0caf5"      # Cool white with slight blue tint - like moonlight
+    text-secondary: "#a9b1d6"    # Muted blue-white for secondary text
+    accent: "#7aa2f7"            # Bright blue - like neon signs reflecting on wet streets
+    accent-hover: "#bb9af7"      # Purple hover - electric energy
+    border: "#3b4261"            # Subtle blue-gray borders
+    shadow: "0 8px 32px rgba(0, 0, 0, 0.4), 0 0 20px rgba(122, 162, 247, 0.1)"  # Deep shadow with blue glow
+    radius: "0.75rem"            # Rounded corners for modern feel
+    font-family: "'JetBrains Mono', 'Fira Code', 'SF Mono', 'Consolas', monospace"  # Modern coding fonts
+    font-family-mono: "'JetBrains Mono', 'Fira Code', 'SF Mono', 'Consolas', monospace"  # Same monospace everywhere
+    font-size-base: "1rem"       # Standard readable size
+    font-weight-normal: "400"    # Clean, readable weight
+    font-weight-medium: "500"    # Medium emphasis
+    font-weight-bold: "600"      # Bold headers with style
 
 # ICON MAPPING
 # ============
