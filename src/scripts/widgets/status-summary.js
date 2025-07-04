@@ -69,18 +69,18 @@ export default class StatusSummaryWidget {
       let offlineCount = 0
       
       // Check each service status
-      const statusPromises = Array.from(statusLinks).map(async (link) => {
+      const statusPromises = Array.from(statusLinks).map(async (link, index) => {
         const url = link.dataset.statusUrl
-        try {
-          const response = await fetch(url, { 
-            method: 'HEAD', 
-            mode: 'no-cors',
-            timeout: 5000 
-          })
-          return true // Assume online if no error
-        } catch (error) {
-          return false // Offline if error
+        const name = link.querySelector('.link-name')?.textContent || 'Unknown'
+        const isOnline = await this.checkSingleService(url, name)
+        
+        // Update individual link status indicator
+        const statusIndicator = link.querySelector('.status-indicator')
+        if (statusIndicator) {
+          statusIndicator.className = `status-indicator ${isOnline ? 'online' : 'offline'}`
         }
+        
+        return isOnline
       })
 
       const results = await Promise.all(statusPromises)
@@ -105,6 +105,99 @@ export default class StatusSummaryWidget {
       this.updateDisplay(0, 0, this.totalServices, 'error')
     }
   }
+
+  async checkSingleService(url, name = 'Unknown') {
+    try {
+      const startTime = Date.now()
+      
+      // For Tailscale URLs, we need to work around CORS limitations
+      // Try multiple strategies to determine if service is accessible
+      const strategies = [
+        this.checkWithFetch(url),
+        this.checkWithImage(url)
+      ]
+      
+      // Use Promise.allSettled to try all strategies
+      const results = await Promise.allSettled(strategies)
+      
+      // If any strategy succeeds, consider the service online
+      const isOnline = results.some(result => result.status === 'fulfilled' && result.value === true)
+      
+      const duration = Date.now() - startTime
+      console.log(`Status check: ${name} (${url}) - ${isOnline ? 'ONLINE' : 'OFFLINE'} in ${duration}ms`)
+      
+      return isOnline
+    } catch (error) {
+      console.log(`Status check: ${name} (${url}) - OFFLINE (${error.message})`)
+      return false
+    }
+  }
+
+  async checkWithFetch(url) {
+    try {
+      const response = await fetch(url, { 
+        method: 'HEAD', 
+        mode: 'no-cors',
+        signal: AbortSignal.timeout(8000)
+      })
+      // With no-cors, we can't read the status, but no error means it's reachable
+      return true
+    } catch (error) {
+      // Network error means service is definitely offline
+      if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+        return false
+      }
+      return false
+    }
+  }
+
+  async checkWithImage(url) {
+    // Try multiple common endpoints that might serve images
+    const imagePaths = [
+      '/favicon.ico',
+      '/static/favicon.ico',
+      '/assets/favicon.ico',
+      '/favicon.png',
+      '/apple-touch-icon.png'
+    ]
+    
+    for (const path of imagePaths) {
+      try {
+        const result = await this.tryImageLoad(url + path)
+        if (result) {
+          return true
+        }
+      } catch (error) {
+        // Continue to next path
+      }
+    }
+    
+    return false
+  }
+  
+  async tryImageLoad(imageUrl) {
+    return new Promise((resolve) => {
+      const img = new Image()
+      const timeout = setTimeout(() => {
+        resolve(false)
+      }, 4000)
+      
+      img.onload = () => {
+        clearTimeout(timeout)
+        resolve(true)
+      }
+      
+      img.onerror = () => {
+        clearTimeout(timeout)
+        resolve(false)
+      }
+      
+      // Add cache busting to avoid cached results
+      img.src = imageUrl + '?' + Date.now()
+    })
+  }
+
+
 
   updateDisplay(online, offline, total, health) {
     const onlineEl = document.getElementById('online-count')
