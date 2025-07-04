@@ -1,0 +1,427 @@
+# Slate Dashboard Configuration
+# =============================
+# This file configures your personal dashboard using CSS Grid layout system
+# 
+# 🎯 EDIT THIS FILE: Changes are automatically synced to development and production
+# 🔄 HOT RELOAD: Save this file and your dashboard will automatically update
+
+# GRID COORDINATE SYSTEM EXPLANATION:
+# ===================================
+# The dashboard uses a 12-column CSS Grid system similar to Bootstrap/Tailwind
+# 
+# COLUMNS: Numbers 1-12 (left to right)
+# +---+---+---+---+---+---+---+---+---+---+---+---+
+# | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10| 11| 12|
+# +---+---+---+---+---+---+---+---+---+---+---+---+
+# 
+# ROWS: Numbers 1, 2, 3, 4... (top to bottom)
+# Row 1: |-------- Header Area --------|
+# Row 2: |-- Left Group --|-- Right --|
+# Row 3: |-- Content --|-- Weather --|
+# Row 4: |-- More Content --|-- Radar --|
+# 
+# POSITIONING SYNTAX:
+# column: "start / end" - spans from start column to end column
+# column: "1 / 7"       - spans from column 1 to column 7 (6 columns wide)
+# column: "7 / -1"      - spans from column 7 to last column (columns 7-12)
+# column: "1 / -1"      - spans full width (all 12 columns)
+# 
+# EXAMPLES:
+# column: "1 / 4"    = columns 1-3 (quarter width)
+# column: "1 / 7"    = columns 1-6 (half width)  
+# column: "7 / -1"   = columns 7-12 (half width)
+# column: "1 / -1"   = columns 1-12 (full width)
+# column: "9 / -1"   = columns 9-12 (third width)
+
+# CUSTOM BACKGROUND COLORS:
+# ========================
+# You can set custom background colors for groups and widgets:
+# backgroundColor: "#1a365d"     # Hex color
+# backgroundColor: "rgba(26, 54, 93, 0.8)"  # RGBA with transparency
+# backgroundColor: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"  # Gradient
+# backgroundColor: "#2d1b54"     # Different color for each component
+
+# LINK BEHAVIOR:
+# =============
+# All links automatically open in new tabs for better navigation experience.
+# Links include security attributes (rel="noopener noreferrer") for safety.
+
+dashboard:
+  title: "Slate"
+  theme: "dark"
+  columns: 12              # Total number of columns in the grid
+  gap: "1rem"              # Space between grid items
+
+components:
+  # HEADER ROW - Logo, Clock, Theme switcher
+  - id: "slate-logo"
+    type: "widget"
+    widget: "image"
+    position: 
+      row: "1"               # First row
+      column: "1 / 3"        # Left side (columns 1-2)
+    backgroundColor: "linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(59, 130, 246, 0.2) 100%)"  # Elegant white-to-blue gradient with high contrast for dark logo
+    config:
+      src: "slate_logo_821_286.png"
+      alt: "Slate Logo"
+      height: "60px"
+      objectFit: "contain"
+      className: "logo-widget"
+      
+  - id: "header-clock"
+    type: "widget"
+    widget: "clock"
+    position: 
+      row: "1"               # First row
+      column: "3 / 8"        # Center-left (columns 3-7)
+    config:
+      format: "12h"
+      showDate: true
+
+  - id: "status-summary"
+    type: "widget"
+    widget: "status-summary"
+    position: 
+      row: "1"               # First row
+      column: "8 / 11"       # Center-right (columns 8-10)
+    config:
+      refreshInterval: 30000
+      
+  - id: "theme-switcher"
+    type: "widget"
+    widget: "theme-switcher"
+    position: 
+      row: "1"               # First row
+      column: "11 / -1"      # Right side (columns 11-12, smaller due to 50% scale)
+    config:
+      availableThemes: ["dark", "light", "retro", "synthwave"]
+      
+  # LEFT GROUP - Development links (half width)
+  - id: "dev-group"
+    type: "group"
+    title: "Development"
+    position: 
+      row: "2"               # Second row
+      column: "1 / 7"        # Left half (columns 1-6)
+    collapsed: false
+    backgroundColor: "#1a365d"  # Custom blue background
+    items:
+      - type: "link"
+        name: "GitHub"
+        url: "https://github.com"
+        icon: "github"
+        description: "Code repository"
+        statusCheck: false
+        
+      - type: "link"
+        name: "GitLab"
+        url: "https://gitlab.com"
+        icon: "gitlab"
+        description: "Alternative Git hosting"
+        statusCheck: false
+
+  # RIGHT GROUP - Services links (half width)
+  - id: "services-group"
+    type: "group"
+    title: "Services"
+    position: 
+      row: "2"               # Second row (same as dev-group)
+      column: "7 / -1"       # Right half (columns 7-12)
+    collapsed: false
+    items:
+      - type: "link"
+        name: "Docker Hub"
+        url: "https://hub.docker.com"
+        icon: "docker"
+        description: "Container registry"
+        statusCheck: false
+        
+      - type: "link"
+        name: "Prometheus"
+        url: "http://localhost:9090"
+        icon: "prometheus"
+        description: "Monitoring system"
+        statusCheck: true
+
+  # SEARCH & DISCOVERY GROUP - Left side of third row
+  - id: "search-group"
+    type: "group"
+    title: "Search & Discovery"
+    position: 
+      row: "3"               # Third row
+      column: "1 / 9"        # Left side (columns 1-8)
+    collapsed: false
+    items:
+      - type: "link"
+        name: "SearchXNG"
+        url: "https://searchxng.squirrel-corn.ts.net"
+        icon: "search"
+        description: "Private Search Engine"
+        statusCheck: true
+        
+      - type: "motd"
+        title: "Testing Notes"
+        message: "need to test SearchXNG on Obsidian vs. the MCP"
+        icon: "🔬"
+        priority: "normal"
+        dismissible: false
+        timestamp: true
+
+  # DATA & STORAGE GROUP - Left side of fourth row
+  - id: "data-group"
+    type: "group"
+    title: "Data & Storage"
+    position: 
+      row: "4"               # Fourth row
+      column: "1 / 8"        # Left side (columns 1-7)
+    collapsed: false
+    backgroundColor: "rgba(45, 27, 84, 0.7)"  # Semi-transparent purple
+    items:
+      - type: "link"
+        name: "Linkwarden"
+        url: "https://linkwarden.squirrel-corn.ts.net"
+        icon: "bookmark"
+        description: "Bookmark & Link Management"
+        statusCheck: true
+        
+      - type: "link"
+        name: "ArchiveBox"
+        url: "https://archivebox.squirrel-corn.ts.net"
+        icon: "archive"
+        description: "Web Page Archiving"
+        statusCheck: true
+        
+      - type: "link"
+        name: "NocoDB"
+        url: "https://nocodb.squirrel-corn.ts.net"
+        icon: "database"
+        description: "Database & Airtable Alternative"
+        statusCheck: true
+        
+      - type: "link"
+        name: "Baserow"
+        url: "https://baserow.squirrel-corn.ts.net"
+        icon: "table"
+        description: "Database & Airtable Alternative"
+        statusCheck: true
+        
+      - type: "link"
+        name: "Linkding"
+        url: "https://linkding.squirrel-corn.ts.net"
+        icon: "link"
+        description: "Minimal Bookmark Manager"
+        statusCheck: true
+        
+      - type: "link"
+        name: "LinkAce"
+        url: "https://linkace.squirrel-corn.ts.net"
+        icon: "chain"
+        description: "Advanced Bookmark Manager"
+        statusCheck: true
+        
+      - type: "link"
+        name: "Wallabag"
+        url: "https://wallabag.squirrel-corn.ts.net"
+        icon: "read"
+        description: "Read-it-Later App"
+        statusCheck: true
+        
+      - type: "link"
+        name: "Trilium"
+        url: "https://trilium.squirrel-corn.ts.net"
+        icon: "notes"
+        description: "Hierarchical Note Taking"
+        statusCheck: true
+
+  # SYSTEM MANAGEMENT GROUP - Left side of fifth row
+  - id: "system-group"
+    type: "group"
+    title: "System Management"
+    position: 
+      row: "5"               # Fifth row
+      column: "1 / 7"        # Left side (columns 1-6)
+    collapsed: false
+    backgroundColor: "#2d1b54"  # Custom purple background
+    items:
+      - type: "link"
+        name: "Pi-hole"
+        url: "https://pihole.squirrel-corn.ts.net/admin"
+        icon: "shield"
+        description: "Network-wide Ad Blocking & DNS"
+        statusCheck: true
+        
+      - type: "link"
+        name: "Vaultwarden"
+        url: "https://vaultwarden.squirrel-corn.ts.net"
+        icon: "vault"
+        description: "Password Manager (Bitwarden)"
+        statusCheck: true
+        
+      - type: "link"
+        name: "Tailscale"
+        url: "https://login.tailscale.com/admin/machines"
+        icon: "network"
+        description: "Check Tailscale network status"
+        statusCheck: false
+
+  # WEATHER WIDGET - Right third of third row
+  - id: "weather-widget"
+    type: "widget"
+    widget: "weather"
+    position: 
+      row: "3"               # Third row
+      column: "10 / -1"       # Right third (columns 10-12)
+    backgroundColor: "#0f4c75"  # Custom navy blue background
+    config:
+      location: "30033"      # Your zip code (Decatur, GA) - 5-digit codes use US zip lookup
+      displayName: "Decatur, GA"  # Custom display name (overrides API location)
+      units: "fahrenheit"    # Temperature units
+      apiKey: "a8ef47eaa6bec9780dad5ad07c880c61"  # OpenWeatherMap API key
+
+  # RADAR WIDGET - Right half of fourth row
+  - id: "radar-widget"
+    type: "widget"
+    widget: "radar"
+    position: 
+      row: "4"               # Fourth row
+      column: "9 / -1"       # Right half (columns 9-12)
+    config:
+      location: "30033"      # Your zip code for radar center - 5-digit codes use US zip lookup
+      displayName: "Decatur, GA"  # Custom display name for consistency
+      apiKey: "a8ef47eaa6bec9780dad5ad07c880c61"  # OpenWeatherMap API key
+
+
+# VISUAL LAYOUT RESULT:
+# =====================
+# +------------------------------------------+-------+
+# | Row 1: Clock Widget (Left)               | Theme |
+# |                                          | (Right|
+# +------------------------+-------------------------+
+# | Row 2: Development     | Row 2: Services        |
+# |        (Left Half)     |        (Right Half)    |
+# +------------------------+------+------------------+
+# | Row 3: Search & Discovery   | Row 3: Weather    |
+# |        (Left ⅔)             |        (Right ⅓)  |
+# +-----------------------------+-------------------+
+# | Row 4: Data & Storage| Row 4: Radar Widget     |
+# |        (Left ⅔)      |        (Right ⅓)        |
+# +----------------------+--------------------------+
+# | Row 5: System Mgmt   |                         |
+# |        (Left Half)   |                         |
+# +----------------------+--------------------------+
+
+# THEME CONFIGURATION
+# ===================
+# Color scheme, typography, and styling options
+# 
+# FONT CONFIGURATION:
+# - font-family: Primary font stack for all text
+# - font-family-mono: Monospace font for code elements
+# - font-size-base: Base font size (typically 1rem)
+# - font-weight-normal: Normal text weight (400)
+# - font-weight-medium: Medium text weight (500) 
+# - font-weight-bold: Bold text weight (600)
+themes:
+  dark:
+    # DARK THEME - Modern, tech-focused design
+    bg-primary: "#0f172a"        # Main background (slate-900)
+    bg-secondary: "#1e293b"      # Card backgrounds (slate-800)
+    bg-tertiary: "#334155"       # Hover/active states (slate-600)
+    text-primary: "#f1f5f9"      # Primary text (slate-100)
+    text-secondary: "#cbd5e1"    # Secondary text (slate-300)
+    accent: "#3b82f6"            # Accent color (blue-500)
+    accent-hover: "#2563eb"      # Accent hover (blue-600)
+    border: "#334155"            # Border color (slate-600)
+    shadow: "0 4px 6px -1px rgb(0 0 0 / 0.3)"  # Drop shadow
+    radius: "0.5rem"             # Border radius
+    font-family: "'Inter', 'SF Pro Display', system-ui, -apple-system, sans-serif"  # Modern sans-serif
+    font-family-mono: "'JetBrains Mono', 'SF Mono', 'Monaco', 'Cascadia Code', monospace"  # Developer mono
+    font-size-base: "1rem"       # Base font size
+    font-weight-normal: "400"    # Normal text weight
+    font-weight-medium: "500"    # Medium text weight
+    font-weight-bold: "600"      # Bold text weight
+  
+  light:
+    # LIGHT THEME - Clean, readable design with serif fonts
+    bg-primary: "#ffffff"        # Main background (white)
+    bg-secondary: "#f8fafc"      # Card backgrounds (slate-50)
+    bg-tertiary: "#e2e8f0"       # Hover/active states (slate-200)
+    text-primary: "#1e293b"      # Primary text (slate-800)
+    text-secondary: "#475569"    # Secondary text (slate-600)
+    accent: "#3b82f6"            # Accent color (blue-500)
+    accent-hover: "#2563eb"      # Accent hover (blue-600)
+    border: "#e2e8f0"            # Border color (slate-200)
+    shadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)"  # Drop shadow
+    radius: "0.5rem"             # Border radius
+    font-family: "'Source Sans Pro', 'Georgia', 'Times New Roman', serif"  # Classic serif for readability
+    font-family-mono: "'Source Code Pro', 'Consolas', 'Monaco', monospace"  # Clean monospace
+    font-size-base: "1rem"       # Base font size
+    font-weight-normal: "400"    # Normal text weight
+    font-weight-medium: "500"    # Medium text weight
+    font-weight-bold: "600"      # Bold text weight
+
+  retro:
+    # RETRO THEME - Classic terminal/computer aesthetic
+    bg-primary: "#000000"        # Pure black background
+    bg-secondary: "#0d1117"      # Slightly lighter black for cards
+    bg-tertiary: "#1a1a1a"       # Dark gray for hover/active states
+    text-primary: "#00ff00"      # Classic bright green text
+    text-secondary: "#00cc00"    # Slightly dimmer green for secondary text
+    accent: "#ffaa00"            # Amber/orange accent color
+    accent-hover: "#ff8800"      # Darker amber for hover
+    border: "#00ff00"            # Green borders
+    shadow: "0 0 10px rgba(0, 255, 0, 0.3)"  # Green glow effect
+    radius: "0.25rem"            # Sharper corners for retro look
+    font-family: "'JetBrains Mono', 'Courier New', 'Monaco', 'Consolas', monospace"  # Monospace everywhere
+    font-family-mono: "'JetBrains Mono', 'Courier New', 'Monaco', 'Consolas', monospace"  # Same monospace
+    font-size-base: "0.9rem"     # Slightly smaller for terminal feel
+    font-weight-normal: "400"    # Normal text weight
+    font-weight-medium: "500"    # Medium text weight
+    font-weight-bold: "600"      # Bold text weight
+
+  synthwave:
+    # SYNTHWAVE THEME - 80s retro-futuristic neon aesthetic inspired by Miami Vice & Tron
+    bg-primary: "linear-gradient(135deg, #0a0a0a 0%, #1a0d2e 50%, #16213e 100%)"  # Dark gradient: black to deep purple to navy
+    bg-secondary: "linear-gradient(135deg, #1e1e2e 0%, #2d1b54 100%)"  # Card gradient: dark purple blend
+    bg-tertiary: "linear-gradient(135deg, #ff00ff 0%, #00ffff 100%)"   # Hover: electric pink to cyan gradient
+    text-primary: "#ffffff"      # Pure white text for maximum contrast
+    text-secondary: "#ff00ff"    # Hot pink for secondary text - classic synthwave color
+    accent: "#00ffff"            # Electric cyan - the signature synthwave accent
+    accent-hover: "#ff1493"      # Deep pink hover - electric energy
+    border: "#ff00ff"            # Hot pink borders for that neon outline
+    shadow: "0 0 20px rgba(255, 0, 255, 0.5), 0 0 40px rgba(0, 255, 255, 0.3)"  # Dual-color neon glow
+    radius: "0.1rem"             # Very sharp, geometric corners for futuristic feel
+    font-family: "'Orbitron', 'Exo 2', 'Rajdhani', 'Arial Black', sans-serif"  # Futuristic geometric fonts
+    font-family-mono: "'Share Tech Mono', 'Orbitron', 'Courier Prime', monospace"  # Sci-fi monospace
+    font-size-base: "1rem"       # Standard size but bold styling
+    font-weight-normal: "500"    # Heavier normal weight for that bold neon look
+    font-weight-medium: "600"    # Medium-bold for emphasis
+    font-weight-bold: "800"      # Extra bold for headers - neon sign effect
+
+# ICON MAPPING
+# ============
+# Maps icon names to emoji or other symbols
+icons:
+  # Development
+  github: "🐙"
+  gitlab: "🦊"
+  docker: "🐳"
+  prometheus: "📊"
+  
+  # Search & Discovery
+  search: "🔍"
+  
+  # Data & Storage
+  bookmark: "🔖"
+  archive: "📦"
+  database: "🗄️"
+  table: "📊"
+  link: "🔗"
+  chain: "⛓️"
+  read: "📚"
+  notes: "📝"
+  
+  # System Management
+  shield: "🛡️"
+  vault: "🔐"
+  network: "🌐"

@@ -1,0 +1,34 @@
+services:
+  # Tailscale sidecar for Slate Dashboard
+  slate-tailscale:
+    image: tailscale/tailscale:latest
+    hostname: slate
+    environment:
+      - TS_AUTHKEY=${TS_AUTHKEY}
+      - TS_STATE_DIR=/var/lib/tailscale
+      - TS_EXTRA_ARGS=--advertise-tags=tag:containers
+      - TS_SERVE_CONFIG=/var/lib/tailscale/serve-config/ipn-serve-config
+    volumes:
+      - ./tailscale-slate:/var/lib/tailscale
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    restart: unless-stopped
+
+  slate:
+    build: 
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: slate
+    restart: unless-stopped
+    network_mode: "service:slate-tailscale"  # Share network with Tailscale
+    volumes:
+      - ./slate-config:/app/config
+    environment:
+      - NODE_ENV=production
+      - HOSTNAME=127.0.0.1  # Bind to localhost specifically
+      - PORT=80
+    depends_on:
+      - slate-tailscale

@@ -1,0 +1,154 @@
+/* Dark Theme */
+[data-theme="dark"] {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-tertiary: #334155;
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --accent: #3b82f6;
+  --accent-hover: #2563eb;
+  --border: #334155;
+  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3);
+  --radius: 0.5rem;
+}
+
+/* Light Theme */
+[data-theme="light"] {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-tertiary: #f1f5f9;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --border: #e2e8f0;
+  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --radius: 0.5rem;
+}
+
+/* Retro Theme - Classic Terminal/Computer Aesthetic */
+[data-theme="retro"] {
+  --bg-primary: #000000;
+  --bg-secondary: #0d1117;
+  --bg-tertiary: #1a1a1a;
+  --text-primary: #00ff00;
+  --text-secondary: #00cc00;
+  --accent: #ffaa00;
+  --accent-hover: #ff8800;
+  --border: #00ff00;
+  --shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+  --radius: 0.25rem;
+}
+
+/* Retro Theme Special Effects */
+[data-theme="retro"] * {
+  font-family: 'JetBrains Mono', 'Courier New', 'Monaco', 'Consolas', monospace !important;
+  font-size: 0.9rem;
+}
+
+[data-theme="retro"] .widget,
+[data-theme="retro"] .group {
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  background: var(--bg-secondary);
+  position: relative;
+  overflow: hidden;
+}
+
+[data-theme="retro"] .widget::before,
+[data-theme="retro"] .group::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    transparent 50%,
+    rgba(0, 255, 0, 0.03) 50%,
+    rgba(0, 255, 0, 0.03) 52%,
+    transparent 52%
+  );
+  background-size: 100% 4px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+[data-theme="retro"] .widget-title,
+[data-theme="retro"] .group-title {
+  color: var(--text-primary);
+  text-shadow: 0 0 5px currentColor;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+[data-theme="retro"] .widget-content,
+[data-theme="retro"] .group-content {
+  position: relative;
+  z-index: 2;
+}
+
+[data-theme="retro"] .link:hover,
+[data-theme="retro"] .button:hover {
+  background: var(--bg-tertiary);
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
+  border-color: var(--accent);
+}
+
+[data-theme="retro"] .clock-display {
+  color: var(--text-primary);
+  text-shadow: 0 0 10px currentColor;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 2rem;
+  font-weight: bold;
+  letter-spacing: 0.1em;
+}
+
+[data-theme="retro"] .theme-selector {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  box-shadow: var(--shadow);
+}
+
+[data-theme="retro"] .theme-selector:hover {
+  box-shadow: 0 0 15px rgba(0, 255, 0, 0.4);
+}
+
+/* Terminal cursor effect for retro theme */
+[data-theme="retro"] .widget-title::after {
+  content: "█";
+  animation: blink 1s infinite;
+  opacity: 0.8;
+  margin-left: 0.2em;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* Screen flicker effect */
+[data-theme="retro"] body {
+  animation: flicker 0.15s infinite linear alternate;
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.98; }
+}
+
+/* Default to dark theme */
+:root {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-tertiary: #334155;
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --accent: #3b82f6;
+  --accent-hover: #2563eb;
+  --border: #334155;
+  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3);
+  --radius: 0.5rem;
+}
