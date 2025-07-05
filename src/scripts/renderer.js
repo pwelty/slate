@@ -102,11 +102,18 @@ export class DashboardRenderer {
   }
 
   renderGroupItems(items) {
-    return items.map(item => {
+    return items.map((item, index) => {
+      console.log('Rendering group item:', item.type, item)
       if (item.type === 'link') {
         return this.createLinkHTML(item)
       } else if (item.type === 'motd') {
         return this.createMOTDHTML(item)
+      } else if (item.type === 'todoist') {
+        console.log('Creating Todoist HTML for item:', item)
+        return this.createTodoistHTML(item, index)
+      } else if (item.type === 'obsidian') {
+        console.log('Creating Obsidian HTML for item:', item)
+        return this.createObsidianHTML(item, index)
       }
       return ''
     }).join('')
@@ -157,6 +164,38 @@ export class DashboardRenderer {
     `
   }
 
+  createTodoistHTML(todoist, index) {
+    const containerId = `todoist-${Date.now()}-${index}`
+    console.log('Creating Todoist container with ID:', containerId, 'and config:', todoist.config)
+    // Schedule widget loading after render
+    setTimeout(() => {
+      const container = document.getElementById(containerId)
+      console.log('Loading Todoist widget into container:', container)
+      if (container) {
+        this.loadWidget('todoist', container, todoist.config || {})
+      } else {
+        console.error('Todoist container not found:', containerId)
+      }
+    }, 0)
+    return `<div id="${containerId}" class="todoist-group-item"></div>`
+  }
+
+  createObsidianHTML(obsidian, index) {
+    const containerId = `obsidian-${Date.now()}-${index}`
+    console.log('Creating Obsidian container with ID:', containerId, 'and config:', obsidian.config)
+    // Schedule widget loading after render
+    setTimeout(() => {
+      const container = document.getElementById(containerId)
+      console.log('Loading Obsidian widget into container:', container)
+      if (container) {
+        this.loadWidget('obsidian', container, obsidian.config || {})
+      } else {
+        console.error('Obsidian container not found:', containerId)
+      }
+    }, 0)
+    return `<div id="${containerId}" class="obsidian-group-item"></div>`
+  }
+
   createWidget(component, container) {
     const widgetType = component.widget
     const config = component.config || {}
@@ -182,10 +221,13 @@ export class DashboardRenderer {
 
   async loadWidget(widgetType, widgetContainer, config) {
     try {
+      console.log(`Loading widget: ${widgetType} with config:`, config)
       const widgetModule = await this.getWidgetModule(widgetType)
+      console.log(`Widget module loaded for ${widgetType}:`, widgetModule)
       const widget = new widgetModule.default(widgetContainer, config)
       this.widgets.set(widgetContainer.id, widget)
       await widget.init()
+      console.log(`Widget ${widgetType} initialized successfully`)
     } catch (error) {
       console.error(`Failed to load widget ${widgetType}:`, error)
       widgetContainer.innerHTML = `
@@ -207,7 +249,9 @@ export class DashboardRenderer {
       'tailscale': () => import('./widgets/tailscale.js'),
       image: () => import('./widgets/image.js'),
       motd: () => import('./widgets/motd.js'),
-      'status-summary': () => import('./widgets/status-summary.js')
+      'status-summary': () => import('./widgets/status-summary.js'),
+      todoist: () => import('./widgets/todoist.js'),
+      obsidian: () => import('./widgets/obsidian.js')
     }
     
     if (!widgetRegistry[widgetType]) {

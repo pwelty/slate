@@ -110,6 +110,15 @@ components:
         icon: "gitlab"
         description: "Alternative Git hosting"
         statusCheck: false
+        
+      - type: "obsidian"
+        config:
+          vaultPath: "/Users/paul/Library/Mobile Documents/iCloud~md~obsidian/Documents/Vault42/"
+          tag: "dev"
+          namespace: "dashboard"
+          maxNotes: 2
+          apiUrl: "http://speedy-gonzales.squirrel-corn.ts.net:27123"
+          apiKey: "317dcd5296bbc2176513fa732e779c00d986650042a8e21d3dfd75fb3dda9266"
 
   # RIGHT GROUP - Services links (half width)
   - id: "services-group"
@@ -157,6 +166,22 @@ components:
         priority: "normal"
         dismissible: false
         timestamp: true
+        
+      - type: "todoist"
+        config:
+          apiToken: "2f8731b4a8938ae6ea67d44cfe57fb1d08da604d"
+          tag: "search"
+          projectName: "Dashboard"
+          maxTasks: 3
+          
+      - type: "obsidian"
+        config:
+          vaultPath: "/Users/paul/Library/Mobile Documents/iCloud~md~obsidian/Documents/Vault42/"
+          tag: "search"
+          namespace: "dashboard"
+          maxNotes: 2
+          apiUrl: "http://speedy-gonzales.squirrel-corn.ts.net:27123"
+          apiKey: "317dcd5296bbc2176513fa732e779c00d986650042a8e21d3dfd75fb3dda9266"
 
   # DATA & STORAGE GROUP - Left side of fourth row
   - id: "data-group"
