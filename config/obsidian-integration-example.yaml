@@ -1,0 +1,70 @@
+# Obsidian Integration Examples
+# ============================
+
+# Example configurations for integrating Obsidian notes with Slate Dashboard
+
+components:
+  # Example 1: Default namespace "dashboard"
+  - id: "search-group"
+    type: "group"
+    title: "Search & Discovery"
+    items:
+      - type: "obsidian"
+        config:
+          vaultPath: "/Users/paul/Library/Mobile Documents/iCloud~md~obsidian/Documents/Vault42/"
+          tag: "search"           # Looks for #dashboard-search
+          namespace: "dashboard"  # Optional, defaults to "dashboard"
+          maxNotes: 3
+
+  # Example 2: Custom namespace for work notes
+  - id: "work-group"
+    type: "group"  
+    title: "Work Projects"
+    items:
+      - type: "obsidian"
+        config:
+          vaultPath: "/Users/paul/Library/Mobile Documents/iCloud~md~obsidian/Documents/Vault42/"
+          tag: "projects"         # Looks for #work-projects
+          namespace: "work"
+          maxNotes: 5
+
+  # Example 3: Multiple namespaces in same group
+  - id: "dev-group"
+    type: "group"
+    title: "Development"
+    items:
+      - type: "obsidian"
+        config:
+          tag: "dev"             # Looks for #dashboard-dev
+          maxNotes: 2
+          
+      - type: "obsidian"
+        config:
+          tag: "learning"        # Looks for #code-learning  
+          namespace: "code"
+          maxNotes: 2
+
+# Tag Examples in Obsidian:
+# =========================
+
+# For "Search & Discovery" group:
+# - Add #dashboard-search to notes about search tools
+# - Example: "SearchXNG Setup #dashboard-search #privacy"
+
+# For "Work Projects" group:  
+# - Add #work-projects to work-related notes
+# - Example: "Q1 Planning #work-projects #planning"
+
+# For "Development" group:
+# - Add #dashboard-dev for general dev notes
+# - Add #code-learning for learning resources
+# - Example: "Docker Best Practices #dashboard-dev #docker"
+# - Example: "React Hooks Guide #code-learning #react"
+
+# Benefits of Namespacing:
+# ========================
+# 1. Avoid tag conflicts with existing notes
+# 2. Clear organization (dashboard vs work vs personal tags)
+# 3. Multiple tag systems can coexist
+# 4. Easy to find dashboard-specific notes
+# 5. Flexible grouping (same namespace, different groups)
