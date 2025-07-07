@@ -17,11 +17,12 @@ COPY public/ ./public/
 COPY vite.config.js ./
 COPY index.html ./
 COPY config/ ./config/
+COPY scripts/ ./scripts/
 
 # Create directories for config sync
 RUN mkdir -p public slate-config
 
-# Build the application
+# Build the application (includes config processing)
 RUN npm run build
 
 # Production stage
