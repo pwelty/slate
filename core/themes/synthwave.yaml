@@ -1,0 +1,29 @@
+# SYNTHWAVE THEME - 80s retro-futuristic neon aesthetic inspired by Miami Vice & Tron
+name: "Synthwave"
+description: "80s retro-futuristic neon aesthetic inspired by Miami Vice & Tron"
+
+# Colors
+bg-primary: "linear-gradient(135deg, #0a0a0a 0%, #1a0d2e 50%, #16213e 100%)"  # Dark gradient: black to deep purple to navy
+bg-secondary: "linear-gradient(135deg, #1e1e2e 0%, #2d1b54 100%)"  # Card gradient: dark purple blend
+bg-tertiary: "linear-gradient(135deg, #ff00ff 0%, #00ffff 100%)"   # Hover: electric pink to cyan gradient
+text-primary: "#ffffff"      # Pure white text for maximum contrast
+text-secondary: "#ff00ff"    # Hot pink for secondary text - classic synthwave color
+accent: "#00ffff"            # Electric cyan - the signature synthwave accent
+accent-hover: "#ff1493"      # Deep pink hover - electric energy
+border: "#ff00ff"            # Hot pink borders for that neon outline
+
+# Visual Effects
+shadow: "0 0 20px rgba(255, 0, 255, 0.5), 0 0 40px rgba(0, 255, 255, 0.3)"  # Dual-color neon glow
+radius: "0.1rem"             # Very sharp, geometric corners for futuristic feel
+
+# Typography
+font-family: "'Orbitron', 'Exo 2', 'Rajdhani', 'Arial Black', sans-serif"  # Futuristic geometric fonts
+font-family-mono: "'Share Tech Mono', 'Orbitron', 'Courier Prime', monospace"  # Sci-fi monospace
+font-size-base: "1rem"       # Standard size but bold styling
+font-size-heading: "1.2rem"  # Heading font size (120% of base)
+font-size-group-title: "1.1rem"     # Group header text size
+font-size-widget-title: "1rem"      # Widget title text size  
+font-size-widget-text: "0.9rem"     # Default widget content text size
+font-weight-normal: "500"    # Heavier normal weight for that bold neon look
+font-weight-medium: "600"    # Medium-bold for emphasis
+font-weight-bold: "800"      # Extra bold for headers - neon sign effect

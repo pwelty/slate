@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Slate</title>
+</head>
+<body>
+    <div id="dashboard-container"></div>
+    <script type="module">
+        try {
+            console.log('Starting debug...')
+            
+            // Test config loading
+            const configResponse = await fetch('/config/config.yaml')
+            const widgetsResponse = await fetch('/config/widgets.yaml')
+            
+            console.log('Config response:', configResponse.status)
+            console.log('Widgets response:', widgetsResponse.status)
+            
+            // Test YAML parsing
+            const { load } = await import('https://cdn.skypack.dev/js-yaml')
+            
+            const configText = await configResponse.text()
+            const widgetsText = await widgetsResponse.text()
+            
+            console.log('Config text length:', configText.length)
+            console.log('Widgets text length:', widgetsText.length)
+            
+            const config = load(configText)
+            const widgets = load(widgetsText)
+            
+            console.log('Parsed config:', config)
+            console.log('Parsed widgets keys:', Object.keys(widgets))
+            
+            // Test widget loader
+            const { widgetLoader } = await import('/src/widgets/widget-loader.js')
+            console.log('Widget loader imported successfully')
+            
+            // Test a simple widget
+            try {
+                const clockModule = await widgetLoader.loadWidgetModule('clock')
+                console.log('Clock widget loaded:', clockModule)
+            } catch (error) {
+                console.error('Clock widget failed:', error)
+            }
+            
+        } catch (error) {
+            console.error('Debug failed:', error)
+        }
+    </script>
+</body>
+</html>

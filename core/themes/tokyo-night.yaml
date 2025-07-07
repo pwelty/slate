@@ -1,0 +1,29 @@
+# TOKYO NIGHT THEME - Modern cyberpunk aesthetic inspired by Tokyo's neon-lit nights
+name: "Tokyo Night"
+description: "Modern cyberpunk aesthetic inspired by Tokyo's neon-lit nights"
+
+# Colors
+bg-primary: "linear-gradient(135deg, #1a1b26 0%, #16161e 50%, #0f0f14 100%)"  # Deep night gradient: dark blue to black
+bg-secondary: "linear-gradient(135deg, #24283b 0%, #1f2335 100%)"  # Card gradient: midnight blue blend
+bg-tertiary: "linear-gradient(135deg, #414868 0%, #565f89 100%)"   # Hover: storm blue gradient
+text-primary: "#c0caf5"      # Cool white with slight blue tint - like moonlight
+text-secondary: "#a9b1d6"    # Muted blue-white for secondary text
+accent: "#7aa2f7"            # Bright blue - like neon signs reflecting on wet streets
+accent-hover: "#bb9af7"      # Purple hover - electric energy
+border: "#3b4261"            # Subtle blue-gray borders
+
+# Visual Effects
+shadow: "0 8px 32px rgba(0, 0, 0, 0.4), 0 0 20px rgba(122, 162, 247, 0.1)"  # Deep shadow with blue glow
+radius: "0.75rem"            # Rounded corners for modern feel
+
+# Typography
+font-family: "'JetBrains Mono', 'Fira Code', 'SF Mono', 'Consolas', monospace"  # Modern coding fonts
+font-family-mono: "'JetBrains Mono', 'Fira Code', 'SF Mono', 'Consolas', monospace"  # Same monospace everywhere
+font-size-base: "1rem"       # Standard readable size
+font-size-heading: "1.2rem"  # Heading font size (120% of base)
+font-size-group-title: "1.1rem"     # Group header text size
+font-size-widget-title: "1rem"      # Widget title text size  
+font-size-widget-text: "0.9rem"     # Default widget content text size
+font-weight-normal: "400"    # Clean, readable weight
+font-weight-medium: "500"    # Medium emphasis
+font-weight-bold: "600"      # Bold headers with style
