@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "npm run build:config && vite",
     "build": "npm run build:config && vite build",
-    "build:config": "node scripts/build-config.js",
+    "build:config": "node scripts/build-config.mjs",
     "preview": "vite preview",
     "serve": "cd dist && python -m http.server 8080",
     "test": "jest",
