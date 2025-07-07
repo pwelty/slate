@@ -12,6 +12,7 @@ RUN npm ci
 
 # Copy source code
 COPY src/ ./src/
+COPY core/ ./core/
 COPY public/ ./public/
 COPY vite.config.js ./
 COPY index.html ./
