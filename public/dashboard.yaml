@@ -78,14 +78,6 @@ components:
       format: "12h"
       showDate: true
       
-  - id: "theme-switcher"
-    type: "widget"
-    widget: "theme-switcher"
-    position: 
-      row: "1"               # First row
-      column: "11 / -1"      # Right side (columns 11-12)
-    config:
-      availableThemes: ["dark", "light", "retro", "synthwave", "tokyo-night"]
       
   # LEFT GROUP - Development links (half width)
   - id: "dev-group"
@@ -110,6 +102,13 @@ components:
         icon: "gitlab"
         description: "Alternative Git hosting"
         statusCheck: false
+        
+      - type: "obsidian"
+        config:
+          vaultPath: "/Users/paul/Library/Mobile Documents/iCloud~md~obsidian/Documents/Vault42/"
+          tag: "dev"
+          namespace: "dashboard"
+          maxNotes: 2
 
   # RIGHT GROUP - Services links (half width)
   - id: "services-group"
@@ -134,6 +133,36 @@ components:
         description: "Monitoring system"
         statusCheck: false
 
+  # RECENT ACTIVITY GROUP - Full width below main groups
+  - id: "recent-activity-group"
+    type: "group"
+    title: "Recent Activity"
+    position: 
+      row: "2.5"             # Between services and search rows
+      column: "1 / -1"       # Full width (all 12 columns)
+    collapsed: false
+    backgroundColor: "#2d4a22"  # Custom green background
+    items:
+      - type: "preview"
+        config:
+          service: "linkwarden"
+          title: "Recent Bookmarks"
+          limit: 3
+          baseUrl: "https://linkwarden.squirrel-corn.ts.net"
+          apiKey: "eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..uY-N-_RUfpXPKNpQ.k1rKCgkgUhwyLlpIbfVEvvFv0HvBPp5nWznFwE7Az0LOaN_D3IiQleUL8N0G0uw0m3s5Lf6j7u_v3LNy2iCCLTl7QCyvvk20sDXyBXCUHouavkiK8F8j.ENi8pz_0NS24cUoZpYCq5g"
+          
+      - type: "preview"
+        config:
+          service: "trilium"
+          title: "Recent Notes"
+          limit: 3
+          
+      - type: "preview"
+        config:
+          service: "obsidian"
+          title: "Recent Obsidian Notes"
+          limit: 3
+
   # SEARCH & DISCOVERY GROUP - Left side of third row
   - id: "search-group"
     type: "group"
@@ -157,6 +186,22 @@ components:
         priority: "normal"
         dismissible: false
         timestamp: true
+        
+      - type: "todoist"
+        config:
+          apiToken: "2f8731b4a8938ae6ea67d44cfe57fb1d08da604d"
+          tag: "search"
+          projectName: "Dashboard"
+          maxTasks: 3
+          
+      - type: "obsidian"
+        config:
+          vaultPath: "/Users/paul/Library/Mobile Documents/iCloud~md~obsidian/Documents/Vault42/"
+          tag: "search"
+          namespace: "dashboard"
+          maxNotes: 2
+          apiUrl: "http://speedy-gonzales.squirrel-corn.ts.net:27123"
+          apiKey: "317dcd5296bbc2176513fa732e779c00d986650042a8e21d3dfd75fb3dda9266"
 
   # DATA & STORAGE GROUP - Left side of fourth row
   - id: "data-group"
@@ -281,6 +326,32 @@ components:
       displayName: "Decatur, GA"  # Custom display name for consistency
       apiKey: "a8ef47eaa6bec9780dad5ad07c880c61"  # OpenWeatherMap API key
 
+  # FOOTER - Project attribution
+  - id: "footer-info"
+    type: "widget"
+    widget: "motd"
+    position: 
+      row: "7"               # After all other content
+      column: "1 / 10"       # Left side (columns 1-9)
+    backgroundColor: "rgba(0, 0, 0, 0.2)"  # Semi-transparent dark background
+    config:
+      title: "Slate Dashboard"
+      message: "Open-source personal dashboard • Built with ❤️ • Self-hosted & customizable"
+      icon: "⚡"
+      priority: "low"
+      dismissible: false
+      timestamp: false
+        
+  - id: "footer-theme-switcher"
+    type: "widget"
+    widget: "theme-switcher"
+    position: 
+      row: "7"               # Same row as footer
+      column: "10 / -1"      # Right side (columns 10-12)
+    backgroundColor: "rgba(0, 0, 0, 0.2)"  # Semi-transparent dark background
+    config:
+      availableThemes: ["dark", "light", "retro", "synthwave", "tokyo-night"]
+
 
 # VISUAL LAYOUT RESULT:
 # =====================
@@ -309,6 +380,7 @@ components:
 # - font-family: Primary font stack for all text
 # - font-family-mono: Monospace font for code elements
 # - font-size-base: Base font size (typically 1rem)
+# - font-size-heading: Heading font size (relative to base)
 # - font-weight-normal: Normal text weight (400)
 # - font-weight-medium: Medium text weight (500) 
 # - font-weight-bold: Bold text weight (600)
@@ -328,6 +400,7 @@ themes:
     font-family: "'Inter', 'SF Pro Display', system-ui, -apple-system, sans-serif"  # Modern sans-serif
     font-family-mono: "'JetBrains Mono', 'SF Mono', 'Monaco', 'Cascadia Code', monospace"  # Developer mono
     font-size-base: "1rem"       # Base font size
+    font-size-heading: "1.2rem"  # Heading font size (120% of base)
     font-weight-normal: "400"    # Normal text weight
     font-weight-medium: "500"    # Medium text weight
     font-weight-bold: "600"      # Bold text weight
@@ -347,6 +420,7 @@ themes:
     font-family: "'Source Sans Pro', 'Georgia', 'Times New Roman', serif"  # Classic serif for readability
     font-family-mono: "'Source Code Pro', 'Consolas', 'Monaco', monospace"  # Clean monospace
     font-size-base: "1rem"       # Base font size
+    font-size-heading: "1.2rem"  # Heading font size (120% of base)
     font-weight-normal: "400"    # Normal text weight
     font-weight-medium: "500"    # Medium text weight
     font-weight-bold: "600"      # Bold text weight
@@ -366,6 +440,7 @@ themes:
     font-family: "'JetBrains Mono', 'Courier New', 'Monaco', 'Consolas', monospace"  # Monospace everywhere
     font-family-mono: "'JetBrains Mono', 'Courier New', 'Monaco', 'Consolas', monospace"  # Same monospace
     font-size-base: "0.9rem"     # Slightly smaller for terminal feel
+    font-size-heading: "1.08rem" # Heading font size (120% of 0.9rem base)
     font-weight-normal: "400"    # Normal text weight
     font-weight-medium: "500"    # Medium text weight
     font-weight-bold: "600"      # Bold text weight
@@ -385,6 +460,7 @@ themes:
     font-family: "'Orbitron', 'Exo 2', 'Rajdhani', 'Arial Black', sans-serif"  # Futuristic geometric fonts
     font-family-mono: "'Share Tech Mono', 'Orbitron', 'Courier Prime', monospace"  # Sci-fi monospace
     font-size-base: "1rem"       # Standard size but bold styling
+    font-size-heading: "1.2rem"  # Heading font size (120% of base)
     font-weight-normal: "500"    # Heavier normal weight for that bold neon look
     font-weight-medium: "600"    # Medium-bold for emphasis
     font-weight-bold: "800"      # Extra bold for headers - neon sign effect
@@ -404,6 +480,7 @@ themes:
     font-family: "'JetBrains Mono', 'Fira Code', 'SF Mono', 'Consolas', monospace"  # Modern coding fonts
     font-family-mono: "'JetBrains Mono', 'Fira Code', 'SF Mono', 'Consolas', monospace"  # Same monospace everywhere
     font-size-base: "1rem"       # Standard readable size
+    font-size-heading: "1.2rem"  # Heading font size (120% of base)
     font-weight-normal: "400"    # Clean, readable weight
     font-weight-medium: "500"    # Medium emphasis
     font-weight-bold: "600"      # Bold headers with style
