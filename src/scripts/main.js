@@ -1,48 +1,18 @@
 import { DashboardRenderer } from './renderer.js'
 import { StatusChecker } from './status-checker.js'
+import { dashboardConfig, buildInfo } from '../generated/config.js'
 
-// Load YAML configs from server
+// Load config from build-time generated module
 async function loadConfig() {
   try {
-    // Load both config files
-    const [configResponse, widgetsResponse] = await Promise.all([
-      fetch('config/config.yaml'),
-      fetch('config/widgets.yaml')
-    ])
-    
-    if (!configResponse.ok) {
-      throw new Error(`HTTP error loading config.yaml! status: ${configResponse.status}`)
-    }
-    if (!widgetsResponse.ok) {
-      throw new Error(`HTTP error loading widgets.yaml! status: ${widgetsResponse.status}`)
-    }
-    
-    const [configText, widgetsText] = await Promise.all([
-      configResponse.text(),
-      widgetsResponse.text()
-    ])
-    
-    // Parse YAML using js-yaml (we'll load it dynamically)
-    const { load } = await import('https://cdn.skypack.dev/js-yaml')
-    const config = load(configText)
-    const widgets = load(widgetsText)
-    
-    // Merge them into expected structure
-    const merged = {
-      ...config,
-      components: Object.entries(widgets).map(([id, widget]) => ({
-        id,
-        ...widget
-      }))
-    }
-    
-    console.log('✓ Config loaded:', {
-      title: merged.title,
-      theme: merged.theme,
-      components: merged.components.length
+    console.log('✓ Config loaded from build-time generation:', {
+      title: dashboardConfig.title,
+      theme: dashboardConfig.theme,
+      components: dashboardConfig.components?.length || 0,
+      buildDate: buildInfo.date
     })
     
-    return merged
+    return dashboardConfig
   } catch (error) {
     console.error('Failed to load config:', error)
     throw error

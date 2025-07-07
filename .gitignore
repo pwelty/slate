@@ -136,4 +136,5 @@ config/production.local.yaml
 
 # Test files
 test-results/
-playwright-report/
+playwright-report/# Generated files
+src/generated/
