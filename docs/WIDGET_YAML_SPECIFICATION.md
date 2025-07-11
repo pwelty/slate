@@ -79,6 +79,31 @@ styling:
     }
 ```
 
+### CSS Architecture Principles
+
+**Widget Self-Containment**: Each widget should define ALL CSS it needs within its own `css:` section. Widgets should never rely on global semantic CSS classes defined elsewhere.
+
+**File Responsibilities**:
+- `base.css` - ONLY core grid layout and basic HTML element styles
+- `base-config.yaml` - Theme-agnostic configuration rules  
+- `widget.yaml` files - Complete self-contained styling for that widget type
+
+**Example of proper widget CSS**:
+```yaml
+css: |
+  .link-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;  # Control spacing here, not with external margins
+    /* ... all other styles needed for this widget */
+  }
+```
+
+**Anti-patterns to avoid**:
+- Defining widget-specific classes like `.link-item` in `base.css`
+- Relying on external margin/padding that creates coupling between files
+- Assuming global semantic styles will be available
+
 ## Data Processing
 ```yaml
 dataProcessing:
