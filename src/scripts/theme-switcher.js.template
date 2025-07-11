@@ -1,0 +1,313 @@
+/**
+ * Theme Switcher - Dynamic Theme Management
+ * ========================================
+ * Handles theme switching, cleanup, and loading for Slate Dashboard
+ * Built with theme_renderer.py to include all available themes dynamically
+ */
+
+const ThemeSwitcher = {
+    availableThemes: [], // Will be populated by theme_renderer.py
+    currentTheme: null,
+    
+    init() {
+        console.log('🎨 Initializing Theme Switcher');
+        
+        // Initialize theme selectors
+        this.initThemeSelectors();
+        
+        // Apply saved theme or default on load
+        this.applySavedTheme();
+        
+        console.log('✅ Theme Switcher initialized');
+    },
+    
+    initThemeSelectors() {
+        // Initialize footer theme selector
+        const footerSelector = document.getElementById('footer-theme-selector');
+        if (footerSelector) {
+            this.setupThemeSelector(footerSelector);
+        }
+        
+        // Initialize any other theme selectors (widget-based, etc.)
+        const otherSelectors = document.querySelectorAll('[data-theme-selector]');
+        otherSelectors.forEach(selector => this.setupThemeSelector(selector));
+    },
+    
+    setupThemeSelector(selector) {
+        // Set current theme from localStorage or default
+        const currentTheme = this.getCurrentTheme();
+        selector.value = currentTheme;
+        
+        // Handle theme changes
+        selector.addEventListener('change', (e) => {
+            const newTheme = e.target.value;
+            this.switchTheme(newTheme);
+        });
+    },
+    
+    getCurrentTheme() {
+        // Get theme from localStorage first
+        const saved = localStorage.getItem('slate-theme');
+        if (saved && this.isValidTheme(saved)) {
+            return saved;
+        }
+        
+        // Fallback to body class
+        const bodyClass = document.body.className;
+        const themeMatch = bodyClass.match(/theme-([a-z-]+)/);
+        const detected = themeMatch ? themeMatch[1] : null;
+        
+        if (detected && this.isValidTheme(detected)) {
+            return detected;
+        }
+        
+        // Final fallback to first available theme or 'dark'
+        return this.availableThemes.length > 0 ? this.availableThemes[0] : 'dark';
+    },
+    
+    isValidTheme(themeName) {
+        return this.availableThemes.length === 0 || this.availableThemes.includes(themeName);
+    },
+    
+    applySavedTheme() {
+        const savedTheme = localStorage.getItem('slate-theme');
+        if (savedTheme && this.isValidTheme(savedTheme)) {
+            this.setTheme(savedTheme);
+        } else {
+            // Use current theme or default
+            const currentTheme = this.getCurrentTheme();
+            this.setTheme(currentTheme);
+        }
+        this.syncThemeSelectors(this.currentTheme);
+    },
+    
+    switchTheme(newTheme) {
+        if (!this.isValidTheme(newTheme)) {
+            console.warn(`⚠️ Invalid theme: ${newTheme}`);
+            return;
+        }
+        
+        console.log(`🎨 Switching theme from ${this.currentTheme} to ${newTheme}`);
+        
+        // Store in localStorage
+        localStorage.setItem('slate-theme', newTheme);
+        
+        // Apply theme
+        this.setTheme(newTheme);
+        
+        // Update all theme selectors to stay in sync
+        this.syncThemeSelectors(newTheme);
+        
+        // Dispatch custom event for other components
+        window.dispatchEvent(new CustomEvent('theme-changed', { 
+            detail: { 
+                theme: newTheme, 
+                previousTheme: this.currentTheme 
+            } 
+        }));
+    },
+    
+    setTheme(themeName) {
+        console.log(`🎨 Setting theme to: ${themeName}`);
+        
+        // Clean up existing theme first
+        this.cleanupCurrentTheme();
+        
+        // Get cache-busting parameter
+        const buildTimestamp = document.body.getAttribute('data-build-timestamp') || Date.now();
+        
+        // Load new theme CSS
+        this.loadThemeCSS(themeName, buildTimestamp);
+        
+        // Load new theme JS (if it exists)
+        this.loadThemeJS(themeName, buildTimestamp);
+        
+        // Update body classes and attributes
+        this.updateThemeClasses(themeName);
+        
+        // Store current theme
+        this.currentTheme = themeName;
+        
+        console.log(`✅ Theme applied: ${themeName}`);
+    },
+    
+    cleanupCurrentTheme() {
+        console.log('🧹 Cleaning up current theme');
+        
+        // Remove existing theme CSS
+        const existingThemeLinks = document.querySelectorAll('link[href*="theme-"]');
+        existingThemeLinks.forEach(link => link.remove());
+        
+        // Remove theme JS scripts
+        const existingThemeScripts = document.querySelectorAll('script[data-theme-script]');
+        existingThemeScripts.forEach(script => script.remove());
+        
+        // Call cleanup on any theme objects that expose a remove method
+        Object.keys(window).forEach(key => {
+            if (key.endsWith('Theme') && window[key] && typeof window[key].remove === 'function') {
+                console.log(`🧹 Cleaning up ${key}`);
+                try {
+                    window[key].remove();
+                } catch (error) {
+                    console.warn(`⚠️ Error cleaning up ${key}:`, error);
+                }
+            }
+        });
+        
+        // Remove ALL theme-specific styles
+        const themeStyles = document.querySelectorAll('style[data-theme-effect]');
+        themeStyles.forEach(style => style.remove());
+        
+        // Clean up theme effects from DOM elements
+        this.cleanupThemeEffects();
+        
+        // Clear theme-specific intervals
+        this.clearThemeIntervals();
+        
+        console.log('✅ Theme cleanup complete');
+    },
+    
+    cleanupThemeEffects() {
+        // Remove ALL data-effect attributes and theme classes
+        const modifiedElements = document.querySelectorAll('[data-effect], [data-effect-hover]');
+        modifiedElements.forEach(el => {
+            // Remove data-effect attributes
+            el.removeAttribute('data-effect');
+            el.removeAttribute('data-effect-hover');
+            
+            // Remove effect-color-* classes
+            const classList = Array.from(el.classList);
+            classList.forEach(className => {
+                if (className.startsWith('effect-color-')) {
+                    el.classList.remove(className);
+                }
+            });
+            
+            // Reset inline styles that could be from themes
+            const stylesToClear = ['textShadow', 'animation', 'animationDelay', 'transform'];
+            stylesToClear.forEach(prop => {
+                if (el.style[prop]) {
+                    el.style[prop] = '';
+                }
+            });
+            
+            // Clear box-shadow if it contains rgba (likely from themes)
+            if (el.style.boxShadow && el.style.boxShadow.includes('rgba')) {
+                el.style.boxShadow = '';
+            }
+        });
+        
+        // Reset body styles that themes might have set
+        const bodyStylesToClear = ['background', 'backgroundSize', 'animation'];
+        bodyStylesToClear.forEach(prop => {
+            if (document.body.style[prop]) {
+                document.body.style[prop] = '';
+            }
+        });
+    },
+    
+    clearThemeIntervals() {
+        // Clear ALL theme-specific intervals using naming convention
+        Object.keys(window).forEach(key => {
+            if (key.endsWith('Intervals') && Array.isArray(window[key])) {
+                console.log(`🧹 Clearing intervals: ${key}`);
+                window[key].forEach(interval => clearInterval(interval));
+                window[key] = [];
+            }
+        });
+    },
+    
+    loadThemeCSS(themeName, buildTimestamp) {
+        const themeLink = document.createElement('link');
+        themeLink.rel = 'stylesheet';
+        themeLink.href = `css/theme-${themeName}.css?v=${buildTimestamp}`;
+        themeLink.setAttribute('data-theme-css', themeName);
+        document.head.appendChild(themeLink);
+        
+        console.log(`📄 Theme CSS loaded: theme-${themeName}.css`);
+    },
+    
+    loadThemeJS(themeName, buildTimestamp) {
+        // Try to load theme JS file using naming convention
+        const themeScript = document.createElement('script');
+        themeScript.src = `js/${themeName}.js?v=${buildTimestamp}`;
+        themeScript.setAttribute('data-theme-script', themeName);
+        
+        // Handle successful load
+        themeScript.onload = () => {
+            console.log(`📄 Theme JS loaded: ${themeName}.js`);
+        };
+        
+        // Handle failed load (theme might not have JS)
+        themeScript.onerror = () => {
+            console.log(`ℹ️ No JS file for theme: ${themeName}.js`);
+            themeScript.remove();
+        };
+        
+        document.body.appendChild(themeScript);
+    },
+    
+    updateThemeClasses(themeName) {
+        // Remove all existing theme classes
+        document.body.className = document.body.className.replace(/theme-\w+/g, '');
+        
+        // Add new theme class
+        document.body.classList.add(`theme-${themeName}`);
+        
+        // Set data attribute for CSS selectors
+        document.documentElement.setAttribute('data-theme', themeName);
+    },
+    
+    syncThemeSelectors(theme) {
+        // Update all theme selectors to show the current theme
+        const selectors = [
+            document.getElementById('footer-theme-selector'),
+            ...document.querySelectorAll('[data-theme-selector]')
+        ].filter(Boolean);
+        
+        selectors.forEach(selector => {
+            if (selector.value !== theme) {
+                selector.value = theme;
+            }
+        });
+        
+        // Update theme display text if it exists
+        const currentThemeSpan = document.querySelector('.current-theme');
+        if (currentThemeSpan) {
+            const footerSelector = document.getElementById('footer-theme-selector');
+            if (footerSelector) {
+                const option = footerSelector.querySelector(`option[value="${theme}"]`);
+                const displayName = option ? option.textContent : theme.charAt(0).toUpperCase() + theme.slice(1);
+                currentThemeSpan.textContent = displayName;
+            }
+        }
+    },
+    
+    // Utility method to add a new theme at runtime
+    addTheme(themeName) {
+        if (!this.availableThemes.includes(themeName)) {
+            this.availableThemes.push(themeName);
+            console.log(`✅ Theme registered: ${themeName}`);
+        }
+    },
+    
+    // Utility method to get all available themes
+    getAvailableThemes() {
+        return [...this.availableThemes];
+    }
+};
+
+// Initialize theme switcher when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => ThemeSwitcher.init());
+} else {
+    ThemeSwitcher.init();
+}
+
+// Make ThemeSwitcher globally available
+window.ThemeSwitcher = ThemeSwitcher;
+
+// Export for module usage
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = ThemeSwitcher;
+}

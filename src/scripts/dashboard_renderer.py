@@ -432,7 +432,40 @@ def copy_theme_js_files():
             else:
                 print(f"   ⚠️  Theme JS not found: {src_js_file}")
     
+    # Update theme-switcher.js with available themes
+    update_theme_switcher_js()
+    
     print(f"   ✓ Theme JS files processed")
+
+
+def update_theme_switcher_js():
+    """Generate theme-switcher.js with dynamically discovered available themes"""
+    theme_switcher_template = Path(__file__).parent / "theme-switcher.js.template"
+    theme_switcher_dest = DIST_DIR / "js" / "theme-switcher.js"
+    
+    if not theme_switcher_template.exists():
+        print(f"   ⚠️  Theme switcher template not found: {theme_switcher_template}")
+        return
+    
+    # Get available themes
+    available_themes = get_available_themes(THEMES_DIR)
+    
+    # Read the theme-switcher.js template
+    with open(theme_switcher_template, 'r') as f:
+        js_content = f.read()
+    
+    # Replace the availableThemes array placeholder with actual themes
+    themes_array = json.dumps(available_themes)
+    js_content = js_content.replace(
+        'availableThemes: [], // Will be populated by theme_renderer.py',
+        f'availableThemes: {themes_array}, // Populated by theme_renderer.py'
+    )
+    
+    # Write the updated content to dist
+    with open(theme_switcher_dest, 'w') as f:
+        f.write(js_content)
+    
+    print(f"   ✓ Theme switcher generated with {len(available_themes)} themes: {', '.join(available_themes)}")
 
 
 def build_effects_css():
