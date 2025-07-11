@@ -78,7 +78,8 @@ custom-css: |
   /* Fix first item clipping in dynamic widgets */
   .linkwarden-bookmarks,
   .trilium-notes,
-  .todoist-tasks {
+  .todoist-tasks,
+  .forecast-days {
     /* Add padding at top to prevent first item clipping */
     padding-top: 2px;
   }

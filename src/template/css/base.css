@@ -93,6 +93,7 @@ body {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
     overflow: hidden;
+    max-height: var(--widget-max-height, none);
 }
 
 
@@ -276,6 +277,7 @@ h3.no-border {
     box-shadow: var(--shadow, 0 2px 10px rgba(0, 0, 0, 0.3));
     border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
     overflow: hidden;
+    max-height: var(--widget-max-height, none);
 }
 
 .group-title {
@@ -559,6 +561,15 @@ h3.no-border {
 .mt-1 { margin-top: 0.5rem; }
 .mt-2 { margin-top: 1rem; }
 .mt-3 { margin-top: 1.5rem; }
+
+/* Fix first item clipping in dynamic widgets */
+.linkwarden-bookmarks,
+.trilium-notes,
+.todoist-tasks,
+.forecast-days {
+    /* Add padding at top to prevent first item clipping */
+    padding-top: 2px;
+}
 
 /* Focus styles for accessibility */
 .widget:focus-within, .group:focus-within {
