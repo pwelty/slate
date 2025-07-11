@@ -1,524 +1,619 @@
-# Widget Definitions Documentation
+# Widget Reference
 
-## 🎯 **Core Design Principle: Theme-Widget Separation**
+Complete reference for all available widgets in the Slate dashboard system.
 
-**CRITICAL**: Widgets must be **theme-agnostic** to ensure they work beautifully across all themes. Visual effects should be applied by **themes**, not hardcoded into widget definitions.
+## 🎯 Widget System Overview
 
-### ❌ **Bad: Theme-Coupled Widget**
+Slate widgets are **YAML-defined components** with server-side data fetching and theme-agnostic design. Each widget is defined in `src/widgets/` and can be used in your dashboard configuration.
+
+### Widget Architecture
+
+- **📄 YAML Configuration** - Widget behavior defined in `src/widgets/*.yaml`
+- **🎨 Theme Integration** - Visual styling controlled by themes
+- **🔌 Server-side Data** - API calls happen during build, not client-side
+- **♻️ Template Inheritance** - Widgets extend base templates for consistency
+
+## 📋 Available Widgets
+
+### 🕒 Clock Widget
+
+Real-time clock with customizable format and display options.
+
+**Type:** `clock`
+
+**Configuration:**
 ```yaml
-# DON'T: Widget hardcoded for specific theme
-- id: "synthwave-weather"
-  type: "widget" 
-  widget: "weather"
+- id: "header-clock"
+  type: "clock"
+  position: { row: 1, column: 10, width: 3, height: 1 }
   config:
-    synthwaveEffects: true        # ❌ Couples widget to synthwave theme
-    effectIntensity: "high"       # ❌ Won't work well on other themes
-    neonColors: true              # ❌ Theme-specific styling
+    format: "12h"          # "12h" or "24h"
+    showDate: true         # Show date below time
+    centered: true         # Center alignment
 ```
 
-### ✅ **Good: Theme-Agnostic Widget**
+**Features:**
+- Real-time updates via JavaScript
+- Responsive font sizing
+- Theme-aware styling
+- Optional date display
+
+---
+
+### 🌤️ Weather Widget
+
+Current weather conditions with OpenWeatherMap integration.
+
+**Type:** `weather`
+
+**Configuration:**
 ```yaml
-# DO: Widget defined neutrally
 - id: "weather-widget"
-  type: "widget"
-  widget: "weather"
+  type: "weather"
+  position: { row: 3, column: 10, width: 3, height: 1 }
   config:
-    location: "30033"             # ✅ Only functional configuration
-    apiKey: "your-key"            # ✅ No theme-specific settings
-    enableEffects: true           # ✅ Optional: allow theme effects
-    maxEffectIntensity: "high"    # ✅ Optional: limit effect intensity
+    location: "30033"              # ZIP code or city name
+    displayName: "Atlanta, GA"     # Custom display name (optional)
+    units: "fahrenheit"            # "fahrenheit" or "celsius"
+    apiKey: "your-openweather-key" # OpenWeatherMap API key
 ```
 
-Theme controls the visual styling:
-```yaml
-# In synthwave.yaml theme:
-widget-enhancements:
-  weather:
-    effects: ["neon-glow-border", "pulse-glow"]  # ✅ Theme controls effects
-    colors: ["primary", "secondary"]
-```
+**Features:**
+- Current temperature and conditions
+- Weather icon display
+- Humidity and wind information
+- Server-side API integration
+- Responsive layout
 
-### Benefits of Separation
-- **Universal compatibility** - Same widget works on any theme
-- **Easy theme switching** - No broken widgets when changing themes  
-- **Maintainable code** - Effects centralized in theme system
-- **Visual coherence** - All widgets match theme aesthetic
+**Setup:**
+1. Get API key from [OpenWeatherMap](https://openweathermap.org/api)
+2. Add key to widget configuration
 
 ---
 
-# Slate Dashboard - Widget Definitions
+### 📈 Forecast Widget
 
-This file documents all available widgets, their configuration options, and usage examples.
+Extended weather forecast for multiple days.
 
-## Widget Types
+**Type:** `forecast`
 
-### 1. Group Widget
-**Purpose**: Container that organizes other widgets with collapsible functionality
-
-**Configuration**:
+**Configuration:**
 ```yaml
-- id: "my-group"
-  type: "group"
-  title: "Group Title"
-  position:
-    row: 2
-    column: 1
-    span: 6
-  collapsed: false                    # Optional: start collapsed
-  backgroundColor: "#1a365d"          # Optional: custom background
-  items:
-    - type: "link"                    # Child widgets
-      name: "Example"
-      url: "https://example.com"
-```
-
-**Options**:
-- `title`: Group header text
-- `collapsed`: Boolean, whether group starts collapsed
-- `backgroundColor`: CSS color/gradient for background
-- `items`: Array of child widgets
-
----
-
-### 2. Link Widget
-**Purpose**: Displays clickable links with optional status monitoring
-
-**Configuration**:
-```yaml
-- type: "link"
-  name: "GitHub"
-  url: "https://github.com"
-  icon: "github"                      # Optional: icon name
-  description: "Code repository"      # Optional: subtitle
-  statusCheck: true                   # Optional: enable health check
-  compact: false                      # Optional: compact display
-```
-
-**Options**:
-- `name`: Display name for the link
-- `url`: Target URL (opens in new tab)
-- `icon`: Icon name from icon mapping
-- `description`: Optional subtitle text
-- `statusCheck`: Boolean, enables HTTP health monitoring
-- `compact`: Boolean, minimal display mode
-
----
-
-### 3. Preview Widget
-**Purpose**: Shows recent items from external services
-
-**Configuration**:
-```yaml
-- type: "preview"
+- id: "forecast-widget"
+  type: "forecast"
+  position: { row: 4, column: 10, width: 3, height: 1 }
   config:
-    service: "trilium"                # Required: trilium, linkwarden, obsidian
-    title: "Recent Notes"             # Optional: custom title
-    limit: 3                          # Optional: number of items (default: 3)
+    location: "30033"              # ZIP code or city name
+    displayName: "Atlanta, GA"     # Custom display name (optional)
+    units: "fahrenheit"            # "fahrenheit" or "celsius"
+    apiKey: "your-openweather-key" # OpenWeatherMap API key
+    days: 5                        # Number of forecast days (1-7)
 ```
 
-**Supported Services**:
-- `trilium`: Recent notes from Trilium
-- `linkwarden`: Recent bookmarks from Linkwarden
-- `obsidian`: Recent notes from Obsidian (limited functionality)
+**Features:**
+- Multi-day weather forecast
+- High/low temperatures
+- Weather icons for each day
+- Compact vertical layout
+- Hover effects
 
 ---
 
-### 4. Trilium Widget
-**Purpose**: Displays Trilium notes filtered by tag
+### 📝 Text Widget
 
-**Configuration**:
+Custom text content with formatting options.
+
+**Type:** `text`
+
+**Configuration:**
+```yaml
+- id: "welcome-text"
+  type: "text"
+  position: { row: 1, column: 3, width: 4, height: 1 }
+  config:
+    title: "Welcome"               # Optional title
+    content: "Welcome to your dashboard!"
+    alignment: "center"            # "left", "center", "right"
+    size: "medium"                 # "small", "medium", "large"
+```
+
+**Features:**
+- Rich text content
+- Multiple alignment options
+- Size variants
+- Theme-aware typography
+- Optional title display
+
+---
+
+### 🖼️ Image Widget
+
+Display logos, icons, or images with responsive sizing.
+
+**Type:** `image`
+
+**Configuration:**
+```yaml
+- id: "slate-logo"
+  type: "image"
+  position: { row: 1, column: 1, width: 2, height: 1 }
+  config:
+    src: "images/slate_logo_821_286.png"  # Image path relative to dist/
+    alt: "Slate Logo"                     # Alt text for accessibility
+    height: "60px"                        # Optional height constraint
+    objectFit: "contain"                  # CSS object-fit property
+    className: "custom-image"             # Optional CSS class
+```
+
+**Features:**
+- Responsive image display
+- Multiple object-fit options
+- Hover effects (theme-dependent)
+- Accessibility support
+- Custom CSS class support
+
+---
+
+### 📊 Status Summary Widget
+
+Overview of system or service status.
+
+**Type:** `status-summary`
+
+**Configuration:**
+```yaml
+- id: "status-summary"
+  type: "status-summary"
+  position: { row: 1, column: 7, width: 3, height: 1 }
+  config:
+    title: "Services"              # Widget title
+    refreshInterval: 30000         # Refresh every 30 seconds
+```
+
+**Features:**
+- Service status indicators
+- Real-time status checking
+- Color-coded status (online/offline/warning)
+- Automatic refresh
+- Compact display format
+
+---
+
+## 🔗 Service Integration Widgets
+
+### 📚 Trilium Notes Widget
+
+Display recent notes from your Trilium Notes instance.
+
+**Type:** `trilium`
+
+**Configuration:**
 ```yaml
 - type: "trilium"
   config:
-    tag: "dashboard_search"           # Required: tag to search for
-    maxNotes: 2                       # Optional: max notes to display
+    title: "Recent Notes"              # Widget title
+    baseUrl: "https://trilium.example.com"  # Trilium instance URL
+    apiToken: "your-etapi-token"       # ETAPI authentication token
+    limit: 5                           # Number of notes to display (1-20)
 ```
 
-**Options**:
-- `tag`: Trilium tag to search for (without # prefix)
-- `maxNotes`: Maximum number of notes to display
+**Features:**
+- Server-side data fetching
+- Recent notes with titles and dates
+- Click to open notes in Trilium
+- Note type indicators
+- Responsive note list
 
-**Note**: Requires TRILIUM_TOKEN and TRILIUM_URL in environment
+**Setup:**
+1. Enable ETAPI in Trilium (Options → ETAPI)
+2. Generate API token
+3. Use token in configuration
+
+**Data Fetcher:**
+- **API Endpoint:** `{baseUrl}/etapi/notes?search=*&limit={limit}&orderBy=dateModified&orderDirection=desc`
+- **Authentication:** `Authorization: {apiToken}`
+- **Response:** Recent notes with metadata
 
 ---
 
-### 5. Obsidian Widget
-**Purpose**: Displays Obsidian notes (limited tag search)
+### 🔖 Linkwarden Bookmarks Widget
 
-**Configuration**:
+Display recent bookmarks from your Linkwarden instance.
+
+**Type:** `linkwarden`
+
+**Configuration:**
 ```yaml
-- type: "obsidian"
+- type: "linkwarden"
   config:
-    vaultPath: "/path/to/vault/"      # Required: vault path
-    tag: "search"                     # Limited functionality
-    maxNotes: 2                       # Optional: max notes
-    apiUrl: "http://localhost:27123"  # Required: API URL
-    apiKey: "your-api-key"            # Required: API key
+    title: "Recent Bookmarks"         # Widget title
+    icon: "📚"                        # Optional icon
+    baseUrl: "https://linkwarden.example.com"  # Linkwarden instance URL
+    apiKey: "your-linkwarden-api-key" # API authentication key
+    limit: 5                          # Number of bookmarks to display (1-20)
 ```
 
-**Limitations**: Obsidian Local REST API doesn't support tag search
+**Features:**
+- Recent bookmarks with titles and URLs
+- Collection indicators
+- Creation dates
+- Click to open bookmarks
+- Responsive bookmark list
+
+**Setup:**
+1. Generate API key in Linkwarden settings
+2. Use API key in configuration
+
+**Data Fetcher:**
+- **API Endpoint:** `{baseUrl}/api/v1/links?take={limit}&sort=0`
+- **Authentication:** `Authorization: Bearer {apiKey}`
+- **Response:** Recent bookmarks with metadata
 
 ---
 
-### 6. Todoist Widget
-**Purpose**: Displays tasks from Todoist
+### ✅ Todoist Tasks Widget
 
-**Configuration**:
+Display recent tasks from your Todoist account.
+
+**Type:** `todoist`
+
+**Configuration:**
 ```yaml
 - type: "todoist"
   config:
-    apiToken: "your-token"            # Required: Todoist API token
-    projectName: "Dashboard"          # Optional: filter by project
-    tag: "search"                     # Optional: filter by tag
-    maxTasks: 3                       # Optional: max tasks to display
+    title: "Recent Tasks"             # Widget title
+    icon: "✅"                        # Optional icon
+    apiToken: "your-todoist-token"    # Todoist API token
+    projectName: "Dashboard"          # Optional: filter by project name
+    limit: 5                          # Number of tasks to display (1-20)
 ```
 
-**Options**:
-- `apiToken`: Todoist API token
-- `projectName`: Filter tasks by project name
-- `tag`: Filter tasks by tag
-- `maxTasks`: Maximum number of tasks to display
+**Features:**
+- Recent incomplete tasks
+- Priority indicators (P1-P4 with colors)
+- Due date display
+- Click to open tasks in Todoist
+- Project filtering (optional)
+
+**Setup:**
+1. Get API token from Todoist Settings → Integrations
+2. Use token in configuration
+
+**Data Fetcher:**
+- **API Endpoint:** `https://api.todoist.com/rest/v2/tasks`
+- **Authentication:** `Authorization: Bearer {apiToken}`
+- **Response:** Active tasks with priority and due dates
 
 ---
 
-### 7. MOTD Widget
-**Purpose**: Message of the Day - displays announcements and alerts
+### 📡 Radar Widget
 
-**Configuration**:
-```yaml
-- type: "motd"
-  title: "System Alert"               # Optional: message title
-  message: "Server maintenance tonight" # Required: message content
-  icon: "🚨"                         # Optional: emoji/icon
-  priority: "high"                    # Optional: low, normal, high
-  dismissible: true                   # Optional: show X button
-  timestamp: true                     # Optional: show timestamp
-  className: "custom-class"           # Optional: CSS class
-```
+Interactive weather radar display.
 
-**Options**:
-- `title`: Header text for the message
-- `message`: Main message content
-- `icon`: Emoji or icon to display
-- `priority`: Visual importance (affects styling)
-- `dismissible`: Whether users can close the message
-- `timestamp`: Show last updated time
-- `className`: Custom CSS class for styling
+**Type:** `radar`
 
----
-
-### 8. Weather Widget
-**Purpose**: Current weather conditions
-
-**Configuration**:
-```yaml
-- id: "weather-widget"
-  type: "widget"
-  widget: "weather"
-  position:
-    row: 3
-    column: 10
-    span: 3
-  config:
-    location: "30033"                 # Required: zip code or city
-    displayName: "Decatur, GA"        # Optional: custom display name
-    units: "fahrenheit"               # Optional: fahrenheit, celsius
-    apiKey: "your-openweather-key"    # Required: OpenWeatherMap API key
-```
-
-**Requirements**: OpenWeatherMap API key
-
----
-
-### 9. Radar Widget
-**Purpose**: Weather radar overlay
-
-**Configuration**:
+**Configuration:**
 ```yaml
 - id: "radar-widget"
-  type: "widget"
-  widget: "radar"
+  type: "radar"
+  position: { row: 4, column: 8, width: 2, height: 1 }
   config:
-    location: "30033"                 # Required: zip code for center
-    displayName: "Decatur, GA"        # Optional: display name
-    apiKey: "your-openweather-key"    # Required: OpenWeatherMap API key
+    location: "30033"              # ZIP code for radar center
+    displayName: "Atlanta, GA"     # Custom display name (optional)
+    apiKey: "your-openweather-key" # OpenWeatherMap API key
 ```
+
+**Features:**
+- Weather radar visualization
+- Location-centered display
+- Interactive radar imagery
+- Real-time weather patterns
 
 ---
 
-### 10. Clock Widget
-**Purpose**: Digital clock with date
+## 📁 Group Widgets
 
-**Configuration**:
+Groups organize related widgets and links into collapsible containers.
+
+**Type:** `group`
+
+**Configuration:**
 ```yaml
-- id: "header-clock"
-  type: "widget"
-  widget: "clock"
-  config:
-    format: "12h"                     # Optional: 12h, 24h
-    showDate: true                    # Optional: show date
+- id: "dev-group"
+  type: "group"
+  title: "Development"
+  position: { row: 2, column: 1, width: 6, height: 1 }
+  collapsed: false                   # Start expanded (true = collapsed)
+  items:
+    - type: "link"
+      name: "GitHub"
+      url: "https://github.com"
+      icon: "🐙"
+      description: "Code repository"
+      statusCheck: false             # Optional status monitoring
+      
+    - type: "trilium"
+      config:
+        baseUrl: "https://trilium.example.com"
+        apiToken: "your-token"
+        limit: 3
 ```
+
+### Group Features
+
+- **Collapsible interface** - Click title to expand/collapse
+- **Mixed content** - Combine links and widgets
+- **Responsive layout** - Items flow based on container width
+- **Status indicators** - Optional service monitoring for links
+- **Custom backgrounds** - Optional `backgroundColor` property
+
+### Link Items in Groups
+
+```yaml
+- type: "link"
+  name: "Service Name"             # Display name
+  url: "https://example.com"       # Target URL
+  icon: "🔧"                       # Icon (emoji, Unicode, or HTML)
+  description: "Service description" # Optional description text
+  statusCheck: true                # Monitor service availability
+  width: 3                         # Optional: columns to span in group
+```
+
+**Link Features:**
+- **Status monitoring** - Automatic up/down detection
+- **Hover effects** - Theme-aware interactions
+- **Icon support** - Emoji, Unicode, or custom icons
+- **Responsive sizing** - Automatic width calculation
 
 ---
 
-### 11. Theme Switcher Widget
-**Purpose**: Real-time theme switching
+## 🎨 Widget Theming
 
-**Configuration**:
-```yaml
-- id: "theme-switcher"
-  type: "widget"
-  widget: "theme-switcher"
-  config:
-    availableThemes: ["dark", "light", "retro", "synthwave", "tokyo-night"]
-```
+### Theme-Agnostic Design
 
----
+Widgets are designed to work beautifully with all themes:
 
-### 12. Image Widget
-**Purpose**: Display images/logos
-
-**Configuration**:
-```yaml
-- id: "logo"
-  type: "widget"
-  widget: "image"
-  config:
-    src: "logo.png"                   # Required: image path
-    alt: "Logo"                       # Optional: alt text
-    height: "60px"                    # Optional: height
-    objectFit: "contain"              # Optional: CSS object-fit
-    className: "logo-widget"          # Optional: CSS class
-```
-
----
-
-### 13. Status Summary Widget
-**Purpose**: Aggregate status monitoring
-
-**Configuration**:
-```yaml
-- id: "status-summary"
-  type: "widget"
-  widget: "status-summary"
-```
-
-**Note**: Automatically aggregates status from all links with `statusCheck: true`
-
----
-
-## Stock Visual Effects System
-
-**Purpose**: Reusable visual effects that can be applied to any widget for enhanced styling and animation
-
-The Stock Effects System provides pre-built visual effects that widgets can easily activate without custom CSS. This is particularly powerful with themed experiences like the synthwave theme.
-
-### Available Effects
-
-#### **Border & Glow Effects**
-- **`neon-glow-border`**: Glowing neon border around the widget
-- **`electric-border`**: Animated electric border with rotating gradient
-- **`pulse-border`**: Subtle pulsing border animation
-- **`pulse-glow`**: Pulsing glow effect that breathes in and out
-
-#### **Background Effects**  
-- **`grid-overlay`**: Tron-style grid pattern overlay
-- **`scanlines`**: CRT screen scanline effect for retro themes
-- **`retro-gradient-bg`**: Animated gradient background effects
-
-#### **Text Effects**
-- **`neon-glow`**: Glowing text effect with customizable colors
-- **`chromatic-aberration`**: Retro text distortion effect
-
-#### **Interactive Effects**
-- **`hover-pulse`**: Pulse effect activated on mouse hover
-- **`hover-electric`**: Electric border effect on hover
-- **`hover-glow`**: Enhanced glow effect on hover
-
-### Usage in Widget Configuration
-
-Effects can be enabled in widget configuration:
-
-```yaml
-- id: "status-widget"
-  type: "widget"
-  widget: "status-summary"
-  config:
-    synthwaveEffects: true            # Enable synthwave-themed effects
-    effectIntensity: "high"           # Intensity: low, medium, high, extreme
-    pulseSpeed: "normal"              # Speed: slow, normal, fast
-```
-
-### Direct HTML Application
-
-Effects can also be applied directly to HTML elements:
-
-```html
-<!-- Single effect -->
-<div data-effect="neon-glow-border">
-  Widget content
-</div>
-
-<!-- Multiple effects -->
-<div data-effect="neon-glow-border" 
-     data-effect-hover="pulse">
-  Interactive widget
-</div>
-
-<!-- With color configuration -->
-<div data-effect="electric-border" 
-     data-color="secondary">
-  Custom colored effect
-</div>
-```
-
-### JavaScript API
-
-Programmatically apply effects:
-
-```javascript
-// Quick synthwave styling
-window.EffectManager.makeSynthwave('.my-widget');
-
-// Custom effect configuration
-window.EffectManager.applyEffects('.element', ['neon-glow-border', 'pulse-glow'], {
-  colorScheme: 'synthwave',
-  intensity: 'high',
-  speed: 'fast'
-});
-
-// Remove effects
-window.EffectManager.removeEffects('.element');
-```
-
-### Effect Color Schemes
-
-Effects support different color schemes:
-- **`synthwave`**: Hot magenta (#ff0080), electric cyan (#00ffff), purple (#8338ec)
-- **`retro`**: Classic green terminal colors
-- **`cyber`**: Blue-based cyberpunk palette
-
-### Widget-Specific Effect Integration
-
-Many widgets have built-in effect support:
-
-#### **Weather Widget**
-```yaml
-config:
-  synthwaveEffects: true
-  # Automatically applies: neon-glow-border, pulse-glow, hover-electric
-```
-
-#### **Status Summary Widget**  
-```yaml
-config:
-  synthwaveEffects: true
-  pulseSpeed: "slow"
-  # Automatically applies: electric-border, neon-glow, pulse-border
-```
-
-#### **Text Widget**
-```yaml
-config:
-  synthwaveMode: true
-  effectIntensity: "extreme"          # low, medium, high, extreme
-  color: "primary"                    # primary, secondary, accent, success, warning, error
-  # Automatically applies: neon-glow-border, chromatic-aberration, hover-pulse
-```
-
-### Performance Notes
-
-- Effects use **CSS animations** for optimal performance
-- **Hardware acceleration** is enabled where appropriate
-- Effects are **automatically loaded** when needed
-- **Minimal JavaScript overhead** - most effects are pure CSS
+- **Colors** - Use CSS custom properties from active theme
+- **Typography** - Inherit font families and sizes from theme
+- **Effects** - Themes can add animations and visual enhancements
+- **Spacing** - Consistent with theme spacing system
 
 ### Theme Integration
 
-Effects automatically integrate with theme systems:
-- **Synthwave theme**: Neon colors and retro-futuristic styling
-- **Retro theme**: Classic terminal green aesthetics  
-- **Standard themes**: Subtle enhancements that don't overpower
+Themes can enhance widgets with:
 
-The Stock Effects System makes it easy to create visually stunning dashboards without writing custom CSS for each widget.
+```yaml
+# In theme YAML file
+widget-enhancements:
+  weather:
+    effects: ["neon-glow-border", "pulse-glow"]
+    colors: ["primary", "secondary"]
+  
+  trilium:
+    effects: ["subtle-glow"]
+    colors: ["accent"]
+```
+
+### CSS Custom Properties
+
+Widgets use standardized CSS variables:
+
+- `--text-primary` - Main text color
+- `--text-secondary` - Secondary text color
+- `--bg-tertiary` - Widget background color
+- `--accent` - Accent color for highlights
+- `--border` - Border color
+- `--radius` - Border radius
 
 ---
 
-## Position System
+## 🔧 Widget Development
 
-All widgets support two positioning syntaxes:
+### Creating Custom Widgets
 
-### New Intuitive Syntax (Recommended)
+1. **Create widget definition** - `src/widgets/mywidget.yaml`
+2. **Define schema** - Required and optional configuration
+3. **Add template** - HTML template with Jinja2
+4. **Style with CSS** - Theme-aware styling
+5. **Add data fetcher** - Optional server-side data integration
+
+### Widget Template Structure
+
 ```yaml
-position:
-  row: 1                              # Row number (1-based)
-  column: 10                          # Starting column (1-based)
-  span: 3                             # Number of columns to span
+# Basic widget template
+extends: "widget"  # Inherit from base widget
+
+metadata:
+  type: "api"
+  description: "Widget description"
+  version: "1.0.0"
+
+schema:
+  title:
+    type: "string"
+    required: true
+    description: "Widget title"
+
+dataFetcher:
+  type: "api"
+  method: "GET"
+  urlTemplate: "https://api.example.com/data"
+  headers:
+    Authorization: "Bearer {apiKey}"
+
+widget-body: |
+  <div class="custom-widget">
+    {% if data %}
+      <!-- Widget content -->
+    {% else %}
+      <div class="error">No data available</div>
+    {% endif %}
+  </div>
+
+css: |
+  .custom-widget {
+    /* Theme-aware styling */
+    color: var(--text-primary);
+    background: var(--bg-tertiary);
+  }
 ```
 
-### Legacy CSS Grid Syntax
+### Data Fetcher System
+
+Widgets can fetch data server-side during build:
+
+**API Integration:**
 ```yaml
-position:
-  row: "1"                            # Row as string
-  column: "10 / 13"                   # CSS Grid line syntax
+dataFetcher:
+  type: "api"
+  method: "GET"
+  urlTemplate: "https://api.service.com/endpoint?param={configValue}"
+  headers:
+    Authorization: "Bearer {apiKey}"
+    Content-Type: "application/json"
+  responseMapping:
+    items: "response.data"
+    fields:
+      title: "name"
+      url: "link"
+      date: "created_at"
 ```
 
-## Widget vs Group Items
+**Response Processing:**
+- Data is fetched during dashboard build
+- Processed and mapped to template variables
+- Available in widget template as `{{ items }}`
+- No client-side API calls required
 
-**Standalone Widgets**: Use `type: "widget"` with `widget:` property
-```yaml
-- id: "my-clock"
-  type: "widget"
-  widget: "clock"
-  config: {...}
-```
+---
 
-**Group Items**: Use `type:` directly within a group's `items:`
-```yaml
-- id: "my-group"
-  type: "group"
-  items:
-    - type: "link"                    # Direct type, no widget: property
-      name: "Example"
-      url: "https://example.com"
-```
+## 📝 Widget Best Practices
 
-## Environment Variables Required
+### Configuration Design
 
-Some widgets require environment variables in `.env`:
+1. **Clear naming** - Use descriptive configuration keys
+2. **Sensible defaults** - Minimize required configuration
+3. **Validation** - Include type checking and constraints
+4. **Documentation** - Clear descriptions for all options
+
+### Template Design
+
+1. **Error handling** - Graceful fallbacks for missing data
+2. **Loading states** - Show appropriate messages during data fetch
+3. **Responsive design** - Work well at different sizes
+4. **Accessibility** - Include proper ARIA labels and alt text
+
+### Styling Guidelines
+
+1. **Theme variables** - Use CSS custom properties exclusively
+2. **Consistent spacing** - Follow theme spacing system
+3. **Hover effects** - Provide appropriate interactive feedback
+4. **Typography** - Use theme font families and sizes
+
+### Performance Considerations
+
+1. **Server-side rendering** - Fetch data during build, not runtime
+2. **Efficient CSS** - Minimize custom styles
+3. **Image optimization** - Use appropriate image formats and sizes
+4. **Caching** - Leverage build-time caching for API responses
+
+---
+
+## 🔍 Troubleshooting Widgets
+
+### Common Issues
+
+**Widget not displaying:**
+- Check widget type spelling in configuration
+- Verify required configuration fields are present
+- Check for YAML syntax errors
+
+**Service integration failing:**
+- Verify API keys/tokens are correct
+- Check service URLs are accessible
+- Review API rate limits and quotas
+- Test API endpoints manually
+
+**Styling issues:**
+- Ensure CSS uses theme variables
+- Check for CSS conflicts with theme styles
+- Verify responsive behavior at different sizes
+
+### Debug Mode
+
+Build with debug output to see widget processing:
 
 ```bash
-# Trilium
-TRILIUM_TOKEN=your_trilium_token
-TRILIUM_URL=https://trilium.example.com
-
-# Linkwarden  
-LINKWARDEN_API_KEY=your_linkwarden_key
-LINKWARDEN_URL=https://linkwarden.example.com
-
-# Obsidian
-OBSIDIAN_API_KEY=your_obsidian_key
-OBSIDIAN_API_URL=http://localhost:27123
-
-# Weather
-OPENWEATHER_API_KEY=your_openweather_key
-
-# Todoist (can also be in widget config)
-TODOIST_API_TOKEN=your_todoist_token
+python3 src/scripts/dashboard_renderer.py --debug
 ```
 
-## Custom Styling
+### Widget Validation
 
-All widgets support:
-- `backgroundColor`: Custom background colors/gradients
-- Custom CSS classes through various `className` properties
-- Theme-based styling through CSS custom properties
+The build system validates:
+- Widget type exists
+- Required configuration present
+- API connectivity (for service widgets)
+- Template syntax
+- CSS validity
 
-## Server API Endpoints
+---
 
-Widgets that use external services go through server proxy:
-- `/api/trilium` - Trilium tag search
-- `/api/trilium/recent` - Recent Trilium notes
-- `/api/linkwarden/recent` - Recent Linkwarden bookmarks  
-- `/api/obsidian` - Obsidian search (limited)
-- `/api/obsidian/recent` - Recent Obsidian files
+## 🚀 Widget Examples
+
+### Simple Text Widget
+```yaml
+- id: "welcome"
+  type: "text"
+  position: { row: 1, column: 1, width: 6, height: 1 }
+  config:
+    content: "Welcome to my dashboard!"
+    alignment: "center"
+```
+
+### Weather with Forecast
+```yaml
+- id: "weather"
+  type: "weather"
+  position: { row: 2, column: 1, width: 3, height: 1 }
+  config:
+    location: "30033"
+    apiKey: "your-key"
+
+- id: "forecast"
+  type: "forecast"
+  position: { row: 2, column: 4, width: 3, height: 1 }
+  config:
+    location: "30033"
+    apiKey: "your-key"
+    days: 3
+```
+
+### Service Integration Group
+```yaml
+- id: "productivity"
+  type: "group"
+  title: "Productivity"
+  position: { row: 3, column: 1, width: 12, height: 1 }
+  items:
+    - type: "trilium"
+      config:
+        baseUrl: "https://trilium.example.com"
+        apiToken: "your-token"
+        limit: 3
+        
+    - type: "todoist"
+      config:
+        apiToken: "your-token"
+        limit: 3
+        
+    - type: "linkwarden"
+      config:
+        baseUrl: "https://linkwarden.example.com"
+        apiKey: "your-key"
+        limit: 3
+```
+
+---
+
+For configuration details, see [Configuration Reference](CONFIGURATION.md).
+For theming information, see [Theming Guide](THEMING_ARCHITECTURE.md).
