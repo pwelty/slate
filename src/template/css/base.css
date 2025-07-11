@@ -109,7 +109,7 @@ h2.widget-title,
     color: var(--h2-color, var(--text-primary, #ffffff));
     font-family: var(--h2-font, var(--font-family));
     margin: 0 0 1rem 0;
-    padding: 0;
+    padding: var(--h2-padding, 0 0 0.25rem 0);
     border-bottom: var(--h2-border, 1px solid var(--border, rgba(255, 255, 255, 0.1)));
     line-height: 1.3;
     text-transform: none;
