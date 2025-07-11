@@ -98,7 +98,10 @@ widget-body: |
 widget-css: |
   <style>
   .radar-widget {
-    height: auto;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
   }
   
   .radar-header {
@@ -136,6 +139,7 @@ widget-css: |
 
   .radar-legend {
     display: flex;
+    flex-wrap: wrap;
     gap: 0.5rem;
     font-size: 0.75rem;
     color: var(--text-secondary, #cccccc);
@@ -143,11 +147,14 @@ widget-css: |
 
   .legend-item {
     white-space: nowrap;
+    flex-shrink: 0;
   }
 
   .radar-map {
     position: relative;
-    height: 200px;
+    flex: 1;
+    min-height: 150px;
+    max-height: 200px;
     border-radius: var(--radius, 6px);
     overflow: hidden;
     background: var(--bg-tertiary, #2a2a2a);
