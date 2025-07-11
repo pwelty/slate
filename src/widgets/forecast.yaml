@@ -12,8 +12,8 @@ schema:
   title:
     type: "string"
     required: false
-    default: ""
-    description: "Optional title for the forecast widget"
+    default: "5-Day Forecast"
+    description: "Widget title"
   
   location:
     type: "string"
@@ -188,11 +188,6 @@ dataProcessing:
 # Widget body content - gets injected into {{widget-body}} placeholder  
 widget-body: |
   <div class="forecast-content">
-    <div class="forecast-header">
-      <div class="forecast-location">{{displayName or api_location or location}}</div>
-      <div class="forecast-subtitle">5-Day Forecast</div>
-    </div>
-    
     <div class="forecast-days">
       {% if forecast %}
         {% for day in forecast %}
@@ -224,34 +219,18 @@ widget-body: |
 
 # Widget-specific CSS - uses theme variables for consistency
 css: |
+  /* Remove default widget-content gap to bring content closer to title */
+  .widget-content {
+    gap: 0;
+  }
+  
   .forecast-content {
     display: flex;
     flex-direction: column;
-    padding: 0.5rem;
+    padding: 0;
     gap: 0.5rem;
   }
   
-  .forecast-header {
-    text-align: center;
-    border-bottom: 1px solid var(--border, rgba(255, 255, 255, 0.1));
-    padding-bottom: 0.25rem;
-    margin-bottom: 0.25rem;
-  }
-  
-  .forecast-location {
-    font-size: 0.8rem;
-    font-weight: var(--font-weight-bold, 700);
-    color: var(--text-primary, #ffffff);
-    margin-bottom: 0.1rem;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-  }
-  
-  .forecast-subtitle {
-    font-size: 0.65rem;
-    color: var(--text-secondary, #cccccc);
-    font-weight: var(--font-weight-medium, 500);
-  }
   
   .forecast-days {
     flex: 1;

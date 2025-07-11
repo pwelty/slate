@@ -12,8 +12,8 @@ schema:
   title:
     type: "string"
     required: false
-    default: ""
-    description: "Optional title for the radar widget"
+    default: "Weather Radar"
+    description: "Widget title"
   
   location:
     type: "string"
@@ -52,7 +52,6 @@ extends: "widget"
 widget-body: |
   <div class="radar-widget">
     <div class="radar-header">
-      <div class="radar-location">{{displayName or location}}</div>
       <div class="radar-legend">
         <span class="legend-item light">🟦 Light</span>
         <span class="legend-item moderate">🟨 Moderate</span>

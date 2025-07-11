@@ -12,8 +12,8 @@ schema:
   title:
     type: "string"
     required: false
-    default: ""
-    description: "Optional title for the weather widget"
+    default: "Weather"
+    description: "Widget title"
   
   location:
     type: "string"
@@ -137,10 +137,6 @@ dataProcessing:
 
 # Widget body content - gets injected into {{widget-body}} placeholder  
 widget-body: |
-  <div class="weather-header">
-    <div class="weather-location">{{displayName or location}}</div>
-    <div class="weather-description">{{weather.description or "Loading..."}}</div>
-  </div>
   
   <div class="weather-main">
     <div class="weather-temperature">
@@ -151,6 +147,7 @@ widget-body: |
     <div class="weather-icon">
       <div class="weather-icon-placeholder">{{weather.icon or "🌤️"}}</div>
     </div>
+    <div class="weather-description">{{weather.description or "Loading..."}}</div>
   </div>
   
   <div class="weather-footer">
@@ -178,14 +175,6 @@ css: |
     padding-bottom: 0.5rem;
   }
   
-  .weather-location {
-    font-size: 1rem;
-    font-weight: var(--font-weight-bold, 700);
-    color: var(--text-primary, #ffffff);
-    margin-bottom: 0.25rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
   
   .weather-description {
     font-size: 0.8rem;
