@@ -173,8 +173,9 @@ Examples:
 
 ## Theme Configuration
 
-Themes are defined in `core/themes/*.yaml`:
+Themes are defined in `src/themes/*.yaml` and support both basic styling and advanced visual effects:
 
+### Basic Theme Structure
 ```yaml
 # Theme metadata
 name: "Theme Name"
@@ -198,6 +199,177 @@ font-size-widget-text: "0.9rem"
 shadow: "0 4px 6px rgba(0,0,0,0.1)"
 radius: "0.5rem"
 ```
+
+### Available Themes
+- **`dark`**: Clean dark theme (default)
+- **`light`**: Clean light theme
+- **`retro`**: Classic terminal green on black with monospace fonts
+- **`synthwave`**: 80s neon aesthetics with visual effects
+- **`tokyo-night`**: Popular VS Code theme adaptation
+- **`ocean`**: Blue-based calming theme
+
+### Enhanced Theme Features (Stock Effects System)
+
+Modern themes support the **Stock Effects System** for advanced visual enhancements:
+
+#### Stock Effects Integration
+```yaml
+# In theme.yaml
+effects:
+  # Global page effects
+  page-effects:
+    - "grid-overlay"            # Tron-style grid background
+    - "scanlines"               # CRT screen scanlines
+
+  # Widget effects
+  widget-effects:
+    - "neon-glow-border"        # Neon border glow on all widgets
+    - "pulse-border"            # Pulsing border animation
+
+  # Hover effects
+  hover-effects:
+    - "hover-pulse"             # Pulse glow on hover
+    - "hover-electric"          # Electric border on hover
+
+# Effect color configuration
+effect-colors:
+  primary: "255, 0, 128"        # RGB values for CSS rgba
+  secondary: "0, 255, 255"      # Electric cyan
+  accent: "131, 56, 236"        # Purple accent
+
+# Effect timing
+effect-timing:
+  pulse-speed: "2.5s"           # Pulse animation speed
+  electric-speed: "4s"          # Electric border rotation
+  glow-speed: "3s"              # Breathing glow effect
+```
+
+#### Advanced Gradient System
+```yaml
+# Complex gradients for modern themes
+gradients:
+  primary: "linear-gradient(135deg, #0f0f23 0%, #1a0b2e 40%, #2d1b69 80%, #8338ec 100%)"
+  accent: "linear-gradient(90deg, #ff0080 0%, #00ffff 50%, #ff006e 100%)"
+  neon: "linear-gradient(45deg, #ff0080, #ff006e, #8338ec, #00ffff, #ff0080)"
+```
+
+#### Font Loading System
+```yaml
+# Google Fonts integration
+fonts:
+  google-fonts:
+    - family: "Orbitron"
+      weights: [400, 700, 900]
+      display: "swap"
+    - family: "Exo 2"
+      weights: [300, 400, 600, 800]
+      display: "swap"
+
+# Font fallback definitions
+font-family: "'Orbitron', 'Exo 2', 'Rajdhani', sans-serif"
+font-family-mono: "'Share Tech Mono', 'Source Code Pro', monospace"
+```
+
+#### Widget-Specific Enhancements
+```yaml
+# Theme can specify widget-specific effects
+widget-enhancements:
+  weather:
+    effects: ["neon-glow-border", "pulse-glow", "hover-electric"]
+    colors: ["primary", "secondary"]
+    gradients: ["accent"]
+    
+  status-summary:
+    effects: ["electric-border", "neon-glow", "hover-pulse"]
+    colors: ["primary", "accent"]
+    gradients: ["primary"]
+```
+
+#### Custom CSS Integration
+```yaml
+# Advanced themes can include custom CSS
+custom-css: |
+  /* Theme-specific enhancements */
+  [data-theme="mytheme"] .widget {
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 0, 128, 0.6);
+  }
+  
+  [data-theme="mytheme"] .widget:hover {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+```
+
+### Stock Effects Available
+
+#### Border & Glow Effects
+- **`neon-glow-border`**: Glowing neon border around elements
+- **`electric-border`**: Animated electric border with rotating gradient
+- **`pulse-border`**: Subtle pulsing border animation
+- **`pulse-glow`**: Pulsing glow effect that breathes
+
+#### Background Effects
+- **`grid-overlay`**: Tron-style grid pattern overlay
+- **`scanlines`**: CRT screen scanline effect
+- **`retro-gradient-bg`**: Animated gradient backgrounds
+
+#### Text Effects
+- **`neon-glow`**: Glowing text effect with theme colors
+- **`chromatic-aberration`**: Retro text distortion effect
+
+#### Interactive Effects
+- **`hover-pulse`**: Pulse effect on mouse hover
+- **`hover-electric`**: Electric border effect on hover
+- **`hover-glow`**: Enhanced glow effect on hover
+
+### Theme Activation
+
+Set theme in your dashboard configuration:
+```yaml
+# In config/dashboard.yaml
+theme: "synthwave"              # Use enhanced synthwave theme
+```
+
+### Creating Custom Themes
+
+1. **Create theme file**: `src/themes/mytheme.yaml`
+2. **Define basic colors and typography**
+3. **Add stock effects** (optional)
+4. **Test with different widgets**
+5. **Update theme switcher** to include your theme
+
+### Performance Considerations
+
+- **Stock effects use CSS animations** for optimal performance
+- **Google Fonts load asynchronously** to prevent blocking
+- **Effects are hardware-accelerated** where possible
+- **Minimal JavaScript overhead** - most effects are pure CSS
+
+### Theme Examples
+
+#### Retro Theme (Terminal Style)
+```yaml
+name: "Retro"
+bg-primary: "#000000"           # Pure black
+text-primary: "#00ff00"         # Bright green
+font-family-mono: "'Courier New', monospace"
+effects:
+  page-effects: ["scanlines"]
+  widget-effects: ["neon-glow-border"]
+```
+
+#### Synthwave Theme (80s Neon)
+```yaml
+name: "Synthwave"
+bg-primary: "#0f0f23"           # Deep space purple
+text-primary: "#ff0080"         # Hot magenta
+effects:
+  page-effects: ["grid-overlay", "scanlines"]
+  widget-effects: ["neon-glow-border", "pulse-border"]
+  hover-effects: ["hover-electric"]
+```
+
+The theme system now supports everything from simple color changes to complex visual effects that transform your entire dashboard experience.
 
 ## Service Integration
 

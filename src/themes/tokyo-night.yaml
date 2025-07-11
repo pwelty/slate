@@ -1,0 +1,72 @@
+# Tokyo Night V2 - New Structured Format
+# Modern cyberpunk theme using base config explosion
+name: "Tokyo Night"
+description: "Dark cyberpunk theme with blue and purple accents (structured format)"
+
+# Theme JavaScript for special effects
+effects-js: "tokyo-night.js"
+
+# Colors - Core theme values
+colors:
+  primary: "#1a1b26"        # Darkest background
+  secondary: "#24283b"      # Medium background  
+  tertiary: "#414868"       # Lightest background
+  text: "#c0caf5"          # Primary text
+  text-secondary: "#a9b1d6" # Secondary text
+  accent: "#7aa2f7"        # Interactive elements
+  border: "rgba(122, 162, 247, 0.3)"
+
+# Typography - Font definitions
+typography:
+  family: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+  mono-family: "'JetBrains Mono', 'Fira Code', 'Source Code Pro', monospace"
+  size-base: "1rem"
+  size-small: "0.875rem"
+  size-large: "1.125rem"
+  size-xl: "1.25rem"
+  weight-normal: "400"
+  weight-medium: "500"
+  weight-bold: "600"
+
+# Spacing - Layout spacing
+spacing:
+  xs: "0.25rem"
+  sm: "0.5rem"
+  base: "1rem"
+  lg: "1.5rem"
+  xl: "2rem"
+
+# Effects - Visual enhancements
+effects:
+  hover-lift: "translateY(-1px)"
+  focus-glow: "0 0 0 2px var(--color-accent)"
+  subtle-shadow: "0 2px 8px rgba(26, 27, 38, 0.6)"
+  hover-shadow: "0 4px 16px rgba(26, 27, 38, 0.8)"
+  code-glow: "0 0 8px rgba(122, 162, 247, 0.2)"
+  accent-glow: "0 0 12px rgba(122, 162, 247, 0.4)"
+
+# Tokyo Night Special Effects
+page-effects:
+  - "grid-overlay"
+  - "subtle-scanlines"
+
+# Widget-specific effects
+widget-enhancements:
+  weather:
+    effects: ["neon-glow-border", "pulse-glow"]
+    colors: ["tokyo-blue"]
+  
+  status-summary:
+    effects: ["neon-glow-border", "hover-glow"]
+    colors: ["tokyo-blue"]
+    
+  text:
+    effects: ["subtle-glow"]
+    colors: ["tokyo-blue"]
+
+# Tokyo Night effect colors
+effect-colors:
+  tokyo-blue: "122, 162, 247"      # Tokyo Night signature blue
+  tokyo-purple: "187, 154, 247"    # Tokyo Night purple accent
+  tokyo-cyan: "125, 207, 255"      # Tokyo Night cyan
+

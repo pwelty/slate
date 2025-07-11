@@ -1,0 +1,315 @@
+/* 
+ * Base Visual Effects System
+ * Reusable effects that can be activated by themes/widgets
+ */
+
+/* ==================== GRID OVERLAY EFFECTS ==================== */
+[data-effect="grid-overlay"] {
+  position: relative;
+}
+
+[data-effect="grid-overlay"]::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    linear-gradient(rgba(var(--effect-color, 255, 0, 128), 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(var(--effect-color, 255, 0, 128), 0.1) 1px, transparent 1px);
+  background-size: var(--grid-size, 20px) var(--grid-size, 20px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ==================== SCANLINES EFFECT ==================== */
+[data-effect="scanlines"] {
+  position: relative;
+}
+
+[data-effect="scanlines"]::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: linear-gradient(
+    transparent 50%, 
+    rgba(var(--effect-color, 0, 255, 0), 0.03) 50%
+  );
+  background-size: 100% var(--scanline-height, 4px);
+  pointer-events: none;
+  z-index: 2;
+  animation: scanlines-flicker var(--scanline-speed, 0.15s) linear infinite;
+}
+
+@keyframes scanlines-flicker {
+  0% { opacity: 1; }
+  98% { opacity: 1; }
+  99% { opacity: 0.98; }
+  100% { opacity: 1; }
+}
+
+/* ==================== NEON GLOW EFFECTS ==================== */
+[data-effect="neon-glow"] {
+  text-shadow: 
+    0 0 5px rgba(var(--effect-color, 255, 0, 128), 0.8),
+    0 0 10px rgba(var(--effect-color, 255, 0, 128), 0.6),
+    0 0 15px rgba(var(--effect-color, 255, 0, 128), 0.4);
+  filter: drop-shadow(0 0 8px rgba(var(--effect-color, 255, 0, 128), 0.6));
+}
+
+[data-effect="neon-glow-border"] {
+  border: 1px solid rgba(var(--effect-color, 255, 0, 128), 0.8);
+  box-shadow: 
+    inset 0 0 8px rgba(var(--effect-color, 255, 0, 128), 0.3),
+    0 0 8px rgba(var(--effect-color, 255, 0, 128), 0.4),
+    0 0 16px rgba(var(--effect-color, 255, 0, 128), 0.2);
+}
+
+/* ==================== PULSE ANIMATIONS ==================== */
+[data-effect="pulse-glow"] {
+  animation: pulse-glow var(--pulse-speed, 2s) ease-in-out infinite alternate;
+}
+
+@keyframes pulse-glow {
+  from {
+    filter: drop-shadow(0 0 8px rgba(var(--effect-color, 255, 0, 128), 0.4));
+  }
+  to {
+    filter: drop-shadow(0 0 16px rgba(var(--effect-color, 255, 0, 128), 0.8));
+  }
+}
+
+[data-effect="pulse-border"] {
+  animation: pulse-border var(--pulse-speed, 2s) ease-in-out infinite alternate;
+}
+
+@keyframes pulse-border {
+  from {
+    box-shadow: 0 0 8px rgba(var(--effect-color, 255, 0, 128), 0.4);
+  }
+  to {
+    box-shadow: 0 0 20px rgba(var(--effect-color, 255, 0, 128), 0.8);
+  }
+}
+
+/* ==================== CHROMATIC ABERRATION ==================== */
+[data-effect="chromatic-aberration"] {
+  position: relative;
+}
+
+[data-effect="chromatic-aberration"]::before,
+[data-effect="chromatic-aberration"]::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+[data-effect="chromatic-aberration"]::before {
+  color: rgba(255, 0, 0, 0.8);
+  transform: translateX(-1px);
+  z-index: -1;
+}
+
+[data-effect="chromatic-aberration"]::after {
+  color: rgba(0, 255, 255, 0.8);
+  transform: translateX(1px);
+  z-index: -1;
+}
+
+/* ==================== ELECTRIC BORDERS ==================== */
+[data-effect="electric-border"] {
+  position: relative;
+  border: 2px solid transparent;
+  background: linear-gradient(var(--bg-secondary), var(--bg-secondary)) padding-box,
+              linear-gradient(90deg, 
+                rgba(var(--effect-color, 255, 0, 128), 1),
+                rgba(var(--effect-color-alt, 0, 255, 255), 1),
+                rgba(var(--effect-color, 255, 0, 128), 1)
+              ) border-box;
+  animation: electric-border var(--electric-speed, 3s) linear infinite;
+}
+
+@keyframes electric-border {
+  0% {
+    background: linear-gradient(var(--bg-secondary), var(--bg-secondary)) padding-box,
+                linear-gradient(90deg, 
+                  rgba(var(--effect-color, 255, 0, 128), 1),
+                  rgba(var(--effect-color-alt, 0, 255, 255), 1),
+                  rgba(var(--effect-color, 255, 0, 128), 1)
+                ) border-box;
+  }
+  25% {
+    background: linear-gradient(var(--bg-secondary), var(--bg-secondary)) padding-box,
+                linear-gradient(180deg, 
+                  rgba(var(--effect-color, 255, 0, 128), 1),
+                  rgba(var(--effect-color-alt, 0, 255, 255), 1),
+                  rgba(var(--effect-color, 255, 0, 128), 1)
+                ) border-box;
+  }
+  50% {
+    background: linear-gradient(var(--bg-secondary), var(--bg-secondary)) padding-box,
+                linear-gradient(270deg, 
+                  rgba(var(--effect-color, 255, 0, 128), 1),
+                  rgba(var(--effect-color-alt, 0, 255, 255), 1),
+                  rgba(var(--effect-color, 255, 0, 128), 1)
+                ) border-box;
+  }
+  75% {
+    background: linear-gradient(var(--bg-secondary), var(--bg-secondary)) padding-box,
+                linear-gradient(360deg, 
+                  rgba(var(--effect-color, 255, 0, 128), 1),
+                  rgba(var(--effect-color-alt, 0, 255, 255), 1),
+                  rgba(var(--effect-color, 255, 0, 128), 1)
+                ) border-box;
+  }
+  100% {
+    background: linear-gradient(var(--bg-secondary), var(--bg-secondary)) padding-box,
+                linear-gradient(90deg, 
+                  rgba(var(--effect-color, 255, 0, 128), 1),
+                  rgba(var(--effect-color-alt, 0, 255, 255), 1),
+                  rgba(var(--effect-color, 255, 0, 128), 1)
+                ) border-box;
+  }
+}
+
+/* ==================== RETRO GRADIENTS ==================== */
+[data-effect="retro-gradient-bg"] {
+  background: linear-gradient(135deg, 
+    rgba(var(--gradient-start, 15, 15, 35), 1) 0%,
+    rgba(var(--gradient-mid, 26, 11, 46), 1) 50%,
+    rgba(var(--gradient-end, 45, 27, 105), 1) 100%
+  );
+}
+
+[data-effect="neon-gradient-bg"] {
+  background: linear-gradient(135deg,
+    rgba(var(--effect-color, 255, 0, 128), 1) 0%,
+    rgba(var(--effect-color-alt, 0, 255, 255), 1) 50%,
+    rgba(var(--effect-color, 255, 0, 128), 1) 100%
+  );
+}
+
+/* ==================== HOVER ENHANCEMENT EFFECTS ==================== */
+[data-effect-hover="glow"]:hover {
+  filter: drop-shadow(0 0 12px rgba(var(--effect-color, 255, 0, 128), 0.8));
+  transform: translateY(-2px);
+  transition: all 0.3s ease;
+}
+
+[data-effect-hover="pulse"]:hover {
+  animation: pulse-glow 0.6s ease-in-out infinite alternate;
+}
+
+[data-effect-hover="electric"]:hover {
+  border-color: rgba(var(--effect-color, 255, 0, 128), 1);
+  box-shadow: 
+    0 0 10px rgba(var(--effect-color, 255, 0, 128), 0.6),
+    inset 0 0 10px rgba(var(--effect-color, 255, 0, 128), 0.2);
+}
+
+/* ==================== TOKYO NIGHT SPECIFIC EFFECTS ==================== */
+[data-effect="subtle-scanlines"] {
+  position: relative;
+}
+
+[data-effect="subtle-scanlines"]::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: linear-gradient(
+    transparent 50%, 
+    rgba(var(--effect-color, 122, 162, 247), 0.02) 50%
+  );
+  background-size: 100% 6px;
+  pointer-events: none;
+  z-index: 1;
+  animation: subtle-scanlines-flicker 0.3s linear infinite;
+}
+
+@keyframes subtle-scanlines-flicker {
+  0% { opacity: 1; }
+  95% { opacity: 1; }
+  97% { opacity: 0.95; }
+  100% { opacity: 1; }
+}
+
+[data-effect="subtle-glow"] {
+  text-shadow: 
+    0 0 3px rgba(var(--effect-color, 122, 162, 247), 0.3),
+    0 0 6px rgba(var(--effect-color, 122, 162, 247), 0.2);
+  filter: drop-shadow(0 0 4px rgba(var(--effect-color, 122, 162, 247), 0.3));
+}
+
+[data-effect="tokyo-grid-overlay"] {
+  position: relative;
+}
+
+[data-effect="tokyo-grid-overlay"]::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    linear-gradient(rgba(var(--effect-color, 122, 162, 247), 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(var(--effect-color, 122, 162, 247), 0.05) 1px, transparent 1px);
+  background-size: 25px 25px;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.7;
+}
+
+/* ==================== UTILITY CLASSES ==================== */
+.effect-color-synthwave {
+  --effect-color: 255, 0, 128;
+  --effect-color-alt: 0, 255, 255;
+}
+
+.effect-color-retro {
+  --effect-color: 0, 255, 0;
+  --effect-color-alt: 0, 255, 0;
+}
+
+.effect-color-cyber {
+  --effect-color: 0, 255, 255;
+  --effect-color-alt: 255, 0, 255;
+}
+
+.effect-color-tokyo-blue {
+  --effect-color: 122, 162, 247;
+  --effect-color-alt: 187, 154, 247;
+}
+
+.effect-color-tokyo-purple {
+  --effect-color: 187, 154, 247;
+  --effect-color-alt: 122, 162, 247;
+}
+
+.effect-color-tokyo-cyan {
+  --effect-color: 125, 207, 255;
+  --effect-color-alt: 122, 162, 247;
+}
+
+.effect-speed-slow {
+  --pulse-speed: 4s;
+  --electric-speed: 6s;
+  --scanline-speed: 0.2s;
+}
+
+.effect-speed-fast {
+  --pulse-speed: 1s;
+  --electric-speed: 1.5s;
+  --scanline-speed: 0.1s;
+} 

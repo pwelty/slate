@@ -1,41 +1,57 @@
-# Slate Dashboard
+# Slate - Personal Dashboard
 
-A minimalist, self-hosted personal dashboard with YAML-based configuration, Docker deployment, and Tailscale integration. Built with vanilla JavaScript for maximum simplicity and performance.
-
-> 🚀 **STATUS**: Fully functional and ready for production use!
+> A completely static, secure personal dashboard with zero dependencies.
 
 ## Quick Start
 
-🚀 **Get your dashboard running in under 2 minutes!**
-
-### Prerequisites
-- Node.js 18+
-- npm or yarn
-
-### Installation & Setup
 ```bash
-# 1. Clone repository
-git clone https://github.com/your-username/slate.git
-cd slate
-
-# 2. Install dependencies
+# Install dependencies
 npm install
 
-# 3. Start development server
-npm run dev
-
-# 4. Open browser to http://localhost:5173
-```
-
-### Alternative: Production Build
-```bash
-# Build for production
+# Build static files
 npm run build
 
-# Serve with static server
-cd dist && python3 -m http.server 8080
-# Visit: http://localhost:8080
+# Serve locally
+npm run serve
 ```
+
+This generates 3 static files:
+- `index.html` - Complete HTML with all widgets
+- `app.css` - All styles with theme support
+- `app.js` - All widget code inlined
+
+## Development
+
+```bash
+# Watch for config changes and rebuild
+npm run watch
+
+# Edit configuration
+vim config/config.yaml
+vim config/widgets.yaml
+```
+
+## Features
+
+- **Static Generation**: All configuration compiled at build time
+- **Zero Dependencies**: No runtime dependencies, APIs, or external services
+- **Secure**: No configuration exposed to client-side
+- **Instant Themes**: CSS-based theme switching
+- **Responsive Grid**: Flexible grid layout system
+- **Widget System**: Extensible widget architecture
+
+## Configuration
+
+Edit `config/config.yaml` and `config/widgets.yaml` to customize your dashboard.
+
+## Deployment
+
+Copy the 3 generated files to any web server:
+- `index.html`
+- `app.css`  
+- `app.js`
+
+No build process, no APIs, no complexity - just static files.
 
 ## Overview
 
@@ -123,8 +139,9 @@ slate/
 │   └── CLAUDE.md         # Development notes for AI assistance
 ├── server/               # API server for service integrations
 ├── src/                  # Frontend source code
+│   ├── assets/          # Static assets
+│   │   └── styles/      # CSS files
 │   ├── scripts/         # JavaScript modules
-│   ├── styles/          # CSS files
 │   └── index.html       # Main HTML file
 ├── docker/              # Docker configuration
 ```

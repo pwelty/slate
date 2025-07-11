@@ -2,9 +2,27 @@ import express from 'express'
 import cors from 'cors'
 import fetch from 'node-fetch'
 import dotenv from 'dotenv'
+import fs from 'fs'
+import path from 'path'
+import yaml from 'js-yaml'
 
 // Load environment variables from parent directory
 dotenv.config({ path: '../.env' })
+
+// Load config files
+const configPath = path.join(process.cwd(), '../config/config.yaml')
+const widgetsPath = path.join(process.cwd(), '../config/widgets.yaml')
+
+let config = {}
+let widgets = {}
+
+try {
+  config = yaml.load(fs.readFileSync(configPath, 'utf8'))
+  widgets = yaml.load(fs.readFileSync(widgetsPath, 'utf8'))
+  console.log('📄 Loaded configuration files')
+} catch (error) {
+  console.error('❌ Failed to load config files:', error)
+}
 
 // Helper function to detect if running in Docker
 function isRunningInDocker() {
@@ -67,6 +85,56 @@ async function getCachedData(key, fetchFn) {
     }
     throw error
   }
+}
+
+// 🔐 SECURE WIDGET CONFIGURATION API
+// Widget config endpoint - provides sanitized config for each widget
+app.get('/api/widget-config/:widgetId', async (req, res) => {
+  try {
+    const widgetId = req.params.widgetId.replace('widget-', '') // Remove prefix
+    const widget = widgets[widgetId]
+    
+    if (!widget) {
+      return res.status(404).json({ error: 'Widget not found' })
+    }
+    
+    // Sanitize configuration - remove sensitive data
+    const safeConfig = sanitizeWidgetConfig(widget.config || {})
+    
+    // Add any computed config values
+    const finalConfig = {
+      ...safeConfig,
+      // Add any server-computed values here
+      serverTime: Date.now(),
+      apiBase: '/api' // Client can use this to make API calls
+    }
+    
+    res.json(finalConfig)
+  } catch (error) {
+    console.error('Widget config error:', error)
+    res.status(500).json({ error: 'Failed to load widget configuration' })
+  }
+})
+
+// Removed old generated route for security - use /app instead
+
+// Helper function to sanitize widget configuration
+function sanitizeWidgetConfig(config) {
+  const safeConfig = { ...config }
+  
+  // Remove sensitive keys that should never reach client
+  const sensitiveKeys = [
+    'apiKey', 'apiToken', 'token', 'password', 'secret', 'key',
+    'vaultPath', 'basePath', 'filePath', 'privateKey', 'accessToken'
+  ]
+  
+  sensitiveKeys.forEach(key => {
+    if (safeConfig[key]) {
+      delete safeConfig[key]
+    }
+  })
+  
+  return safeConfig
 }
 
 // Linkwarden API endpoint
@@ -280,6 +348,12 @@ app.get('/api/obsidian', async (req, res) => {
       error: error.message 
     })
   }
+})
+
+// Serve app structure (no semantic naming)
+app.get('/app', (req, res) => {
+  const structurePath = path.join(process.cwd(), '../dist/app.html')
+  res.sendFile(structurePath)
 })
 
 // Health check

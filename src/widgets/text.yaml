@@ -1,0 +1,89 @@
+# Text Widget Definition - Simple and Theme-Friendly
+# ==================================================
+
+metadata:
+  type: "widget"
+  description: "Simple text widget with theme-friendly styling"
+  version: "3.0.0"
+  author: "Slate Dashboard"
+
+# Configuration schema
+schema:
+  content:
+    type: "string"
+    required: true
+    description: "The text content to display"
+    default: "Sample text content"
+  
+  title:
+    type: "string"
+    required: false
+    description: "Optional title for the text widget"
+    default: "Text Widget"
+  
+  alignment:
+    type: "string"
+    required: false
+    default: "left"
+    enum: ["left", "center", "right"]
+    description: "Text alignment"
+  
+  size:
+    type: "string"
+    required: false
+    default: "medium"
+    enum: ["small", "medium", "large"]
+    description: "Text size"
+
+# Extend the base widget template
+extends: "widget"
+
+# Widget body content - gets injected into {{widget-body}} placeholder
+widget-body: |
+  <div class="widget-text {{size}} {{alignment}}">{{content}}</div>
+
+# Widget-specific CSS - uses theme variables for consistency
+css: |
+  .text-content {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .text-content .widget-body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .text-content .widget-body.left {
+    justify-content: flex-start;
+  }
+  
+  .text-content .widget-body.right {
+    justify-content: flex-end;
+  }
+  
+  .widget-text.small {
+    font-size: var(--widget-text-size-small, calc(var(--font-size-base, 1rem) * 0.85));
+  }
+  
+  .text-content .widget-text.large {
+    font-size: var(--widget-text-size-large, calc(var(--font-size-base, 1rem) * 1.2));
+  }
+  
+  .text-content .widget-body.center {
+    text-align: center;
+  }
+  
+  .text-content .widget-body.right {
+    text-align: right;
+  }
+
+# Widget-specific JavaScript
+js: |
+  // Text widget initialization
+  function initTextWidget(element, config) {
+    // Simple text widgets don't need complex JavaScript
+    // This can be extended by themes if needed
+    console.log('Text widget initialized:', config.title || 'Untitled');
+  } 

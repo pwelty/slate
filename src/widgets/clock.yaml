@@ -1,0 +1,136 @@
+# Clock Widget Definition
+# ========================
+
+metadata:
+  type: "clock" 
+  description: "Real-time clock display with date"
+  version: "1.0.0"
+  author: "Slate Dashboard"
+
+# Configuration schema - what config options this widget accepts
+schema:
+  title:
+    type: "string"
+    required: false
+    default: ""
+    description: "Optional title for the clock widget"
+  
+  format:
+    type: "string"
+    required: false
+    default: "12h"
+    enum: ["12h", "24h"]
+    description: "Time format (12-hour or 24-hour)"
+  
+  showDate:
+    type: "boolean"
+    required: false
+    default: true
+    description: "Whether to show the date below the time"
+  
+  updateInterval:
+    type: "integer"
+    required: false
+    default: 1000
+    description: "Update interval in milliseconds"
+  
+  centered:
+    type: "boolean"
+    required: false
+    default: false
+    description: "Center the clock horizontally and vertically within the widget"
+
+# Widget capabilities
+capabilities:
+  realTimeUpdates: true
+  userInteraction: false
+  apiIntegration: false
+  caching: false
+  responsive: true
+
+# Extend the base widget template
+extends: "widget"
+
+# Widget body content
+widget-body: |
+  <div class="clock-widget{% if centered %} centered{% endif %}">
+    <div class="clock-time" id="clock-time">00:00:00</div>
+    {% if showDate %}
+      <div class="clock-date" id="clock-date">Loading...</div>
+    {% endif %}
+  </div>
+
+# Widget-specific CSS
+widget-css: |
+  <style>
+  .clock-widget {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .clock-widget.centered {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .clock-time {
+    font-size: var(--clock-time-size, 2rem);
+    font-weight: var(--clock-time-weight, var(--font-weight-bold, 600));
+    color: var(--clock-time-color, var(--text-primary, #ffffff));
+    font-family: var(--clock-time-font, var(--font-family-mono, 'Courier New', monospace));
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+  
+  .clock-date {
+    font-size: var(--clock-date-size, calc(var(--font-size-base, 1rem) * 0.9));
+    color: var(--clock-date-color, var(--text-secondary, #cccccc));
+    font-weight: var(--clock-date-weight, var(--font-weight-medium, 500));
+    margin-bottom: 0.5rem;
+  }
+  </style>
+
+# Widget-specific JavaScript  
+widget-js: |
+  <script>
+  // Clock widget - real-time updates
+  function initClockWidget(element, config) {
+    const updateInterval = config.updateInterval || 1000;
+    
+    function updateTime() {
+      const now = new Date();
+      const format = config.format || '12h';
+      const showDate = config.showDate !== false;
+      
+      const timeElement = element.querySelector('.clock-time');
+      const dateElement = element.querySelector('.clock-date');
+      
+      if (timeElement) {
+        const time = format === '12h' 
+          ? now.toLocaleTimeString('en-US', { hour12: true })
+          : now.toLocaleTimeString('en-US', { hour12: false });
+        timeElement.textContent = time;
+      }
+      
+      if (dateElement && showDate) {
+        const date = now.toLocaleDateString('en-US', { 
+          weekday: 'long', 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        });
+        dateElement.textContent = date;
+      }
+    }
+    
+    // Update immediately and set interval
+    updateTime();
+    const intervalId = setInterval(updateTime, updateInterval);
+    
+    // Store interval for cleanup
+    element.setAttribute('data-clock-interval', intervalId);
+    
+    console.log('Clock widget initialized with real-time updates');
+  }
+  </script> 

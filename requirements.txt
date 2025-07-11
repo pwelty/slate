@@ -1,0 +1,9 @@
+# Slate Dashboard Python Dependencies
+
+# Core dependencies
+jinja2>=3.1.0        # Template engine
+pyyaml>=6.0          # YAML parsing
+requests>=2.28.0     # HTTP requests for widget data
+
+# Optional dependencies for development
+watchdog>=3.0.0      # File watching (for future watch mode)

@@ -1,0 +1,148 @@
+# Linkwarden Widget Definition
+# ============================
+
+extends: "widget"  # Inherit from base widget template
+
+metadata:
+  type: "api"
+  description: "Display recent bookmarks from Linkwarden"
+  version: "1.0.0"
+  author: "Slate Dashboard"
+
+# Widget-specific schema (will be merged with base schema)
+schema:
+  baseUrl:
+    type: "string"
+    required: true
+    description: "Base URL for your Linkwarden instance (e.g., https://linkwarden.example.com)"
+  
+  apiKey:
+    type: "string"
+    required: true
+    description: "Linkwarden API key for authentication"
+  
+  limit:
+    type: "integer"
+    required: false
+    default: 5
+    min: 1
+    max: 20
+    description: "Number of recent bookmarks to display"
+
+# Widget capabilities (will be merged with base capabilities)
+capabilities:
+  realTimeUpdates: true
+  userInteraction: true
+  apiIntegration: true
+  caching: true
+
+# Server-side data fetcher configuration
+dataFetcher:
+  type: "api"
+  method: "GET"
+  urlTemplate: "{baseUrl}/api/v1/links?take={limit}&sort=0"
+  headers:
+    Authorization: "Bearer {apiKey}"
+    Content-Type: "application/json"
+  responseMapping:
+    items: "response"
+    fields:
+      title: "name"
+      url: "url"
+      collection: "collection.name"
+      createdAt: "createdAt"
+
+# Widget body content (will be inserted into base template)
+widget-body: |
+  {% if items %}
+    <div class="linkwarden-bookmarks">
+      {% for item in items %}
+        <div class="bookmark-item" onclick="window.open('{{item.url}}', '_blank', 'noopener,noreferrer')">
+          <div class="bookmark-title">{{item.title or item.url or 'Untitled'}}</div>
+          <div class="bookmark-url">{{item.url}}</div>
+          <div class="bookmark-meta">
+            <span class="bookmark-collection">{{item.collection or 'Uncategorized'}}</span>
+            {% if item.createdAt %}
+              <span class="bookmark-date">{{item.createdAt[:10]}}</span>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="widget-error">
+      <div class="error-icon">📭</div>
+      <span class="error-message">No bookmarks found</span>
+    </div>
+  {% endif %}
+
+# Widget-specific CSS (base styles are in widget.css)
+css: |
+  .linkwarden-bookmarks {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  
+  .bookmark-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.75rem;
+    background: var(--bg-tertiary, rgba(255, 255, 255, 0.05));
+    border-radius: var(--radius, 6px);
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+  
+  .bookmark-item:hover {
+    background: var(--bg-secondary, rgba(255, 255, 255, 0.1));
+    border-color: var(--accent, #3b82f6);
+    transform: translateY(-1px);
+  }
+  
+  .bookmark-title {
+    font-weight: var(--font-weight-medium, 500);
+    color: var(--text-primary, #ffffff);
+    font-size: 0.9rem;
+    line-height: 1.3;
+    margin-bottom: 0.25rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  .bookmark-url {
+    font-size: 0.75rem;
+    color: var(--text-secondary, #cccccc);
+    opacity: 0.8;
+    word-break: break-all;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  .bookmark-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.7rem;
+    color: var(--text-secondary, #cccccc);
+    opacity: 0.6;
+    margin-top: 0.25rem;
+  }
+  
+  .bookmark-collection {
+    background: var(--accent, #3b82f6);
+    color: white;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-size: 0.6rem;
+    font-weight: var(--font-weight-medium, 500);
+  }
+

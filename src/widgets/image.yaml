@@ -1,0 +1,95 @@
+# Image Widget Definition
+# ========================
+
+metadata:
+  type: "ui"
+  description: "Display images and logos with customizable styling"
+  version: "1.0.0"
+  author: "Slate Dashboard"
+
+# Configuration schema - what this widget accepts
+schema:
+  src:
+    type: "string"
+    required: true
+    description: "Image file path or URL"
+  
+  alt:
+    type: "string"
+    required: false
+    default: "Image"
+    description: "Alt text for accessibility"
+  
+  title:
+    type: "string"
+    required: false
+    default: ""
+    description: "Optional title for the image widget"
+  
+  width:
+    type: "string"
+    required: false
+    default: "auto"
+    description: "CSS width value"
+  
+  height:
+    type: "string"
+    required: false
+    default: "auto"
+    description: "CSS height value"
+  
+  objectFit:
+    type: "string"
+    required: false
+    default: "contain"
+    enum: ["contain", "cover", "fill", "scale-down", "none"]
+    description: "CSS object-fit property"
+  
+  className:
+    type: "string"
+    required: false
+    default: ""
+    description: "Custom CSS class"
+
+# Widget capabilities
+capabilities:
+  realTimeUpdates: false
+  userInteraction: false
+  apiIntegration: false
+  caching: false
+  responsive: true
+  customStyling: true
+
+# Extend the specialized image widget template
+extends: "widget-image"
+
+# Image content (fills the entire widget space)
+widget-body: |
+  <img src="{{src}}" alt="{{alt}}" class="widget-image" style="object-fit: {{objectFit}};">
+
+# Widget-specific CSS
+widget-css: |
+  <style>
+  .widget-image {
+    width: 100%;
+    max-width: 100%;
+    border-radius: var(--radius, 0.5rem);
+    transition: all 0.3s ease;
+  }
+  
+  .widget-image:hover {
+    transform: var(--widget-image-hover-transform, scale(1.02));
+    box-shadow: var(--widget-image-hover-shadow, 0 4px 20px rgba(0, 0, 0, 0.1));
+  }
+  </style>
+
+# Widget-specific JavaScript
+widget-js: |
+  <script>
+  // Image widget initialization (if needed)
+  function initImageWidget(element, config) {
+    // Simple image widgets don't need special JavaScript
+    // The onload/onerror handlers are in the HTML
+    console.log('Image widget initialized:', config.src);
+  }
+  </script> 

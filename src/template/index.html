@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} - Slate Dashboard</title>
+    
+    <!-- Build timestamp for live reload -->
+    <meta name="build-timestamp" content="{{ build_timestamp }}">
+    
+    <!-- Theme CSS (includes all base styles and effects) -->
+    {{ theme_css|safe }}
+    
+    <!-- Custom CSS Placeholder -->
+    {{ custom_css|safe }}
+    
+    <!-- Widget CSS Placeholder -->
+    {{ widget_css|safe }}
+    
+    <link rel="icon" href="images/slate_mark.png" type="image/png">
+</head>
+
+<body class="theme-{{ theme_name }}" data-build-timestamp="{{ build_timestamp }}">
+    <div id="app">
+        <header class="dashboard-header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <img src="images/slate_logo_821_286.png" alt="Slate Logo" class="logo">
+                </div>
+            </div>
+        </header>
+
+        <main class="dashboard-main">
+            <!-- Widgets Content Placeholder -->
+            {{ widgets_content|safe }}
+        </main>
+
+        <footer class="dashboard-footer">
+            <div class="footer-content">
+                <div class="footer-message">
+                    {{ footer_message|safe }}
+                </div>
+                <div class="footer-controls">
+                    <div class="footer-theme-switcher">
+                        <label for="footer-theme-selector">Theme:</label>
+                        <select id="footer-theme-selector">
+                            {{ theme_options|safe }}
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Base Dashboard JavaScript -->
+    <script src="js/base.js"></script>
+    
+    <!-- Effect Manager JS Placeholder -->
+    {{ effect_manager_js|safe }}
+    
+    <!-- Theme JS Placeholder -->
+    {{ theme_js|safe }}
+    
+    <!-- Widget JS Placeholder -->
+    {{ widget_js|safe }}
+</body>
+</html> 

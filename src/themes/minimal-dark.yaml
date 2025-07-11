@@ -1,0 +1,40 @@
+# Minimal Dark Theme V2 - Clean & Structured
+# Clean structured dark theme using base config explosion
+name: "Minimal Dark"
+description: "Clean structured dark theme using new format (structured format)"
+
+# Effects - Visual enhancements
+effects:
+  hover-lift: "translateY(-1px)"
+  focus-glow: "0 0 0 2px var(--color-accent)"
+  subtle-shadow: "0 2px 8px rgba(0, 0, 0, 0.3)"
+  hover-shadow: "0 4px 12px rgba(0, 0, 0, 0.4)"
+  minimal-glow: "0 0 8px rgba(59, 130, 246, 0.2)"
+  accent-glow: "0 0 12px rgba(59, 130, 246, 0.3)"
+colors:
+  primary: "#0f172a"
+  secondary: "#1e293b"
+  tertiary: "#334155"
+  text: "#f1f5f9"
+  text-secondary: "#cbd5e1"
+  accent: "#3b82f6"
+  border: "rgba(148, 163, 184, 0.2)"
+
+typography:
+  family: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+  mono-family: "'JetBrains Mono', 'Fira Code', 'Consolas', monospace"
+  size-base: "1rem"
+  size-small: "0.875rem"
+  size-large: "1.125rem"
+  size-xl: "1.25rem"
+  weight-normal: "400"
+  weight-medium: "500"
+  weight-bold: "600"
+
+spacing:
+  xs: "0.25rem"
+  sm: "0.5rem"
+  base: "1rem"
+  lg: "1.5rem"
+  xl: "2rem"
+

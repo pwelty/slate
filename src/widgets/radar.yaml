@@ -1,0 +1,511 @@
+# Radar Widget Definition
+# Shows live weather radar using OpenWeatherMap tile service
+
+name: "Weather Radar"
+description: "Display live precipitation radar for any location"
+version: "1.0.0"
+author: "Slate Dashboard"
+
+# Configuration schema
+config:
+  location:
+    type: "string"
+    description: "ZIP code (US) or city name for radar center"
+    default: "30033"
+    example: "30033"
+  
+  displayName:
+    type: "string"
+    description: "Custom display name for the location"
+    default: ""
+    example: "Decatur, GA"
+  
+  apiKey:
+    type: "string"
+    description: "OpenWeatherMap API key for radar tiles"
+    required: true
+    example: "your_api_key_here"
+  
+  refreshInterval:
+    type: "integer"
+    description: "Auto-refresh interval in seconds"
+    default: 600
+    example: 300
+
+# HTML Templates
+templates:
+  main: |
+    <div class="radar-widget" data-widget="radar">
+      <div class="radar-header">
+        <h3>Weather Radar</h3>
+        <div class="radar-controls">
+          <button class="radar-refresh" onclick="window.refreshRadar('{{widgetId}}')">🔄</button>
+          <div class="radar-legend">
+            <span class="legend-item light">🟦 Light</span>
+            <span class="legend-item moderate">🟨 Moderate</span>
+            <span class="legend-item heavy">🟧 Heavy</span>
+            <span class="legend-item intense">🟥 Intense</span>
+          </div>
+        </div>
+      </div>
+      <div class="radar-map" id="radar-map-{{widgetId}}">
+        <div class="radar-loading">
+          <div class="loading-spinner"></div>
+          <p>Loading radar data...</p>
+        </div>
+      </div>
+      <div class="radar-footer">
+        <small>Live precipitation radar • Updates every 10 minutes</small>
+      </div>
+    </div>
+  
+  loading: |
+    <div class="radar-widget" data-widget="radar">
+      <div class="radar-loading">
+        <div class="loading-spinner"></div>
+        <p>Loading radar data...</p>
+      </div>
+    </div>
+  
+  error: |
+    <div class="radar-widget" data-widget="radar">
+      <div class="radar-error">
+        <div class="error-icon">⚠️</div>
+        <div class="error-title">Radar unavailable</div>
+        <div class="error-message">{{error}}</div>
+        <button onclick="location.reload()" class="retry-button">
+          Retry
+        </button>
+      </div>
+    </div>
+
+# Enhanced CSS - works with any theme
+styling:
+  defaultStyles: |
+    .radar-widget {
+      padding: 1.5rem;
+      background: var(--bg-secondary, #1a1a1a);
+      border-radius: var(--radius, 8px);
+      font-family: var(--font-family);
+      position: relative;
+      min-height: 300px;
+      transition: all 0.3s ease;
+    }
+
+    /* Header styling */
+    .radar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .radar-header h3 {
+      font-size: 1.1rem;
+      font-weight: var(--font-weight-bold, 700);
+      color: var(--text-primary);
+      margin: 0;
+    }
+
+    .radar-controls {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .radar-refresh {
+      background: var(--bg-tertiary, rgba(255, 255, 255, 0.1));
+      border: 1px solid var(--border, rgba(255, 255, 255, 0.2));
+      border-radius: var(--radius, 4px);
+      padding: 0.5rem;
+      color: var(--text-primary);
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .radar-refresh:hover {
+      background: var(--accent, #3b82f6);
+      transform: rotate(180deg);
+    }
+
+    .radar-legend {
+      display: flex;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .legend-item {
+      white-space: nowrap;
+    }
+
+    /* Map container */
+    .radar-map {
+      position: relative;
+      height: 200px;
+      border-radius: var(--radius, 6px);
+      overflow: hidden;
+      background: var(--bg-tertiary, #2a2a2a);
+      border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+    }
+
+    .simple-radar {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .radar-tiles {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .radar-base-layer,
+    .radar-precipitation-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .radar-clouds,
+    .radar-precipitation {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      cursor: pointer;
+      transition: opacity 0.3s ease;
+    }
+
+    .radar-clouds {
+      opacity: 0.6;
+    }
+
+    .radar-precipitation {
+      opacity: 0.8;
+    }
+
+    .radar-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .no-precipitation {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(2px);
+    }
+
+    .precipitation-status {
+      text-align: center;
+      color: var(--text-primary);
+    }
+
+    .status-icon {
+      font-size: 2rem;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    .status-text {
+      font-size: 0.9rem;
+      font-weight: var(--font-weight-medium, 500);
+    }
+
+    .radar-info {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+      padding: 1rem 0.75rem 0.5rem;
+      color: white;
+      font-size: 0.75rem;
+    }
+
+    .location-marker {
+      font-weight: var(--font-weight-bold, 600);
+      margin-bottom: 0.25rem;
+    }
+
+    .radar-timestamp {
+      opacity: 0.8;
+      font-family: var(--font-family-mono, monospace);
+    }
+
+    /* Footer styling */
+    .radar-footer {
+      margin-top: 1rem;
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 0.75rem;
+      opacity: 0.8;
+    }
+
+    /* Loading state */
+    .radar-loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 200px;
+      text-align: center;
+    }
+
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border, rgba(255, 255, 255, 0.3));
+      border-top: 3px solid var(--accent, #3b82f6);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 1rem;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Error state */
+    .radar-error {
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .error-icon {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    .error-title {
+      font-size: 1.1rem;
+      font-weight: var(--font-weight-bold, 700);
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .error-message {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+    }
+
+    .retry-button {
+      background: var(--accent, #3b82f6);
+      color: var(--text-primary);
+      border: 1px solid var(--accent, #3b82f6);
+      padding: 0.75rem 1.5rem;
+      border-radius: var(--radius, 6px);
+      font-weight: var(--font-weight-bold, 700);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .retry-button:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+      .radar-widget {
+        padding: 1rem;
+      }
+      
+      .radar-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .radar-legend {
+        flex-wrap: wrap;
+      }
+      
+      .radar-map {
+        height: 150px;
+      }
+    }
+
+# Theme-agnostic JavaScript
+templates:
+  javascript: |
+    // Radar Widget - Theme Agnostic
+    function initRadarWidget(element, config) {
+      const widgetId = 'radar-' + Math.random().toString(36).substr(2, 9);
+      
+      // Store widget ID for template use
+      element.setAttribute('data-widget-id', widgetId);
+      
+      // Global refresh function
+      window.refreshRadar = function(id) {
+        if (id === widgetId || !id) {
+          loadRadarMap();
+        }
+      };
+      
+      // Get location coordinates for centering the map
+      async function getLocationCoordinates(location) {
+        const apiKey = config.apiKey;
+        if (!apiKey) {
+          throw new Error('API key required for radar widget');
+        }
+
+        try {
+          // Use OpenWeatherMap Geocoding API to get coordinates
+          const geoUrl = `https://api.openweathermap.org/geo/1.0/zip?zip=${location},US&appid=${apiKey}`;
+          console.log('RadarWidget: Fetching coordinates from:', geoUrl);
+          const response = await fetch(geoUrl);
+          
+          if (!response.ok) {
+            throw new Error('Failed to get location coordinates');
+          }
+          
+          const data = await response.json();
+          return { lat: data.lat, lon: data.lon, name: data.name };
+        } catch (error) {
+          console.warn('RadarWidget: Using fallback coordinates due to error:', error);
+          // Fallback coordinates for 30033 (Decatur, GA)
+          return { lat: 33.7748, lon: -84.2963, name: 'Decatur' };
+        }
+      }
+      
+      // Convert lat/lon to tile coordinates
+      function getTileCoordinates(lat, lon, zoom) {
+        const latRad = lat * Math.PI / 180;
+        const n = Math.pow(2, zoom);
+        const x = Math.floor((lon + 180) / 360 * n);
+        const y = Math.floor((1 - Math.asinh(Math.tan(latRad)) / Math.PI) / 2 * n);
+        return { x, y };
+      }
+      
+      // Create radar display
+      function createRadarDisplay(coords) {
+        const mapContainer = element.querySelector(`#radar-map-${widgetId}`);
+        const apiKey = config.apiKey;
+        
+        if (!mapContainer) {
+          console.error('RadarWidget: Could not find map container');
+          return;
+        }
+        
+        // Use custom display name if provided, otherwise use API location
+        const displayLocation = config.displayName || coords.name;
+        
+        // Calculate tile coordinates
+        const tileCoords = getTileCoordinates(coords.lat, coords.lon, 6);
+        const cloudsUrl = `https://tile.openweathermap.org/map/clouds_new/6/${tileCoords.x}/${tileCoords.y}.png?appid=${apiKey}`;
+        const precipitationUrl = `https://tile.openweathermap.org/map/precipitation_new/6/${tileCoords.x}/${tileCoords.y}.png?appid=${apiKey}`;
+        
+        console.log('RadarWidget: Creating radar display', {
+          coords,
+          tileCoords,
+          displayLocation
+        });
+
+        // Create radar display with layers
+        mapContainer.innerHTML = `
+          <div class="simple-radar">
+            <div class="radar-tiles">
+              <div class="radar-base-layer">
+                <img src="${cloudsUrl}" 
+                     alt="Cloud Coverage" 
+                     class="radar-clouds"
+                     onload="console.log('RadarWidget: Clouds layer loaded');"
+                     onerror="console.error('RadarWidget: Clouds layer failed');" />
+              </div>
+              <div class="radar-precipitation-layer">
+                <img src="${precipitationUrl}" 
+                     alt="Precipitation Radar" 
+                     class="radar-precipitation"
+                     onload="checkPrecipitation(this)"
+                     onerror="console.error('RadarWidget: Precipitation layer failed'); this.style.display='none'" />
+              </div>
+              <div class="radar-overlay">
+                <div class="no-precipitation" style="display: none;">
+                  <div class="precipitation-status">
+                    <span class="status-icon">☀️</span>
+                    <span class="status-text">No Precipitation</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="radar-info">
+              <div class="location-marker">📍 ${displayLocation}</div>
+              <div class="radar-timestamp">Updated: ${new Date().toLocaleTimeString()}</div>
+            </div>
+          </div>
+        `;
+      }
+      
+      // Check if precipitation image has visible data
+      function checkPrecipitation(img) {
+        // Simple check - if image loads but is very small, likely no precipitation
+        setTimeout(() => {
+          const noPrecipOverlay = element.querySelector('.no-precipitation');
+          if (img.naturalWidth <= 1 || img.naturalHeight <= 1) {
+            if (noPrecipOverlay) {
+              noPrecipOverlay.style.display = 'flex';
+              console.log('RadarWidget: No visible precipitation data');
+            }
+          }
+        }, 500);
+      }
+      
+      // Main function to load radar map
+      async function loadRadarMap() {
+        try {
+          console.log('RadarWidget: Loading radar map for location:', config.location);
+          const coords = await getLocationCoordinates(config.location || "30033");
+          console.log('RadarWidget: Got coordinates:', coords);
+          createRadarDisplay(coords);
+        } catch (error) {
+          console.error('RadarWidget: Error loading radar map:', error);
+          renderError(error);
+        }
+      }
+      
+      // Error rendering
+      function renderError(error) {
+        const mapContainer = element.querySelector(`#radar-map-${widgetId}`);
+        if (mapContainer) {
+          mapContainer.innerHTML = `
+            <div class="radar-error">
+              <div class="error-icon">⚠️</div>
+              <div class="error-title">Radar Error</div>
+              <div class="error-message">${error.message}</div>
+            </div>
+          `;
+        }
+      }
+      
+      // Initialize radar
+      loadRadarMap();
+      
+      // Auto-refresh if configured
+      if (config.refreshInterval && config.refreshInterval > 0) {
+        setInterval(loadRadarMap, config.refreshInterval * 1000);
+      }
+      
+      console.log('Radar widget initialized');
+    }
+
+    // Auto-initialize if this script runs
+    if (typeof config !== 'undefined' && typeof widget !== 'undefined') {
+      initRadarWidget(widget, config);
+    } 

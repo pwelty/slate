@@ -1,0 +1,74 @@
+# Synthwave V2 - New Structured Format  
+# 80s-inspired neon theme with vibrant animations and effects
+name: "Synthwave"
+description: "80s-inspired neon theme with vibrant colors and animations (structured format)"
+
+# Theme JavaScript for special effects
+effects-js: "synthwave.js"
+
+# Colors - Electric blue cyberpunk palette
+colors:
+  primary: "#0a0a0a"        # Deep black background
+  secondary: "#0a0a1a"      # Dark blue background
+  tertiary: "#0a1a2a"       # Medium blue background
+  text: "#00d4ff"          # Electric blue text
+  text-secondary: "#0099cc" # Dimmer blue
+  accent: "#9d00ff"        # Electric purple accent
+  border: "rgba(0, 212, 255, 0.3)"
+
+# Typography - Futuristic fonts
+typography:
+  family: "'Orbitron', 'Courier New', 'Monaco', monospace"
+  mono-family: "'Orbitron', 'Courier New', 'Monaco', monospace"
+  size-base: "1rem"
+  size-small: "0.875rem"
+  size-large: "1.125rem"
+  size-xl: "1.25rem"
+  weight-normal: "400"
+  weight-medium: "500"
+  weight-bold: "700"
+
+# Spacing - Tight, electronic spacing
+spacing:
+  xs: "0.25rem"
+  sm: "0.5rem"
+  base: "1rem"
+  lg: "1.5rem"
+  xl: "2rem"
+
+# Effects - Electric blue glow library
+effects:
+  hover-lift: "translateY(-2px) scale(1.02)"
+  focus-glow: "0 0 0 3px var(--color-accent)"
+  subtle-shadow: "0 0 20px rgba(0, 212, 255, 0.3), inset 0 0 20px rgba(157, 0, 255, 0.1)"
+  hover-shadow: "0 0 30px rgba(0, 212, 255, 0.5), 0 0 60px rgba(157, 0, 255, 0.3), inset 0 0 30px rgba(0, 255, 255, 0.2)"
+  neon-glow: "0 0 10px rgba(0, 212, 255, 0.5)"
+  mega-glow: "0 0 20px rgba(157, 0, 255, 0.6)"
+  text-glow: "0 0 5px rgba(0, 212, 255, 0.5), 0 0 10px rgba(157, 0, 255, 0.3), 0 0 15px rgba(0, 255, 255, 0.2)"
+  pulse-glow: "0 0 10px rgba(0, 212, 255, 0.8), 0 0 20px rgba(157, 0, 255, 0.5), 0 0 30px rgba(0, 255, 255, 0.3)"
+
+# Synthwave Special Effects
+page-effects:
+  - "electric-border"
+  - "neon-gradient-bg"
+
+# Widget-specific effects
+widget-enhancements:
+  weather:
+    effects: ["neon-glow-border", "pulse-glow"]
+    colors: ["synthwave"]
+  
+  status-summary:
+    effects: ["electric-border", "pulse-border"]
+    colors: ["synthwave"]
+    
+  text:
+    effects: ["neon-glow"]
+    colors: ["synthwave"]
+
+# Synthwave effect colors - Electric blue palette
+effect-colors:
+  synthwave: "0, 212, 255"         # Electric blue
+  synthwave-alt: "157, 0, 255"    # Electric purple  
+  synthwave-accent: "0, 255, 255"  # Cyan highlights
+
