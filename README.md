@@ -168,24 +168,27 @@ Slate includes server-side integrations for popular services:
 
 ## 🎨 Themes
 
-Slate includes beautiful pre-built themes:
+Slate includes beautiful pre-built themes. Set your theme in `config/dashboard.yaml`:
 
 ### **🌊 Ocean Theme (Default)**
 Calming blue palette with wave animations:
-```bash
-python3 src/scripts/dashboard_renderer.py --theme ocean
+```yaml
+dashboard:
+  theme: "ocean"        # Theme from src/themes/
 ```
 
 ### **🕹️ Synthwave Theme** 
 80s neon cyberpunk with animated effects:
-```bash
-python3 src/scripts/dashboard_renderer.py --theme synthwave
+```yaml
+dashboard:
+  theme: "synthwave"    # Theme from src/themes/
 ```
 
 ### **🌃 Tokyo Night Theme**
 Popular VS Code theme with subtle animations:
-```bash
-python3 src/scripts/dashboard_renderer.py --theme tokyo-night
+```yaml
+dashboard:
+  theme: "tokyo-night"  # Theme from src/themes/
 ```
 
 ## 🔧 Development
@@ -196,13 +199,13 @@ python3 src/scripts/dashboard_renderer.py --theme tokyo-night
 source venv/bin/activate
 
 # Start auto-rebuild (rebuilds on file changes)
-python3 scripts/auto-rebuild.py --theme ocean
+python3 scripts/auto-rebuild.py
 ```
 
 ### **Manual build:**
 ```bash
-# Build specific theme
-python3 src/scripts/dashboard_renderer.py --theme synthwave
+# Build dashboard (uses theme from dashboard.yaml)
+python3 src/scripts/dashboard_renderer.py
 
 # Serve built files
 python3 serve.py  # http://localhost:5173
@@ -216,8 +219,11 @@ cp src/themes/ocean.yaml src/themes/mytheme.yaml
 # Edit colors and effects
 vim src/themes/mytheme.yaml
 
+# Set theme in dashboard.yaml
+echo "dashboard:\n  theme: \"mytheme\"" >> config/dashboard.yaml
+
 # Build with your theme
-python3 src/scripts/dashboard_renderer.py --theme mytheme
+python3 src/scripts/dashboard_renderer.py
 ```
 
 ## 📚 Documentation
@@ -238,8 +244,8 @@ python3 serve.py  # http://localhost:5173
 
 ### **Production**
 ```bash
-# Build for production
-python3 src/scripts/dashboard_renderer.py --theme ocean
+# Build for production (uses theme from dashboard.yaml)
+python3 src/scripts/dashboard_renderer.py
 
 # Serve with any web server
 cd dist && python3 -m http.server 8080
