@@ -66,12 +66,20 @@ widget-css: |
   .clock-widget {
     display: flex;
     flex-direction: column;
+    height: auto;  /* Don't expand to fill container height */
   }
   
   .clock-widget.centered {
     justify-content: center;
     align-items: center;
     text-align: center;
+    height: auto;  /* Override any parent flex growth */
+  }
+  
+  /* Override the default widget-body flex behavior for clock */
+  .clock-content .widget-body {
+    flex: none;  /* Don't expand to fill height */
+    height: auto;
   }
   
   .clock-time {
