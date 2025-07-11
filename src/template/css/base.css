@@ -172,7 +172,7 @@ h3.no-border {
 /* ==================== WIDGET BODY SYSTEM ==================== */
 /* Standardized widget content area */
 .widget-body {
-    flex: 1;
+    flex: 0 1 auto;  /* Don't expand to fill height, but can shrink */
     padding: var(--widget-body-padding, 0);
     color: var(--widget-body-color, var(--text-primary, #ffffff));
     font-size: var(--widget-body-size, var(--font-size-base, 1rem));
@@ -180,11 +180,12 @@ h3.no-border {
     overflow: var(--widget-body-overflow, hidden);
     display: flex;
     flex-direction: column;
+    height: auto;  /* Use natural content height */
 }
 
 /* Widget body content wrapper */
 .widget-content {
-    flex: 1;
+    flex: 0 1 auto;  /* Don't expand to fill height, but can shrink */
     display: flex;
     flex-direction: column;
     gap: var(--widget-content-gap, 0.75rem);
