@@ -165,7 +165,7 @@ css: |
   .weather-content .widget-body {
     display: flex;
     flex-direction: column;
-    padding: 1rem;
+    padding: 0;
     gap: 0.75rem;
   }
   
