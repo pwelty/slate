@@ -45,4 +45,40 @@ effects:
   widget-glow: "0 0 8px rgba(59, 130, 246, 0.2)"
   accent-glow: "0 0 12px rgba(59, 130, 246, 0.4)"
 
- 
+# Custom CSS - Theme-specific styles
+custom-css: |
+  /* Dark Theme Widget Hover Effects */
+  .widget {
+    /* Add breathing room to prevent hover transform clipping */
+    margin: 3px 0;
+    /* Remove overflow hidden to prevent border clipping */
+    overflow: visible;
+  }
+  
+  .widget:hover {
+    border-color: var(--accent);
+    transform: var(--hover-lift);
+    box-shadow: var(--hover-shadow);
+  }
+  
+  /* Link item hover effects with clipping prevention */
+  .link-item {
+    margin: 2px 0;
+    overflow: visible;
+  }
+  
+  .link-item:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--color-primary);
+    transform: var(--hover-lift);
+    box-shadow: var(--hover-shadow);
+  }
+  
+  /* Fix first item clipping in dynamic widgets */
+  .linkwarden-bookmarks,
+  .trilium-notes,
+  .todoist-tasks {
+    /* Add padding at top to prevent first item clipping */
+    padding-top: 2px;
+  }
