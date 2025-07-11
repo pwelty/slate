@@ -659,6 +659,7 @@ def generate_grid_css(dashboard_config):
     """Generate CSS grid configuration from dashboard config"""
     dashboard_info = dashboard_config.get('dashboard', {})
     css_vars = []
+    additional_css = ""  # For non-variable CSS rules
     
     # Check if row expansion is allowed
     allow_row_expansion = dashboard_info.get('allowRowExpansion', False)
@@ -672,13 +673,33 @@ def generate_grid_css(dashboard_config):
         if allow_row_expansion:
             # Convert fixed heights to minimum heights that can expand with maximum limits
             max_row_height = dashboard_info.get('maxRowHeight', '250px')  # Default max height
-            flexible_heights = []
-            for height in row_heights:
-                flexible_heights.append(f"minmax({height}, {max_row_height})")
-            grid_template_rows = ' '.join(flexible_heights)
-            css_vars.append(f"  --grid-template-rows: {grid_template_rows};")
-            css_vars.append(f"  --grid-auto-rows: minmax(80px, {max_row_height});")  # Auto rows with max limit
-            print(f"   📐 Using flexible row heights (min/max): {' '.join(row_heights)} / {max_row_height}")
+            
+            # Handle "auto" as unlimited growth, anything else as widget max-height constraint
+            if max_row_height == "auto":
+                # No max limit - allow unlimited growth
+                flexible_heights = []
+                for height in row_heights:
+                    flexible_heights.append(f"minmax({height}, auto)")
+                grid_template_rows = ' '.join(flexible_heights)
+                css_vars.append(f"  --grid-template-rows: {grid_template_rows};")
+                css_vars.append(f"  --grid-auto-rows: minmax(80px, auto);")  # Auto rows unlimited
+                print(f"   📐 Using flexible row heights (unlimited growth): {' '.join(row_heights)} / unlimited")
+            else:
+                # Let rows grow naturally, but constrain widgets to max height
+                flexible_heights = []
+                for height in row_heights:
+                    flexible_heights.append(f"minmax({height}, auto)")  # Rows grow naturally
+                grid_template_rows = ' '.join(flexible_heights)
+                css_vars.append(f"  --grid-template-rows: {grid_template_rows};")
+                css_vars.append(f"  --grid-auto-rows: minmax(80px, auto);")  # Auto rows grow naturally
+                # Add CSS rule to constrain widgets to max height
+                additional_css = f"""
+/* Widget height constraint from dashboard config */
+.widget, .widget-group {{
+    max-height: {max_row_height};
+    overflow-y: auto;
+}}"""
+                print(f"   📐 Using natural row heights with widget max-height: {' '.join(row_heights)} / widgets limited to {max_row_height}")
         else:
             # Fixed row heights
             css_vars.append(f"  --grid-template-rows: {grid_template_rows};")
@@ -691,8 +712,19 @@ def generate_grid_css(dashboard_config):
         
         if allow_row_expansion:
             max_row_height = dashboard_info.get('maxRowHeight', '250px')  # Default max height
-            css_vars.append(f"  --grid-auto-rows: minmax({default_height}, {max_row_height});")  # Flexible height with max
-            print(f"   📐 Using flexible row height (min/max: {default_height} / {max_row_height})")
+            if max_row_height == "auto":
+                css_vars.append(f"  --grid-auto-rows: minmax({default_height}, auto);")  # Unlimited growth
+                print(f"   📐 Using flexible row height (unlimited growth): {default_height} / unlimited")
+            else:
+                css_vars.append(f"  --grid-auto-rows: minmax({default_height}, auto);")  # Rows grow naturally
+                # Add CSS rule to constrain widgets to max height
+                additional_css = f"""
+/* Widget height constraint from dashboard config */
+.widget, .widget-group {{
+    max-height: {max_row_height};
+    overflow-y: auto;
+}}"""
+                print(f"   📐 Using natural row height with widget max-height: {default_height} / widgets limited to {max_row_height}")
         else:
             css_vars.append(f"  --grid-auto-rows: {default_height};")  # Fixed height
             print(f"   📐 Using fixed row height: {default_height}")
@@ -701,8 +733,20 @@ def generate_grid_css(dashboard_config):
         min_height = dashboard_info.get('minRowHeight', '80px')
         max_row_height = dashboard_info.get('maxRowHeight', '250px')  # Default max height
         css_vars.append("  --grid-template-rows: none;")  # No template rows
-        css_vars.append(f"  --grid-auto-rows: minmax({min_height}, {max_row_height});")  # Flexible height with max
-        print(f"   📐 Using flexible row height (min: {min_height})")
+        if max_row_height == "auto":
+            css_vars.append(f"  --grid-auto-rows: minmax({min_height}, auto);")  # Unlimited growth
+            css_vars.append(f"  --widget-max-height: none;")  # No widget height limit
+            print(f"   📐 Using flexible row height (unlimited growth): {min_height} / unlimited")
+        else:
+            css_vars.append(f"  --grid-auto-rows: minmax({min_height}, auto);")  # Rows grow naturally
+            # Add CSS rule to constrain widgets to max height
+            additional_css = f"""
+/* Widget height constraint from dashboard config */
+.widget, .widget-group {{
+    max-height: {max_row_height};
+    overflow-y: auto;
+}}"""
+            print(f"   📐 Using natural row height with widget max-height: {min_height} / widgets limited to {max_row_height}")
     
     # Handle grid gap
     if 'gap' in dashboard_info:
@@ -712,8 +756,14 @@ def generate_grid_css(dashboard_config):
     columns = dashboard_info.get('columns', 12)
     css_vars.append(f"  --grid-columns: {columns};")
     
+    css_output = ""
     if css_vars:
-        return "<style>\n:root {\n" + "\n".join(css_vars) + "\n}\n</style>\n\n"
+        css_output += "<style>\n:root {\n" + "\n".join(css_vars) + "\n}\n"
+    if additional_css:
+        css_output += additional_css
+    if css_output:
+        css_output += "</style>\n\n"
+        return css_output
     return ""
 
 def generate_grid_position_css(position):
