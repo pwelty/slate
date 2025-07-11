@@ -1,0 +1,69 @@
+# Base Widget Template
+# ====================
+# All widgets extend this base template for consistent structure and styling
+
+metadata:
+  template: true
+  version: "1.0.0"
+  author: "Slate Dashboard"
+  description: "Base template for all dashboard widgets"
+
+# Common schema that all widgets inherit
+schema:
+  title:
+    type: "string"
+    required: false
+    description: "Widget title displayed in header"
+  
+  icon:
+    type: "string"
+    required: false
+    description: "Optional icon displayed before title (emoji recommended)"
+    default: ""
+  
+  updateInterval:
+    type: "integer"
+    required: false
+    default: 300000
+    description: "Update interval in milliseconds (default: 5 minutes)"
+
+# Widget capabilities that can be inherited
+capabilities:
+  responsive: true
+  caching: false
+  realTimeUpdates: false
+  userInteraction: false
+  apiIntegration: false
+
+# Base HTML template with injection points
+html: |
+  <div class="{{widget-type}}-content">
+    {{widget-css}}
+    {% if title %}
+      {% if is_in_group %}
+        <h3 class="widget-title">
+          {% if icon %}<span class="widget-icon">{{icon}}</span>{% endif %}{{widget-title}}
+        </h3>
+      {% else %}
+        <h2 class="widget-title">
+          {% if icon %}<span class="widget-icon">{{icon}}</span>{% endif %}{{widget-title}}
+        </h2>
+      {% endif %}
+    {% endif %}
+    <div class="widget-body">
+      <div class="widget-content">
+        {{widget-body}}
+      </div>
+    </div>
+    {{widget-js}}
+  </div>
+
+# Base CSS is now in /src/template/css/widget.css
+# Individual widgets should only include widget-specific CSS
+
+# Base JS is minimal since widgets are server-side rendered
+js: |
+  // Base widget initialization (minimal)
+  function initWidget(element, config) {
+    console.log(`${config.widget_type || 'Widget'} initialized`);
+  }

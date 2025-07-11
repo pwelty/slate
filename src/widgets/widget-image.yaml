@@ -1,0 +1,40 @@
+# Image Widget Template
+# =====================
+# Specialized template for image widgets that need to fill the entire widget space
+
+# Extend the base widget template
+extends: "widget"
+
+metadata:
+  type: "template"
+  description: "Base template for image widgets that fill the entire container"
+  version: "1.0.0"
+  author: "Slate Dashboard"
+
+# Schema for image widget templates
+schema:
+  title:
+    type: "string"
+    required: false
+    description: "Optional title for the widget"
+    default: ""
+  
+  icon:
+    type: "string"
+    required: false
+    description: "Optional icon displayed before title (emoji recommended)"
+    default: ""
+
+# HTML template - image completely replaces all widget content
+html: |
+  {{widget-css}}
+  {{widget-body}}
+  {{widget-js}}
+
+# Base CSS for image widgets - ensures images respect widget boundaries
+widget-css: |
+  <style>
+  .widget-image {
+    border-radius: var(--radius, 0.5rem);
+  }
+  </style>

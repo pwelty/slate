@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slate Theme Preview</title>
+    
+    <!-- Base CSS -->
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/widget.css">
+    
+    <!-- Theme CSS Placeholder -->
+    <link rel="stylesheet" href="css/theme-dark.css" id="theme-css">
+    
+    <!-- Effects CSS Placeholder -->
+    <link rel="stylesheet" href="css/base-effects.css">
+    
+    <style>
+        /* Base styling that works with any theme */
+        body {
+            margin: 0;
+            padding: 2rem;
+            min-height: 100vh;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        
+        .preview-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .preview-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            border-radius: 1rem;
+        }
+        
+        .preview-title {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+        
+        .theme-selector {
+            margin: 1.5rem 0;
+        }
+        
+        .theme-selector select {
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            min-width: 200px;
+            border: 1px solid rgba(128, 128, 128, 0.3);
+        }
+        
+        .theme-selector select:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+        
+        .preview-section {
+            margin-bottom: 3rem;
+            padding: 2rem;
+            border-radius: 1rem;
+            border: 1px solid rgba(128, 128, 128, 0.2);
+        }
+        
+        .section-title {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid;
+        }
+        
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .color-item {
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            border: 1px solid rgba(128, 128, 128, 0.2);
+            text-align: center;
+        }
+        
+        .color-swatch {
+            width: 100%;
+            height: 80px;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(128, 128, 128, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+        
+        .color-label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .color-info {
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .typography-demo {
+            display: grid;
+            gap: 1.5rem;
+        }
+        
+        .typography-item {
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            border: 1px solid rgba(128, 128, 128, 0.2);
+        }
+        
+        .widget-examples {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .status-indicators {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .status-indicator {
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-align: center;
+            min-width: 80px;
+        }
+        
+        .clock-demo {
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .demo-clock-time {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-family: 'Monaco', 'Consolas', monospace;
+        }
+        
+        .demo-clock-date {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+        
+        .current-theme-info {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+        
+        /* Use actual theme classes */
+        .preview-header,
+        .preview-section,
+        .color-item,
+        .typography-item {
+            background: transparent;
+        }
+        
+        /* Let theme CSS handle the styling */
+    </style>
+</head>
+<body class="theme-dark">
+    <div class="preview-container">
+        <div class="preview-header widget">
+            <h1 class="preview-title widget-title">Slate Theme Preview</h1>
+            <p class="widget-body">Interactive preview of all Slate dashboard themes</p>
+            
+            <div class="theme-selector">
+                <label for="theme-select">Choose Theme: </label>
+                <select id="theme-select" class="widget-button">
+                    <option value="dark">Dark</option>
+                    <option value="light">Light</option>
+                    <option value="minimal-dark">Minimal Dark</option>
+                    <option value="ocean">Ocean</option>
+                    <option value="retro">Retro</option>
+                    <option value="synthwave">Synthwave</option>
+                    <option value="tokyo-night">Tokyo Night</option>
+                </select>
+            </div>
+            
+            <div class="current-theme-info widget-content">
+                Current theme: <span id="current-theme-name">Dark</span>
+            </div>
+        </div>
+        
+        <div class="preview-section widget">
+            <h2 class="section-title group-title">Color Palette</h2>
+            <div class="color-grid">
+                <div class="color-item widget-content">
+                    <div class="widget color-swatch">Primary Background</div>
+                    <div class="color-label widget-title">Primary Background</div>
+                    <div class="color-info widget-meta">Main widget background</div>
+                </div>
+                <div class="color-item widget-content">
+                    <div class="widget-header color-swatch">Header Background</div>
+                    <div class="color-label widget-title">Header Background</div>
+                    <div class="color-info widget-meta">Widget header areas</div>
+                </div>
+                <div class="color-item widget-content">
+                    <div class="group color-swatch">Group Background</div>
+                    <div class="color-label widget-title">Group Background</div>
+                    <div class="color-info widget-meta">Section groupings</div>
+                </div>
+                <div class="color-item widget-content">
+                    <div class="widget-button color-swatch">Button Style</div>
+                    <div class="color-label widget-title">Button Elements</div>
+                    <div class="color-info widget-meta">Interactive buttons</div>
+                </div>
+                <div class="color-item widget-content">
+                    <div class="color-swatch widget-title">Primary Text</div>
+                    <div class="color-label widget-title">Primary Text</div>
+                    <div class="color-info widget-meta">Main content text</div>
+                </div>
+                <div class="color-item widget-content">
+                    <div class="color-swatch widget-meta">Secondary Text</div>
+                    <div class="color-label widget-title">Secondary Text</div>
+                    <div class="color-info widget-meta">Meta information</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="preview-section widget">
+            <h2 class="section-title group-title">Typography</h2>
+            <div class="typography-demo">
+                <div class="typography-item widget-content">
+                    <h2 class="group-title">Group Title (H2) - Main Section Headers</h2>
+                    <h3 class="widget-title">Widget Title (H3) - Individual Widget Headers</h3>
+                    <div class="widget-body">Body Text - This is the main content text used throughout the dashboard for widget content and descriptions.</div>
+                    <div class="widget-meta">Meta Text - Used for timestamps, secondary information, and small details.</div>
+                    <div class="widget-button-text">Button Text - Used for interactive elements and links.</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="preview-section widget">
+            <h2 class="section-title group-title">Widget Examples</h2>
+            <div class="widget-examples">
+                <div class="widget">
+                    <h3 class="widget-title">Sample Widget</h3>
+                    <div class="widget-content">
+                        <div class="widget-body">
+                            This demonstrates how widgets look with the current theme.
+                            Notice the colors, typography, and hover effects.
+                        </div>
+                        <div class="widget-meta">Updated 2 minutes ago</div>
+                    </div>
+                </div>
+                
+                <div class="widget">
+                    <h3 class="widget-title">Status Widget</h3>
+                    <div class="widget-content">
+                        <div class="widget-body">Service monitoring and status indicators.</div>
+                        <div class="status-indicators">
+                            <div class="status-indicator" style="background: #22c55e; color: white;">Online</div>
+                            <div class="status-indicator" style="background: #f59e0b; color: white;">Warning</div>
+                            <div class="status-indicator" style="background: #ef4444; color: white;">Offline</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="widget clock-demo">
+                    <h3 class="widget-title">Clock Widget</h3>
+                    <div class="widget-content">
+                        <div class="demo-clock-time widget-body" id="demo-time">13:37:42</div>
+                        <div class="demo-clock-date widget-meta" id="demo-date">Wednesday, July 10, 2025</div>
+                    </div>
+                </div>
+                
+                <div class="widget">
+                    <h3 class="widget-title">Data Widget</h3>
+                    <div class="widget-content">
+                        <div class="widget-body">
+                            <div style="margin-bottom: 0.5rem;">CPU Usage: <strong>45%</strong></div>
+                            <div style="margin-bottom: 0.5rem;">Memory: <strong>2.1GB / 8GB</strong></div>
+                            <div>Uptime: <strong>7 days</strong></div>
+                        </div>
+                        <div class="widget-meta">Last updated: 30 seconds ago</div>
+                    </div>
+                </div>
+                
+                <div class="widget">
+                    <h3 class="widget-title">Link Widget</h3>
+                    <div class="widget-content">
+                        <div class="widget-body">
+                            <a href="#" class="widget-link">Sample Link</a><br>
+                            <a href="#" class="widget-link">Another Link</a><br>
+                            <a href="#" class="widget-link">External Resource</a>
+                        </div>
+                        <div class="widget-meta">External links and resources</div>
+                    </div>
+                </div>
+                
+                <div class="widget">
+                    <div class="widget-header">
+                        <h3 class="widget-title">Widget with Header</h3>
+                    </div>
+                    <div class="widget-content">
+                        <div class="widget-body">Content area with header and footer sections.</div>
+                    </div>
+                    <div class="widget-footer">
+                        <div class="widget-meta">Footer content area</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="preview-section widget">
+            <h2 class="section-title group-title">Theme Effects</h2>
+            <div class="widget-content">
+                <div class="widget-body">
+                    <div id="effects-showcase">
+                        <p>Each theme defines unique visual effects and animations:</p>
+                        <div class="effects-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                            <div class="effect-demo widget-content" style="padding: 1rem; border: 1px solid rgba(128,128,128,0.2); border-radius: 0.5rem;">
+                                <h4 class="widget-title" style="margin-bottom: 0.5rem;">Hover Effects</h4>
+                                <div class="demo-box widget" style="padding: 1rem; text-align: center; cursor: pointer; margin-bottom: 0.5rem;">
+                                    Hover me!
+                                </div>
+                                <div class="widget-meta" id="hover-effect-desc">Hover to see theme-specific animation</div>
+                            </div>
+                            
+                            <div class="effect-demo widget-content" style="padding: 1rem; border: 1px solid rgba(128,128,128,0.2); border-radius: 0.5rem;">
+                                <h4 class="widget-title" style="margin-bottom: 0.5rem;">Focus Effects</h4>
+                                <button class="widget-button" style="width: 100%; margin-bottom: 0.5rem;">Focus me with Tab</button>
+                                <div class="widget-meta" id="focus-effect-desc">Focus effects show theme accent colors</div>
+                            </div>
+                            
+                            <div class="effect-demo widget-content" style="padding: 1rem; border: 1px solid rgba(128,128,128,0.2); border-radius: 0.5rem;">
+                                <h4 class="widget-title" style="margin-bottom: 0.5rem;">Shadow Effects</h4>
+                                <div class="demo-shadow widget" style="padding: 1rem; text-align: center; margin-bottom: 0.5rem;">
+                                    Shadow Demo
+                                </div>
+                                <div class="widget-meta" id="shadow-effect-desc">Theme-specific shadow colors and intensity</div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 2rem;">
+                            <h4 class="widget-title">Current Theme Effects:</h4>
+                            <div id="current-theme-effects" class="widget-content" style="margin-top: 1rem; padding: 1rem; background: rgba(128,128,128,0.1); border-radius: 0.5rem;">
+                                <div class="effects-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem;">
+                                    <!-- Effects will be populated by JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="preview-section widget">
+            <h2 class="section-title group-title">Interactive Elements</h2>
+            <div class="widget-content">
+                <div class="widget-body">
+                    <p>Hover over the widgets above to see the transition effects defined in each theme.</p>
+                    <p>The theme switcher above allows you to preview all available themes instantly.</p>
+                    <div style="margin-top: 1rem;">
+                        <button class="widget-button" style="margin-right: 1rem;">Sample Button</button>
+                        <a href="#" class="widget-link">Sample Link</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Get references
+        const themeSelect = document.getElementById('theme-select');
+        const currentThemeName = document.getElementById('current-theme-name');
+        
+        // Update clock
+        function updateClock() {
+            const now = new Date();
+            const timeElement = document.getElementById('demo-time');
+            const dateElement = document.getElementById('demo-date');
+            
+            if (timeElement) {
+                timeElement.textContent = now.toLocaleTimeString('en-US', { hour12: false });
+            }
+            
+            if (dateElement) {
+                dateElement.textContent = now.toLocaleDateString('en-US', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+            }
+        }
+        
+        // Theme effects data
+        const themeEffects = {
+            'dark': {
+                'hover-lift': 'translateY(-1px) - Subtle upward movement',
+                'focus-glow': 'Blue accent border on focus',
+                'subtle-shadow': 'Light shadow with transparency',
+                'hover-shadow': 'Enhanced shadow on hover',
+                'widget-glow': 'Blue glow effect around widgets',
+                'accent-glow': 'Stronger blue glow for accents'
+            },
+            'light': {
+                'hover-lift': 'translateY(-1px) - Subtle upward movement',
+                'focus-glow': 'Blue accent border on focus',
+                'subtle-shadow': 'Very light shadow for bright backgrounds',
+                'hover-shadow': 'Light hover shadow with reduced opacity',
+                'widget-glow': 'Blue glow effect (reduced for light theme)',
+                'accent-glow': 'Blue accent glow with lower intensity'
+            },
+            'minimal-dark': {
+                'hover-lift': 'translateY(-1px) - Minimal upward movement',
+                'focus-glow': 'Blue accent border on focus',
+                'subtle-shadow': 'Light shadow for minimal aesthetic',
+                'hover-shadow': 'Enhanced shadow maintaining minimalism',
+                'minimal-glow': 'Minimal blue glow effect',
+                'accent-glow': 'Blue accent glow with restraint'
+            },
+            'ocean': {
+                'hover-lift': 'translateY(-2px) - Enhanced ocean wave effect',
+                'focus-glow': 'Coral accent border on focus',
+                'subtle-shadow': 'Teal-colored shadow effects',
+                'hover-shadow': 'Stronger teal shadow with depth',
+                'ocean-glow': 'Aqua ocean glow with coral tints',
+                'accent-glow': 'Coral accent glow for ocean theme'
+            },
+            'retro': {
+                'hover-lift': 'none - Terminal-style (no animations)',
+                'focus-glow': 'Strong green phosphor glow',
+                'subtle-shadow': 'Green glow shadow mimicking CRT',
+                'hover-shadow': 'Stronger green glow on interaction',
+                'terminal-glow': 'Terminal phosphor effect',
+                'accent-glow': 'Bright green accent glow'
+            },
+            'synthwave': {
+                'hover-lift': 'translateY(-2px) scale(1.02) - Neon enhancement',
+                'focus-glow': 'Thicker neon focus border (3px)',
+                'subtle-shadow': 'Complex multi-layer neon shadow',
+                'hover-shadow': 'Enhanced multi-layer neon glow system',
+                'neon-glow': 'Magenta neon glow effect',
+                'mega-glow': 'Hot pink mega glow for emphasis',
+                'text-glow': 'Multi-layer text glow effect',
+                'pulse-glow': 'Animated pulsing glow effect'
+            },
+            'tokyo-night': {
+                'hover-lift': 'translateY(-1px) - Cyberpunk movement',
+                'focus-glow': 'Blue accent border with cyberpunk feel',
+                'subtle-shadow': 'Dark shadow with Tokyo Night colors',
+                'hover-shadow': 'Enhanced dark shadow with depth',
+                'code-glow': 'Blue code-style glow for programming theme',
+                'accent-glow': 'Blue accent glow with cyberpunk intensity'
+            }
+        };
+
+        // Update theme effects display
+        function updateThemeEffects(themeName) {
+            const effectsList = document.querySelector('.effects-list');
+            const effects = themeEffects[themeName] || {};
+            
+            effectsList.innerHTML = Object.entries(effects).map(([effect, description]) => `
+                <div class="effect-item widget-meta" style="padding: 0.5rem; background: rgba(128,128,128,0.05); border-radius: 0.25rem;">
+                    <div style="font-weight: 500; color: var(--text-primary, #ffffff); margin-bottom: 0.25rem;">${effect}</div>
+                    <div style="font-size: 0.8rem; opacity: 0.8;">${description}</div>
+                </div>
+            `).join('');
+        }
+
+        // Switch theme
+        function switchTheme(themeName) {
+            // Update the display name
+            const displayName = themeName.split('-').map(word => 
+                word.charAt(0).toUpperCase() + word.slice(1)
+            ).join(' ');
+            currentThemeName.textContent = displayName;
+            
+            // Update body class
+            document.body.className = `theme-${themeName}`;
+            
+            // Update theme effects display
+            updateThemeEffects(themeName);
+            
+            // Force reload the CSS by removing and re-adding the link
+            const newThemeCSS = document.createElement('link');
+            newThemeCSS.rel = 'stylesheet';
+            newThemeCSS.href = `css/theme-${themeName}.css?t=${Date.now()}`;
+            newThemeCSS.id = 'theme-css';
+            
+            const oldThemeCSS = document.getElementById('theme-css');
+            if (oldThemeCSS) {
+                oldThemeCSS.parentNode.insertBefore(newThemeCSS, oldThemeCSS.nextSibling);
+                oldThemeCSS.remove();
+            } else {
+                document.head.appendChild(newThemeCSS);
+            }
+        }
+        
+        // Event listeners
+        themeSelect.addEventListener('change', (e) => {
+            switchTheme(e.target.value);
+        });
+        
+        // Initialize
+        updateClock();
+        setInterval(updateClock, 1000);
+        
+        // Set initial theme
+        switchTheme(themeSelect.value);
+    </script>
+</body>
+</html>

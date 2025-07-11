@@ -1,0 +1,145 @@
+# Status Summary Widget Definition  
+# ================================
+
+metadata:
+  type: "data"
+  description: "System status summary with enhanced visual styling"
+  version: "2.0.0"
+  author: "Slate Dashboard"
+
+# Configuration schema
+schema:
+  title:
+    type: "string"
+    required: false
+    default: "Services"
+    description: "Widget title"
+  
+  showUptime:
+    type: "boolean"
+    required: false
+    default: true
+    description: "Show system uptime"
+  
+  showStats:
+    type: "boolean"
+    required: false
+    default: true
+    description: "Show system statistics"
+
+# Widget capabilities
+capabilities:
+  realTimeUpdates: true
+  responsive: true
+
+# HTML template
+html: |
+  <div class="status-summary-widget">
+    {% if title %}
+      <h3 class="widget-title">{{title}}</h3>
+    {% endif %}
+    <div class="widget-body">
+      <div class="widget-content">
+        {% for item in items %}
+          <div class="status-item">
+            <div class="status-indicator {{ item.status }}"></div>
+            <div class="status-name">{{ item.name }}</div>
+            <div class="status-label">{{ item.status }}</div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+# Widget-specific CSS
+css: |
+  .status-summary-widget {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .status-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+  }
+  
+  .status-item:last-child {
+    border-bottom: none;
+  }
+  
+  .status-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  
+  .status-indicator.online {
+    background: var(--status-online, #22c55e);
+    box-shadow: 0 0 8px var(--status-online-glow, rgba(34, 197, 94, 0.4));
+  }
+  
+  .status-indicator.offline {
+    background: var(--status-offline, #ef4444);
+    box-shadow: 0 0 8px var(--status-offline-glow, rgba(239, 68, 68, 0.4));
+  }
+  
+  .status-indicator.warning {
+    background: var(--status-warning, #f59e0b);
+    box-shadow: 0 0 8px var(--status-warning-glow, rgba(245, 158, 11, 0.4));
+  }
+  
+  .status-name {
+    flex: 1;
+    color: var(--widget-text-color, var(--text-primary, #ffffff));
+    font-weight: var(--font-weight-medium, 500);
+  }
+  
+  .status-label {
+    color: var(--widget-text-secondary-color, var(--text-secondary, #cccccc));
+    font-size: var(--widget-text-secondary-size, calc(var(--font-size-base, 1rem) * 0.85));
+    text-transform: capitalize;
+  }
+
+# Widget-specific JavaScript
+js: |
+  // Status Summary Widget - simulated data updates
+  function initStatusSummaryWidget(element, config) {
+    
+    function updateStatus() {
+      const totalElement = element.querySelector('.stat-item.total .stat-value');
+      const onlineElement = element.querySelector('.stat-item.online .stat-value');
+      const offlineElement = element.querySelector('.stat-item.offline .stat-value');
+      const healthElement = element.querySelector('.health-text');
+      
+      if (totalElement && onlineElement && offlineElement) {
+        const total = parseInt(totalElement.textContent) || 12;
+        const online = Math.max(8, Math.min(total, total - Math.floor(Math.random() * 3)));
+        const offline = total - online;
+        
+        onlineElement.textContent = online;
+        offlineElement.textContent = offline;
+        
+        if (healthElement) {
+          const healthPercentage = Math.round((online / total) * 100);
+          if (healthPercentage >= 90) {
+            healthElement.textContent = 'OPTIMAL PERFORMANCE';
+          } else if (healthPercentage >= 70) {
+            healthElement.textContent = 'DEGRADED PERFORMANCE';
+          } else {
+            healthElement.textContent = 'CRITICAL STATUS';
+          }
+        }
+      }
+    }
+    
+    // Update every 30 seconds
+    updateStatus();
+    const intervalId = setInterval(updateStatus, 30000);
+    element.setAttribute('data-status-interval', intervalId);
+    
+    console.log('Status summary widget initialized');
+  }

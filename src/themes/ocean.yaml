@@ -1,0 +1,47 @@
+# Ocean Theme V2 - Deep Blue Waters
+# Ocean-themed design with blue tones using base config explosion
+name: "Ocean"
+description: "Deep blue ocean theme with fluid transitions (structured format)"
+
+# Colors - Core theme values
+colors:
+  primary: "#001122"        # Deepest ocean
+  secondary: "#003344"      # Medium depth  
+  tertiary: "#004466"       # Surface water
+  text: "#e6ffff"          # Sea foam
+  text-secondary: "#b3e6e6" # Light aqua
+  accent: "#00ccaa"        # Coral accent
+  border: "rgba(0, 102, 102, 0.4)"
+
+# Typography - Font definitions
+typography:
+  family: "'Nunito Sans', 'Source Sans Pro', system-ui, sans-serif"
+  mono-family: "'Fira Code', 'Monaco', 'Consolas', monospace"
+  size-base: "1rem"
+  size-small: "0.875rem"
+  size-large: "1.125rem"
+  size-xl: "1.25rem"
+  weight-normal: "400"
+  weight-medium: "500"
+  weight-bold: "600"
+
+# Spacing - Layout spacing
+spacing:
+  xs: "0.25rem"
+  sm: "0.5rem"
+  base: "1rem"
+  lg: "1.5rem"
+  xl: "2rem"
+
+# Effects - Visual enhancements
+effects:
+  hover-lift: "translateY(-2px)"
+  focus-glow: "0 0 0 2px var(--color-accent)"
+  subtle-shadow: "0 4px 8px rgba(0, 102, 102, 0.4)"
+  hover-shadow: "0 8px 16px rgba(0, 102, 102, 0.6)"
+  ocean-glow: "0 0 20px rgba(0, 204, 170, 0.3)"
+  accent-glow: "0 0 15px rgba(0, 204, 170, 0.4)"
+
+# JavaScript effects file
+effects-js: "ocean.js"
+

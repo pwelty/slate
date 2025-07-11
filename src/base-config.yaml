@@ -1,0 +1,258 @@
+# Base Configuration - Universal Styling Rules
+# This file defines the styling rules that apply to ALL themes
+# Themes provide the values, this file defines how they're used
+
+# Typography Rules - What font/size/color for each element
+typography:
+  # Heading Hierarchy System - BASE CONFIG RULES
+  h2-widget-title:
+    # H2 standalone widget titles - always bold, no top padding (widget container handles spacing)
+    font: "headline"
+    size: "1.2rem"
+    color: "text-primary"
+    weight: "bold"
+    margin: "0 0 .5rem 0"
+    padding: "0"
+    line-height: "1.3"
+    border-bottom: "1px solid color-border"
+    
+  h2-group-title:
+    # H2 group titles - always bold
+    font: "headline" 
+    size: "1.2rem"
+    color: "text-primary"
+    weight: "bold"
+    margin: "0 0 1rem 0"
+    padding: "0"
+    line-height: "1.3"
+    
+  h3-widget-title:
+    # H3 widget titles in groups - medium weight, specific padding
+    font: "headline"
+    size: "calc(1.1rem * 0.9)"
+    color: "text-primary"
+    weight: "medium"
+    margin: "0 0 0rem 0"
+    padding: "1rem 0 .25rem 1rem"
+    line-height: "1.3"
+    border-bottom: "1px solid color-border"
+
+    
+  widget-subtitle:
+    font: "body"
+    size: "0.9rem"
+    color: "text-secondary"
+    weight: "normal"
+    
+  widget-body:
+    font: "body"
+    size: "1rem"
+    color: "text"
+    weight: "normal"
+    line-height: "1.6"
+    
+  widget-meta:
+    font: "body"
+    size: "0.8rem"
+    color: "text-secondary"
+    weight: "normal"
+    opacity: "0.8"
+    
+  widget-button-text:
+    font: "body"
+    size: "0.9rem"
+    color: "accent"
+    weight: "medium"
+
+# Component Styling Rules - How each component should look
+components:
+  widget:
+    background: "transparent"
+    border: "1px solid color-border"
+    border-radius: "spacing-sm"
+    padding: "spacing-base"
+    box-shadow: "subtle-shadow"
+    transition: "all 0.2s ease"
+    
+  widget-hover:
+    border-color: "accent"
+    transform: "hover-lift"
+    box-shadow: "hover-shadow"
+    
+  widget-content:
+    padding: "0"
+    gap: "spacing-sm"
+    
+  widget-header:
+    padding: "spacing-sm spacing-base"
+    border-bottom: "1px solid color-border"
+    background: "color-1"
+    
+  widget-footer:
+    padding: "spacing-sm spacing-base"
+    border-top: "1px solid color-border"
+    background: "color-1"
+    
+  # Dashboard Footer Components
+  dashboard-footer:
+    background: "color-2"
+    border-top: "1px solid color-border"
+    padding: "spacing-base spacing-lg"
+    
+  footer-content:
+    display: "flex"
+    justify-content: "space-between"
+    align-items: "center"
+    max-width: "1400px"
+    margin: "0 auto"
+    gap: "spacing-base"
+    
+  footer-message:
+    font-size: "0.875rem"
+    color: "text-secondary"
+    
+  footer-theme-switcher:
+    display: "flex"
+    align-items: "center"
+    gap: "spacing-sm"
+    font-size: "0.875rem"
+    color: "text-secondary"
+    
+  footer-theme-select:
+    background: "color-3"
+    color: "text"
+    border: "1px solid color-border"
+    border-radius: "spacing-xs"
+    padding: "spacing-xs spacing-sm"
+    font-size: "0.75rem"
+    
+  footer-theme-selector:
+    background: "color-3"
+    color: "text"
+    border: "1px solid color-border"
+    border-radius: "spacing-xs"
+    padding: "spacing-xs spacing-sm"
+    font-size: "0.75rem"
+    
+  group:
+    background: "color-1"
+    border: "1px solid color-2"
+    border-radius: "spacing-base"
+    padding: "spacing-base"
+    
+  group-content:
+    gap: "spacing-base"
+    padding: "spacing-sm"
+    
+  status-indicator:
+    background: "color-2"
+    color: "text"
+    border-radius: "spacing-xs"
+    padding: "spacing-xs spacing-sm"
+    font-size: "0.75rem"
+    font-weight: "medium"
+    
+  widget-button:
+    background: "color-2"
+    border: "1px solid color-border"
+    border-radius: "spacing-xs"
+    padding: "spacing-xs spacing-sm"
+    cursor: "pointer"
+    transition: "all 0.2s ease"
+    
+  widget-button-hover:
+    background: "accent"
+    color: "color-1"
+    border-color: "accent"
+    
+  widget-link:
+    color: "accent"
+    text-decoration: "none"
+    transition: "color 0.2s ease"
+    
+  widget-link-hover:
+    color: "accent"
+    text-decoration: "underline"
+    
+  # Widget State Components
+  widget-loading:
+    opacity: "0.6"
+    position: "relative"
+    
+  widget-error:
+    border-left: "4px solid #ff4444"
+    background: "color-3"
+    border-color: "rgba(255, 68, 68, 0.3)"
+    
+  error-message:
+    color: "#ff6b6b"
+    font-size: "0.9em"
+    padding: "spacing-sm"
+    background: "rgba(255, 68, 68, 0.1)"
+    border-radius: "spacing-xs"
+    margin-top: "spacing-sm"
+
+# Layout Rules - Spacing and positioning
+layout:
+  widget-grid-gap: "spacing-base"
+  widget-inner-gap: "spacing-sm"
+  content-max-width: "none"
+  
+# Effects Definitions - Reusable visual effects
+effects:
+  hover-lift: "translateY(-1px)"
+  focus-glow: "0 0 0 2px var(--color-accent)"
+  subtle-shadow: "0 2px 4px rgba(0, 0, 0, 0.1)"
+  hover-shadow: "0 4px 8px rgba(0, 0, 0, 0.15)"
+  
+# Responsive Rules - How things adapt to screen size
+responsive:
+  mobile:
+    widget-title-size: "1.1rem"
+    group-title-size: "1.3rem"
+    widget-padding: "spacing-sm"
+    
+  tablet:
+    widget-title-size: "1.2rem"
+    group-title-size: "1.4rem"
+    widget-padding: "spacing-base"
+    
+  desktop:
+    widget-title-size: "1.3rem"
+    group-title-size: "1.5rem"
+    widget-padding: "spacing-base"
+
+# Color Mapping Rules - How theme colors map to usage
+color-mapping:
+  # Background colors (darkest to lightest)
+  color-1: "primary"      # Darkest background
+  color-2: "secondary"    # Medium background  
+  color-3: "tertiary"     # Lightest background
+  
+  # Text colors
+  text: "text"
+  text-secondary: "text-secondary"
+  
+  # Interactive colors
+  accent: "accent"
+  primary: "accent"  # For important elements
+  
+  # Borders and dividers
+  color-border: "border"
+
+# State Rules - How components look in different states
+states:
+  hover:
+    opacity: "1"
+    brightness: "1.05"
+    
+  focus:
+    outline: "2px solid accent"
+    outline-offset: "2px"
+    
+  disabled:
+    opacity: "0.5"
+    cursor: "not-allowed"
+    
+  active:
+    transform: "scale(0.98)"

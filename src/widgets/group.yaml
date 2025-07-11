@@ -1,0 +1,142 @@
+# Group Template Definition
+# ========================
+
+metadata:
+  type: "group"
+  description: "Base template for widget groups"
+  version: "1.0.0"
+  author: "Slate Dashboard"
+
+# Base schema for all groups
+schema:
+  title:
+    type: "string"
+    required: true
+    description: "Group title displayed in the header"
+  
+  position:
+    type: "object"
+    required: true
+    description: "Grid positioning for the group"
+    properties:
+      column:
+        type: "integer"
+        min: 1
+        max: 12
+      width:
+        type: "integer"
+        min: 1
+        max: 12
+      row:
+        type: "integer"
+        min: 1
+      height:
+        type: "integer"
+        min: 1
+        default: 1
+  
+  backgroundColor:
+    type: "string"
+    required: false
+    description: "Optional background color for the group"
+  
+  items:
+    type: "array"
+    required: false
+    default: []
+    description: "Items contained within the group (links, widgets, etc.)"
+
+# Base capabilities
+capabilities:
+  containsWidgets: true
+  containsLinks: true
+  gridPositioning: true
+  customStyling: true
+
+# Base HTML template for groups
+html: |
+  <div class="widget-group" id="{{id}}" style="{{position_css}}{{background_style}}">
+    <h2 class="group-title">{{title}}</h2>
+    <div class="group-content">
+      {{group_content}}
+    </div>
+  </div>
+
+# Base CSS for groups (can be overridden by themes)
+css: |
+  .widget-group {
+    background: var(--bg-secondary, #1e293b);
+    border-radius: var(--radius, 0.5rem);
+    border: 1px solid var(--border, rgba(148, 163, 184, 0.2));
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  
+  .group-title {
+    font-size: var(--h2-size, 1.2rem);
+    font-weight: var(--h2-weight, 600);
+    color: var(--h2-color, #3b82f6);
+    font-family: var(--h2-font, var(--font-family, 'Inter', sans-serif));
+    margin: var(--h2-margin, 0 0 1rem 0);
+    padding: var(--h2-padding, 0.5rem);
+    border: var(--h2-border, 1px solid var(--accent, #3b82f6));
+    line-height: var(--h2-line-height, 1.3);
+    transform: var(--h2-transform, none);
+    letter-spacing: var(--h2-spacing, normal);
+    border-radius: var(--radius, 0.25rem);
+    text-align: center;
+    background: var(--group-title-bg, rgba(59, 130, 246, 0.1));
+  }
+  
+  .group-content {
+    flex: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-content: flex-start;
+    overflow-y: auto;
+    min-height: 0;
+  }
+  
+  .group-content > * {
+    flex: 0 0 calc(25% - 0.75rem);
+    min-width: 200px;
+  }
+  
+  @media (max-width: 1200px) {
+    .group-content > * {
+      flex: 0 0 calc(33.333% - 0.667rem);
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .group-content > * {
+      flex: 0 0 calc(50% - 0.5rem);
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .group-content > * {
+      flex: 0 0 100%;
+    }
+  }
+
+# Base JavaScript for groups (if needed)
+js: |
+  // Group initialization - can be extended by specific group types
+  function initGroup(element, config) {
+    console.log('Group initialized:', config.title || config.id);
+    
+    // Initialize any contained widgets
+    const widgets = element.querySelectorAll('.group-widget');
+    widgets.forEach(widget => {
+      const widgetType = widget.getAttribute('data-widget-type');
+      if (widgetType && window[`init${widgetType.charAt(0).toUpperCase() + widgetType.slice(1)}Widget`]) {
+        const initFunction = window[`init${widgetType.charAt(0).toUpperCase() + widgetType.slice(1)}Widget`];
+        const widgetConfig = JSON.parse(widget.getAttribute('data-widget-config') || '{}');
+        initFunction(widget, widgetConfig);
+      }
+    });
+  }

@@ -1,0 +1,48 @@
+# Dark Theme V2 - Professional & Clean
+# Modern professional theme using base config explosion
+name: "Dark"
+description: "Clean dark theme with blue accents (structured format)"
+
+# Colors - Core theme values
+colors:
+  primary: "#0f172a"        # Darkest background
+  secondary: "#1e293b"      # Medium background  
+  tertiary: "#334155"       # Lightest background
+  text: "#f1f5f9"          # Primary text
+  text-secondary: "#cbd5e1" # Secondary text
+  accent: "#3b82f6"        # Interactive elements
+  border: "rgba(148, 163, 184, 0.2)"
+
+# Typography - Font definitions
+typography:
+  family: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+  mono-family: "'JetBrains Mono', 'Fira Code', 'Consolas', monospace"
+  size-base: "1rem"
+  size-small: "0.875rem"
+  size-large: "1.125rem"
+  size-xl: "1.25rem"
+  weight-normal: "400"
+  weight-medium: "500"
+  weight-bold: "600"
+  # Specific heading weights (only set if different from base weights)
+  # h2-weight: "600"   # Same as weight-bold, so not needed
+  # h3-weight: "500"   # Same as weight-medium, so not needed
+
+# Spacing - Layout spacing
+spacing:
+  xs: "0.25rem"
+  sm: "0.5rem"
+  base: "1rem"
+  lg: "1.5rem"
+  xl: "2rem"
+
+# Effects - Visual enhancements
+effects:
+  hover-lift: "translateY(-1px)"
+  focus-glow: "0 0 0 2px var(--color-accent)"
+  subtle-shadow: "0 2px 8px rgba(0, 0, 0, 0.3)"
+  hover-shadow: "0 4px 12px rgba(0, 0, 0, 0.4)"
+  widget-glow: "0 0 8px rgba(59, 130, 246, 0.2)"
+  accent-glow: "0 0 12px rgba(59, 130, 246, 0.4)"
+
+ 

@@ -1,0 +1,271 @@
+# Weather Widget Definition
+# ========================
+
+metadata:
+  type: "api"
+  description: "Current weather conditions"
+  version: "1.0.0"
+  author: "Slate Dashboard"
+
+# Configuration schema
+schema:
+  title:
+    type: "string"
+    required: false
+    default: ""
+    description: "Optional title for the weather widget"
+  
+  location:
+    type: "string"
+    required: true
+    description: "Zip code or city name"
+  
+  displayName:
+    type: "string"
+    required: false
+    description: "Custom location display name"
+    default: ""
+  
+  units:
+    type: "string"
+    required: false
+    default: "fahrenheit"
+    enum: ["fahrenheit", "celsius"]
+    description: "Temperature units"
+  
+  apiKey:
+    type: "string"
+    required: true
+    description: "OpenWeatherMap API key"
+  
+  updateInterval:
+    type: "integer"
+    required: false
+    default: 600000
+    description: "Update interval in milliseconds (default: 10 minutes)"
+
+# Widget capabilities
+capabilities:
+  realTimeUpdates: true
+  userInteraction: false
+  apiIntegration: true
+  caching: true
+  responsive: true
+
+# Extend the base widget template
+extends: "widget"
+
+# Data processing function to generate weather data
+dataProcessing:
+  generateData: |
+    import requests
+    import json
+    
+    try:
+        # Extract configuration
+        location = config.get('location', '30033')
+        api_key = config.get('apiKey', '')
+        units = config.get('units', 'fahrenheit')
+        
+        if not api_key:
+            result = {
+                'weather': {
+                    'temperature': '--',
+                    'description': 'API Error',
+                    'humidity': '--',
+                    'wind_speed': '--',
+                    'icon': '❌'
+                }
+            }
+        else:
+            # Build API URL
+            unit_param = 'imperial' if units == 'fahrenheit' else 'metric'
+            url = f"http://api.openweathermap.org/data/2.5/weather?zip={location},us&appid={api_key}&units={unit_param}"
+            
+            # Make API request
+            response = requests.get(url, timeout=10)
+            response.raise_for_status()
+            
+            # Parse response
+            data = response.json()
+            
+            # Extract weather information
+            temp = data['main']['temp']
+            humidity = data['main']['humidity']
+            wind_speed = data['wind']['speed']
+            description = data['weather'][0]['description']
+            icon_code = data['weather'][0]['icon']
+            
+            # Convert icon code to emoji
+            icon_map = {
+                '01d': '☀️', '01n': '🌙',  # Clear sky
+                '02d': '⛅', '02n': '☁️',  # Few clouds
+                '03d': '☁️', '03n': '☁️',  # Scattered clouds
+                '04d': '☁️', '04n': '☁️',  # Broken clouds
+                '09d': '🌧️', '09n': '🌧️',  # Shower rain
+                '10d': '🌦️', '10n': '🌧️',  # Rain
+                '11d': '⛈️', '11n': '⛈️',  # Thunderstorm
+                '13d': '🌨️', '13n': '🌨️',  # Snow
+                '50d': '🌫️', '50n': '🌫️'   # Mist
+            }
+            icon = icon_map.get(icon_code, '🌤️')
+            
+            # Format wind speed unit
+            wind_unit = 'mph' if units == 'fahrenheit' else 'km/h'
+            
+            result = {
+                'weather': {
+                    'temperature': int(temp),
+                    'description': description,
+                    'humidity': humidity,
+                    'wind_speed': f"{wind_speed} {wind_unit}",
+                    'icon': icon
+                }
+            }
+            
+    except Exception as e:
+        result = {
+            'weather': {
+                'temperature': '--',
+                'description': f'Error: {str(e)}',
+                'humidity': '--',
+                'wind_speed': '--',
+                'icon': '❌'
+            }
+        }
+
+
+# Widget body content - gets injected into {{widget-body}} placeholder  
+widget-body: |
+  <div class="weather-header">
+    <div class="weather-location">{{displayName or location}}</div>
+    <div class="weather-description">{{weather.description or "Loading..."}}</div>
+  </div>
+  
+  <div class="weather-main">
+    <div class="weather-temperature">
+      <span class="temp-value">{{weather.temperature or "--"}}</span>
+      <span class="temp-unit">°{% if units == 'celsius' %}C{% else %}F{% endif %}</span>
+    </div>
+    
+    <div class="weather-icon">
+      <div class="weather-icon-placeholder">{{weather.icon or "🌤️"}}</div>
+    </div>
+  </div>
+  
+  <div class="weather-footer">
+    <div class="weather-humidity">Humidity: {{weather.humidity or "--"}}%</div>
+    <div class="weather-wind">Wind: {{weather.wind_speed or "--"}} {% if units == 'celsius' %}km/h{% else %}mph{% endif %}</div>
+  </div>
+
+# Widget-specific CSS - uses theme variables for consistency
+css: |
+  .weather-content {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .weather-content .widget-body {
+    display: flex;
+    flex-direction: column;
+    padding: 0.75rem;
+    gap: 0.5rem;
+  }
+  
+  .weather-header {
+    text-align: center;
+    border-bottom: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+    padding-bottom: 0.5rem;
+  }
+  
+  .weather-location {
+    font-size: 1rem;
+    font-weight: var(--font-weight-bold, 700);
+    color: var(--text-primary, #ffffff);
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .weather-description {
+    font-size: 0.8rem;
+    color: var(--text-secondary, #cccccc);
+    font-weight: var(--font-weight-medium, 500);
+    text-transform: capitalize;
+  }
+  
+  .weather-main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  
+  .weather-temperature {
+    display: flex;
+    align-items: baseline;
+    gap: 0.2rem;
+  }
+  
+  .temp-value {
+    font-size: 2.75rem;
+    font-weight: var(--font-weight-bold, 700);
+    color: var(--text-primary, #ffffff);
+    line-height: 0.9;
+  }
+  
+  .temp-unit {
+    font-size: 1.2rem;
+    color: var(--text-secondary, #cccccc);
+    opacity: 0.8;
+  }
+  
+  .weather-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-2, rgba(255, 255, 255, 0.1));
+    border-radius: 50%;
+    width: 3.5rem;
+    height: 3.5rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .weather-icon:hover {
+    transform: scale(1.05);
+    background: var(--color-3, rgba(255, 255, 255, 0.15));
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+  
+  .weather-icon-placeholder {
+    font-size: 1.75rem;
+    line-height: 1;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+  }
+  
+  .weather-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+  }
+  
+  .weather-humidity,
+  .weather-wind {
+    flex: 1;
+    text-align: center;
+    padding: 0.4rem 0.5rem;
+    background: var(--color-1, rgba(255, 255, 255, 0.05));
+    border-radius: 0.375rem;
+    font-size: 0.7rem;
+    color: var(--text-secondary, #cccccc);
+    line-height: 1.2;
+    border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+  }
+
+# Widget-specific JavaScript - gets injected into {{widget-js}} placeholder
+js: |
+  <!-- No JavaScript needed - purely server-side rendered widget -->
