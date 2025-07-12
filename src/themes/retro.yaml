@@ -13,17 +13,18 @@ colors:
   accent: "#00ff00"        # Interactive elements
   border: "rgba(0, 255, 0, 0.3)"
 
-# Typography - Font definitions
+# Typography - Terminal-style font definitions
 typography:
-  family: "'Courier New', 'Monaco', 'Menlo', monospace"
-  mono-family: "'Courier New', 'Monaco', 'Menlo', monospace"
-  size-base: "1rem"
-  size-small: "0.875rem"
-  size-large: "1.125rem"
-  size-xl: "1.25rem"
+  family: "'IBM Plex Mono', 'Consolas', 'Courier New', 'Monaco', monospace"
+  mono-family: "'IBM Plex Mono', 'Consolas', 'Courier New', 'Monaco', monospace"
+  size-base: "0.95rem"      # Slightly smaller for authentic terminal feel
+  size-small: "0.8rem"
+  size-large: "1.1rem"
+  size-xl: "1.2rem"
   weight-normal: "400"
-  weight-medium: "400"
-  weight-bold: "700"
+  weight-medium: "500"      # Slightly bolder for better CRT visibility
+  weight-bold: "600"        # Not too bold to maintain terminal aesthetic
+  letter-spacing: "0.05em"  # Wider spacing for terminal feel
   # Specific heading weights (only set if different from base weights)
   # h3-weight: "400"   # Same as weight-medium, so not needed
 
@@ -35,7 +36,7 @@ spacing:
   lg: "1.5rem"
   xl: "2rem"
 
-# Effects - Visual enhancements
+# Effects - CRT phosphor glow effects
 effects:
   hover-lift: "none"
   focus-glow: "0 0 15px rgba(0, 255, 0, 0.8)"
@@ -43,4 +44,53 @@ effects:
   hover-shadow: "0 0 20px rgba(0, 255, 0, 0.5)"
   terminal-glow: "0 0 5px rgba(0, 255, 0, 0.5)"
   accent-glow: "0 0 15px rgba(0, 255, 0, 0.8)"
+  text-glow: "0 0 5px rgba(0, 255, 0, 0.8), 0 0 10px rgba(0, 255, 0, 0.4)"
+  heading-glow: "0 0 8px rgba(0, 255, 0, 1), 0 0 15px rgba(0, 255, 0, 0.6)"
+  phosphor-blur: "0 1px 0 rgba(0, 255, 0, 0.3)"
+
+# Custom CSS - Terminal CRT styling
+custom-css: |
+  /* CRT Terminal Phosphor Glow Effects */
+  
+  /* All text gets subtle phosphor glow */
+  body, .widget, .widget-content {
+    text-shadow: var(--effect-text-glow);
+  }
+  
+  /* Headings get stronger glow */
+  h1, h2, h3, .widget-title, .group-title {
+    text-shadow: var(--effect-heading-glow) !important;
+  }
+  
+  /* Interactive elements get enhanced glow on hover */
+  .link-item:hover,
+  .widget:hover h1,
+  .widget:hover h2, 
+  .widget:hover h3,
+  .widget:hover .widget-title {
+    text-shadow: var(--effect-accent-glow) !important;
+  }
+  
+  /* Terminal-style cursor blink effect */
+  .clock-time::after {
+    content: '█';
+    animation: cursor-blink 1s infinite;
+    color: var(--color-accent);
+    text-shadow: var(--effect-heading-glow);
+  }
+  
+  @keyframes cursor-blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+  }
+  
+  /* Enhanced phosphor persistence on links */
+  .link-item {
+    transition: all 0.1s ease-out;
+  }
+  
+  .link-item:hover {
+    text-shadow: var(--effect-accent-glow);
+    transform: none; /* No lift, just glow */
+  }
 
