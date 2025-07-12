@@ -90,6 +90,8 @@ css: |
     border-radius: var(--radius, 0.5rem);
     transition: all 0.3s ease;
     min-height: 60px;
+    margin: 4px 0 2px 0;  /* Prevent hover clipping */
+    overflow: visible;
   }
   
   .link-item:hover {
