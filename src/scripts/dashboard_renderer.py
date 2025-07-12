@@ -900,7 +900,8 @@ def render_dashboard(theme_name=None):
     
     # Get theme from dashboard config if not provided
     if theme_name is None:
-        theme_name = dashboard_config.get('dashboard', {}).get('theme', 'dark')
+        # Try environment variable first, then dashboard config, then fallback
+        theme_name = os.environ.get('SLATE_THEME') or dashboard_config.get('dashboard', {}).get('theme', 'dark')
     
     print(f"🚀 Rendering dashboard with {theme_name} theme...")
     
