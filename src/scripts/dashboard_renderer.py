@@ -1014,7 +1014,7 @@ if __name__ == "__main__":
     import argparse
     
     parser = argparse.ArgumentParser(description='Slate Dashboard Builder')
-    parser.add_argument('--theme', default='dark', help='Theme to use (default: dark)')
+    parser.add_argument('--theme', default=None, help='Theme to use (default: read from config)')
     
     args = parser.parse_args()
     
