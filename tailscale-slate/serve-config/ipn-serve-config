@@ -8,7 +8,7 @@
     "slate.squirrel-corn.ts.net:443": {
       "Handlers": {
         "/": {
-          "Proxy": "http://127.0.0.1:80"
+          "Proxy": "http://127.0.0.1:5173"
         }
       }
     }

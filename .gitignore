@@ -122,6 +122,7 @@ temp/
 config/local.yaml
 config/development.yaml
 config/production.local.yaml
+config/dashboard.yaml
 
 # SSL certificates (if any)
 *.pem
