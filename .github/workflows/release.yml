@@ -1,0 +1,155 @@
+name: Release Build
+
+on:
+  push:
+    tags:
+      - 'v*'  # Triggers on version tags like v1.0.0
+  release:
+    types: [published]
+
+jobs:
+  validate-and-build:
+    runs-on: ubuntu-latest
+    name: Full Validation and Build
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Create virtual environment
+      run: |
+        python -m venv venv
+        source venv/bin/activate
+        echo "VIRTUAL_ENV=$VIRTUAL_ENV" >> $GITHUB_ENV
+        echo "$VIRTUAL_ENV/bin" >> $GITHUB_PATH
+        
+    - name: Install dependencies
+      run: |
+        source venv/bin/activate
+        pip install --upgrade pip
+        pip install pyyaml cssutils tinycss2
+        
+    - name: Run full validation suite
+      run: |
+        source venv/bin/activate
+        echo "🔍 Running complete validation suite..."
+        
+        echo "📊 Dashboard validation:"
+        python src/scripts/test_dashboard.py
+        
+        echo "🧩 Widget validation:"
+        python src/scripts/test_widgets.py
+        
+        echo "🎨 Theme validation:"
+        python src/scripts/test_themes.py
+        
+    - name: Build all themes
+      run: |
+        source venv/bin/activate
+        echo "🚀 Building all themes for release..."
+        
+        themes=("paper" "dark" "light" "retro" "ocean" "synthwave" "tokyo-night" "minimal-dark")
+        
+        for theme in "${themes[@]}"; do
+          echo "Building $theme theme..."
+          python src/scripts/dashboard_renderer.py --theme "$theme"
+          
+          # Verify build
+          test -f "dist/css/theme-$theme.css" || (echo "❌ Failed to build $theme" && exit 1)
+          echo "✅ $theme theme built successfully"
+        done
+        
+    - name: Generate build report
+      run: |
+        echo "📋 Generating build report..."
+        
+        cat > dist/BUILD_INFO.md << EOF
+        # Slate Dashboard Build Information
+        
+        **Version:** ${GITHUB_REF#refs/tags/}
+        **Build Date:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+        **Commit:** $GITHUB_SHA
+        **Branch:** ${GITHUB_REF#refs/heads/}
+        
+        ## Themes Built
+        $(ls dist/css/theme-*.css | sed 's/dist\/css\/theme-/- /' | sed 's/\.css//')
+        
+        ## Validation Results
+        - ✅ Dashboard configuration validated
+        - ✅ Widget definitions validated  
+        - ✅ Theme definitions validated
+        - ✅ CSS syntax validated
+        
+        ## Files Generated
+        $(find dist -type f | sort)
+        EOF
+        
+    - name: Create release archive
+      run: |
+        echo "📦 Creating release archive..."
+        cd dist
+        tar -czf ../slate-dashboard-${GITHUB_REF#refs/tags/}.tar.gz .
+        cd ..
+        
+    - name: Upload release assets
+      uses: actions/upload-artifact@v3
+      with:
+        name: slate-dashboard-release
+        path: |
+          dist/
+          *.tar.gz
+          
+    - name: Upload to GitHub Release
+      if: github.event_name == 'release'
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: ./slate-dashboard-${{ github.event.release.tag_name }}.tar.gz
+        asset_name: slate-dashboard-${{ github.event.release.tag_name }}.tar.gz
+        asset_content_type: application/gzip
+
+  docker-build:
+    runs-on: ubuntu-latest
+    name: Build Docker Image
+    needs: validate-and-build
+    if: github.event_name == 'release'
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+      
+    - name: Log in to GitHub Container Registry
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v4
+      with:
+        images: ghcr.io/${{ github.repository }}
+        tags: |
+          type=ref,event=tag
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        platforms: linux/amd64,linux/arm64

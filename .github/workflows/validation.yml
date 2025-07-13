@@ -1,0 +1,167 @@
+name: Slate Dashboard Validation
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:  # Allow manual triggers
+
+jobs:
+  validate-configuration:
+    runs-on: ubuntu-latest
+    name: Validate Dashboard Configuration
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Create virtual environment
+      run: |
+        python -m venv venv
+        source venv/bin/activate
+        echo "VIRTUAL_ENV=$VIRTUAL_ENV" >> $GITHUB_ENV
+        echo "$VIRTUAL_ENV/bin" >> $GITHUB_PATH
+        
+    - name: Install Python dependencies
+      run: |
+        source venv/bin/activate
+        pip install --upgrade pip
+        pip install pyyaml cssutils tinycss2
+        
+    - name: Validate Dashboard Configuration
+      run: |
+        source venv/bin/activate
+        echo "🔍 Running Dashboard Configuration Validation..."
+        python src/scripts/test_dashboard.py
+        
+    - name: Validate Widget Definitions
+      run: |
+        source venv/bin/activate
+        echo "🧩 Running Widget Definition Validation..."
+        python src/scripts/test_widgets.py
+        
+    - name: Validate Theme Definitions
+      run: |
+        source venv/bin/activate
+        echo "🎨 Running Theme Definition Validation..."
+        python src/scripts/test_themes.py
+
+  validate-build:
+    runs-on: ubuntu-latest
+    name: Validate Build Process
+    needs: validate-configuration
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Create virtual environment
+      run: |
+        python -m venv venv
+        source venv/bin/activate
+        echo "VIRTUAL_ENV=$VIRTUAL_ENV" >> $GITHUB_ENV
+        echo "$VIRTUAL_ENV/bin" >> $GITHUB_PATH
+        
+    - name: Install Python dependencies
+      run: |
+        source venv/bin/activate
+        pip install --upgrade pip
+        pip install pyyaml cssutils tinycss2
+        
+    - name: Build Dashboard
+      run: |
+        source venv/bin/activate
+        echo "🚀 Building dashboard..."
+        python src/scripts/dashboard_renderer.py
+        
+    - name: Validate Rendered CSS
+      run: |
+        source venv/bin/activate
+        echo "🎨 Validating rendered CSS files..."
+        python src/scripts/test_themes.py
+        
+    - name: Check for build artifacts
+      run: |
+        echo "📁 Checking build artifacts..."
+        ls -la dist/
+        ls -la dist/css/
+        
+        # Verify critical files exist
+        test -f dist/index.html || (echo "❌ Missing index.html" && exit 1)
+        test -d dist/css || (echo "❌ Missing CSS directory" && exit 1)
+        test -f dist/css/base.css || (echo "❌ Missing base.css" && exit 1)
+        
+        echo "✅ All critical build artifacts present"
+
+  lint-and-format:
+    runs-on: ubuntu-latest
+    name: Code Quality Checks
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install linting tools
+      run: |
+        pip install --upgrade pip
+        pip install flake8 black isort
+        
+    - name: Run Python linting
+      run: |
+        echo "🔍 Running Python linting..."
+        flake8 src/scripts/ --max-line-length=100 --ignore=E203,W503 || echo "⚠️ Linting warnings found"
+        
+    - name: Check Python formatting
+      run: |
+        echo "🎨 Checking Python formatting..."
+        black --check --diff src/scripts/ || echo "⚠️ Formatting issues found (run 'black src/scripts/' to fix)"
+        
+    - name: Check import sorting
+      run: |
+        echo "📚 Checking import sorting..."
+        isort --check-only --diff src/scripts/ || echo "⚠️ Import sorting issues found (run 'isort src/scripts/' to fix)"
+
+  security-scan:
+    runs-on: ubuntu-latest
+    name: Security Scanning
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+        
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: 'trivy-results.sarif'
+        
+    - name: Scan for secrets
+      uses: trufflesecurity/trufflehog@main
+      with:
+        path: ./
+        base: main
+        head: HEAD
+        extra_args: --debug --only-verified

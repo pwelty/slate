@@ -1,0 +1,158 @@
+name: Pull Request Validation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [ main, develop ]
+
+jobs:
+  validate-changes:
+    runs-on: ubuntu-latest
+    name: Validate PR Changes
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Fetch full history for comparing changes
+        
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Create virtual environment
+      run: |
+        python -m venv venv
+        source venv/bin/activate
+        echo "VIRTUAL_ENV=$VIRTUAL_ENV" >> $GITHUB_ENV
+        echo "$VIRTUAL_ENV/bin" >> $GITHUB_PATH
+        
+    - name: Install dependencies
+      run: |
+        source venv/bin/activate
+        pip install --upgrade pip
+        pip install pyyaml cssutils tinycss2
+        
+    - name: Get changed files
+      id: changed-files
+      uses: tj-actions/changed-files@v40
+      with:
+        files: |
+          config/dashboard.yaml
+          src/themes/*.yaml
+          src/widgets/*.yaml
+          src/scripts/*.py
+          
+    - name: Validate changed configuration files
+      if: steps.changed-files.outputs.any_changed == 'true'
+      run: |
+        source venv/bin/activate
+        echo "📝 Changed files:"
+        echo "${{ steps.changed-files.outputs.all_changed_files }}"
+        
+        # Always run full validation for config changes
+        if echo "${{ steps.changed-files.outputs.all_changed_files }}" | grep -q "config/dashboard.yaml"; then
+          echo "🔍 Dashboard config changed - running full validation"
+          python src/scripts/test_dashboard.py
+        fi
+        
+        if echo "${{ steps.changed-files.outputs.all_changed_files }}" | grep -q "src/themes/"; then
+          echo "🎨 Theme files changed - validating themes"
+          python src/scripts/test_themes.py
+        fi
+        
+        if echo "${{ steps.changed-files.outputs.all_changed_files }}" | grep -q "src/widgets/"; then
+          echo "🧩 Widget files changed - validating widgets"
+          python src/scripts/test_widgets.py
+        fi
+        
+    - name: Check for breaking changes
+      run: |
+        source venv/bin/activate
+        echo "🔍 Checking for potential breaking changes..."
+        
+        # Check if any required fields were removed from schemas
+        git diff origin/main...HEAD -- src/widgets/*.yaml | grep -E "^\-.*required:" && {
+          echo "⚠️ Warning: Required fields may have been removed from widget schemas"
+          echo "Please verify this doesn't break existing configurations"
+        } || echo "✅ No required field removals detected"
+        
+        # Check if default theme was changed
+        git diff origin/main...HEAD -- config/dashboard.yaml | grep -E "^\-.*theme:" && {
+          echo "⚠️ Warning: Default theme may have been changed"
+          echo "This could affect existing deployments"
+        } || echo "✅ No default theme changes detected"
+
+  preview-build:
+    runs-on: ubuntu-latest
+    name: Preview Build
+    needs: validate-changes
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Create virtual environment and build
+      run: |
+        python -m venv venv
+        source venv/bin/activate
+        pip install --upgrade pip
+        pip install pyyaml cssutils tinycss2
+        
+        echo "🚀 Building preview..."
+        python src/scripts/dashboard_renderer.py
+        
+    - name: Upload preview artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: pr-preview-${{ github.event.number }}
+        path: dist/
+        retention-days: 7
+        
+    - name: Comment PR with preview info
+      uses: actions/github-script@v6
+      with:
+        script: |
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: '🚀 **Preview Build Ready**\n\nYour changes have been built successfully! Download the preview artifacts to test locally.\n\n- ✅ Configuration validation passed\n- ✅ Build completed successfully\n- 📦 Preview artifacts available for 7 days'
+          });
+
+  test-multiple-themes:
+    runs-on: ubuntu-latest
+    name: Test All Themes
+    
+    strategy:
+      matrix:
+        theme: [paper, dark, light, retro, ocean, synthwave, tokyo-night, minimal-dark]
+        
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Test theme build
+      run: |
+        python -m venv venv
+        source venv/bin/activate
+        pip install --upgrade pip
+        pip install pyyaml
+        
+        echo "🎨 Testing ${{ matrix.theme }} theme build..."
+        python src/scripts/dashboard_renderer.py --theme ${{ matrix.theme }}
+        
+        # Verify theme-specific CSS was generated
+        test -f dist/css/theme-${{ matrix.theme }}.css || (echo "❌ Theme CSS not generated" && exit 1)
+        echo "✅ ${{ matrix.theme }} theme built successfully"

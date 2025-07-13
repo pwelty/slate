@@ -1,0 +1,60 @@
+# Pre-commit hooks for Slate Dashboard
+# Install with: pip install pre-commit && pre-commit install
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+        args: ['--allow-multiple-documents']
+      - id: check-added-large-files
+      - id: check-case-conflict
+      - id: check-merge-conflict
+      - id: debug-statements
+      - id: detect-private-key
+
+  - repo: https://github.com/psf/black
+    rev: 23.7.0
+    hooks:
+      - id: black
+        language_version: python3
+        files: ^src/scripts/.*\.py$
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        files: ^src/scripts/.*\.py$
+        args: ["--profile", "black"]
+
+  - repo: https://github.com/pycqa/flake8
+    rev: 6.0.0
+    hooks:
+      - id: flake8
+        files: ^src/scripts/.*\.py$
+        args: [--max-line-length=100, --ignore=E203,W503]
+
+  - repo: local
+    hooks:
+      - id: validate-dashboard
+        name: Validate Dashboard Configuration
+        entry: bash -c 'source venv/bin/activate && python src/scripts/test_dashboard.py'
+        language: system
+        files: ^config/dashboard\.yaml$
+        pass_filenames: false
+
+      - id: validate-widgets
+        name: Validate Widget Definitions
+        entry: bash -c 'source venv/bin/activate && python src/scripts/test_widgets.py'
+        language: system
+        files: ^src/widgets/.*\.yaml$
+        pass_filenames: false
+
+      - id: validate-themes
+        name: Validate Theme Definitions
+        entry: bash -c 'source venv/bin/activate && python src/scripts/test_themes.py'
+        language: system
+        files: ^src/themes/.*\.yaml$
+        pass_filenames: false
