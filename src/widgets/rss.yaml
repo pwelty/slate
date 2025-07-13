@@ -1,0 +1,406 @@
+# RSS Feed Widget Definition - Information Stream for Macro-Focus
+# ===============================================================
+
+metadata:
+  type: "widget"
+  description: "RSS feed aggregator for situational awareness during macro-focus periods"
+  version: "1.0.0"
+  author: "Slate Dashboard"
+
+# Configuration schema
+schema:
+  title:
+    type: "string"
+    required: false
+    description: "Widget title"
+    default: "RSS Feeds"
+  
+  feeds:
+    type: "array"
+    required: true
+    description: "List of RSS feed URLs to aggregate"
+    items:
+      type: "object"
+      properties:
+        url:
+          type: "string"
+          required: true
+          description: "RSS feed URL"
+        name:
+          type: "string"
+          required: false
+          description: "Display name for the feed"
+        category:
+          type: "string"
+          required: false
+          description: "Category for grouping feeds"
+  
+  limit:
+    type: "integer"
+    required: false
+    default: 10
+    min: 1
+    max: 50
+    description: "Maximum number of items to display across all feeds"
+  
+  updateInterval:
+    type: "integer"
+    required: false
+    default: 300000
+    description: "Update interval in milliseconds (default: 5 minutes)"
+  
+  showSnippets:
+    type: "boolean"
+    required: false
+    default: true
+    description: "Show article snippets/descriptions"
+  
+  showDates:
+    type: "boolean"
+    required: false
+    default: true
+    description: "Show publication dates"
+  
+  groupByFeed:
+    type: "boolean"
+    required: false
+    default: false
+    description: "Group items by feed source"
+
+# Extend the base widget template
+extends: "widget"
+
+# Data processing for RSS feeds
+dataProcessing:
+  generateData: |
+    import feedparser
+    import requests
+    from datetime import datetime, timezone
+    import html
+    
+    try:
+        feeds_config = config.get('feeds', [])
+        limit = config.get('limit', 10)
+        show_snippets = config.get('showSnippets', True)
+        show_dates = config.get('showDates', True)
+        group_by_feed = config.get('groupByFeed', False)
+        
+        all_items = []
+        
+        for feed_config in feeds_config:
+            feed_url = feed_config.get('url', '')
+            feed_name = feed_config.get('name', '')
+            feed_category = feed_config.get('category', '')
+            
+            if not feed_url:
+                continue
+                
+            try:
+                # Parse RSS feed
+                response = requests.get(feed_url, timeout=10)
+                response.raise_for_status()
+                
+                feed = feedparser.parse(response.content)
+                
+                # Extract feed metadata
+                if not feed_name:
+                    feed_name = getattr(feed.feed, 'title', 'Unknown Feed')
+                
+                # Process feed items
+                for entry in feed.entries[:limit]:
+                    # Get publication date
+                    pub_date = None
+                    if hasattr(entry, 'published_parsed') and entry.published_parsed:
+                        pub_date = datetime(*entry.published_parsed[:6], tzinfo=timezone.utc)
+                    elif hasattr(entry, 'updated_parsed') and entry.updated_parsed:
+                        pub_date = datetime(*entry.updated_parsed[:6], tzinfo=timezone.utc)
+                    
+                    # Get description/snippet
+                    description = ''
+                    if show_snippets:
+                        if hasattr(entry, 'summary'):
+                            description = html.unescape(entry.summary)
+                            # Strip HTML tags and truncate
+                            import re
+                            description = re.sub('<[^<]+?>', '', description)
+                            if len(description) > 150:
+                                description = description[:150] + '...'
+                    
+                    # Format date for display
+                    date_display = ''
+                    if show_dates and pub_date:
+                        date_display = pub_date.strftime('%m/%d %H:%M')
+                    
+                    item = {
+                        'title': html.unescape(getattr(entry, 'title', 'Untitled')),
+                        'url': getattr(entry, 'link', '#'),
+                        'description': description,
+                        'date': date_display,
+                        'feed_name': feed_name,
+                        'feed_category': feed_category,
+                        'pub_date': pub_date
+                    }
+                    all_items.append(item)
+                    
+            except Exception as e:
+                print(f"Error parsing feed {feed_url}: {e}")
+                continue
+        
+        # Sort all items by publication date (newest first)
+        all_items.sort(key=lambda x: x.get('pub_date') or datetime.min.replace(tzinfo=timezone.utc), reverse=True)
+        
+        # Limit total items
+        all_items = all_items[:limit]
+        
+        # Group by feed if requested
+        if group_by_feed:
+            grouped_items = {}
+            for item in all_items:
+                feed_name = item['feed_name']
+                if feed_name not in grouped_items:
+                    grouped_items[feed_name] = []
+                grouped_items[feed_name].append(item)
+            
+            result = {
+                'rss': {
+                    'status': 'success',
+                    'grouped_items': grouped_items,
+                    'total_items': len(all_items),
+                    'feed_count': len(feeds_config)
+                }
+            }
+        else:
+            result = {
+                'rss': {
+                    'status': 'success',
+                    'items': all_items,
+                    'total_items': len(all_items),
+                    'feed_count': len(feeds_config)
+                }
+            }
+            
+    except Exception as e:
+        result = {
+            'rss': {
+                'status': 'error',
+                'error': str(e),
+                'items': [],
+                'total_items': 0,
+                'feed_count': 0
+            }
+        }
+
+# Widget body content
+widget-body: |
+  {% if data.rss.status == 'success' %}
+    <div class="rss-widget">
+      <div class="rss-header">
+        <span class="rss-count">{{ data.rss.total_items }} items from {{ data.rss.feed_count }} feeds</span>
+      </div>
+      
+      <div class="rss-content">
+        {% if config.groupByFeed and data.rss.grouped_items %}
+          {% for feed_name, items in data.rss.grouped_items.items() %}
+            <div class="rss-feed-group">
+              <h4 class="rss-feed-title">{{ feed_name }}</h4>
+              {% for item in items %}
+                <div class="rss-item">
+                  <a href="{{ item.url }}" target="_blank" class="rss-item-link">
+                    <div class="rss-item-title">{{ item.title }}</div>
+                    {% if item.date %}
+                      <div class="rss-item-date">{{ item.date }}</div>
+                    {% endif %}
+                    {% if item.description %}
+                      <div class="rss-item-description">{{ item.description }}</div>
+                    {% endif %}
+                  </a>
+                </div>
+              {% endfor %}
+            </div>
+          {% endfor %}
+        {% else %}
+          {% for item in data.rss.items %}
+            <div class="rss-item">
+              <a href="{{ item.url }}" target="_blank" class="rss-item-link">
+                <div class="rss-item-header">
+                  <div class="rss-item-title">{{ item.title }}</div>
+                  <div class="rss-item-meta">
+                    {% if item.date %}
+                      <span class="rss-item-date">{{ item.date }}</span>
+                    {% endif %}
+                    <span class="rss-item-source">{{ item.feed_name }}</span>
+                  </div>
+                </div>
+                {% if item.description %}
+                  <div class="rss-item-description">{{ item.description }}</div>
+                {% endif %}
+              </a>
+            </div>
+          {% endfor %}
+        {% endif %}
+      </div>
+    </div>
+  {% else %}
+    <div class="rss-error">
+      <div class="error-icon">📡</div>
+      <div class="error-message">
+        {% if data.rss.error %}
+          Error: {{ data.rss.error }}
+        {% else %}
+          No RSS data available
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+
+# Widget-specific CSS
+css: |
+  .rss-widget {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .rss-header {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 0.75rem;
+  }
+  
+  .rss-count {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+  
+  .rss-content {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 0.25rem;
+  }
+  
+  .rss-feed-group {
+    margin-bottom: 1.5rem;
+  }
+  
+  .rss-feed-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin: 0 0 0.5rem 0;
+    padding: 0.25rem 0.5rem;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius);
+    border-left: 3px solid var(--accent);
+  }
+  
+  .rss-item {
+    margin-bottom: 0.75rem;
+    border-radius: var(--radius);
+    background: var(--bg-secondary);
+    transition: all 0.2s ease;
+  }
+  
+  .rss-item:hover {
+    background: var(--bg-tertiary);
+    transform: translateX(2px);
+  }
+  
+  .rss-item-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    padding: 0.75rem;
+  }
+  
+  .rss-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  .rss-item-title {
+    font-weight: 500;
+    color: var(--text-primary);
+    line-height: 1.3;
+    flex: 1;
+  }
+  
+  .rss-item-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
+    flex-shrink: 0;
+  }
+  
+  .rss-item-date {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+  }
+  
+  .rss-item-source {
+    font-size: 0.75rem;
+    color: var(--accent);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  
+  .rss-item-description {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    margin-top: 0.5rem;
+  }
+  
+  .rss-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+    color: var(--text-secondary);
+  }
+  
+  .error-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.5;
+  }
+  
+  .error-message {
+    font-size: 0.9rem;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .rss-item-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .rss-item-meta {
+      flex-direction: row;
+      align-items: center;
+      align-self: flex-start;
+    }
+  }
+
+# Widget-specific JavaScript
+js: |
+  function initRssWidget(element, config) {
+    console.log('RSS widget initialized with', config.feeds?.length || 0, 'feeds');
+    
+    // Auto-refresh functionality
+    const updateInterval = config.updateInterval || 300000;
+    if (updateInterval > 0) {
+      setInterval(() => {
+        // Trigger rebuild if auto-refresh is enabled
+        console.log('RSS widget refresh triggered');
+      }, updateInterval);
+    }
+  }
