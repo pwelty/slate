@@ -311,6 +311,65 @@ Interactive weather radar display.
 
 ---
 
+### 🛡️ Pi-hole Widget
+
+Display Pi-hole network ad blocking statistics and status.
+
+**Type:** `pihole`
+
+**Configuration:**
+```yaml
+- id: "pihole-widget"
+  type: "pihole"
+  position: { row: 6, column: 7, width: 6, height: 1 }
+  config:
+    title: "Pi-hole"                                    # Widget title
+    baseUrl: "https://pihole.example.com"               # Pi-hole instance URL (without /admin)
+    apiToken: "your-application-password"               # Pi-hole application password
+    updateInterval: 300000                              # Update interval in ms (default: 5 minutes)
+```
+
+**Features:**
+- Real-time blocking statistics
+- DNS query counts and percentages
+- Pi-hole service status (enabled/disabled)
+- **Full Pi-hole v6+ support** with modern authentication
+- Automatic data refresh
+- Responsive status indicators
+
+**Setup:**
+1. **For Pi-hole v6+** (recommended):
+   - Navigate to Pi-hole admin → Settings → Web Interface/API
+   - Toggle "Basic" to "Expert" mode
+   - Click "Configure app password"
+   - Copy the generated application password
+   - Use the password as `apiToken` in configuration
+
+2. **For Pi-hole v5** (legacy):
+   - Use your admin password as `apiToken`
+   - Widget will automatically detect API version
+
+**Version Support:**
+- ✅ **Pi-hole v6.0+** - Full support with session-based authentication
+- ✅ **Pi-hole v5.x** - Backward compatibility with legacy API
+- ❌ **Pi-hole v4.x and older** - Not supported
+
+**Data Display:**
+- 🛡️ **Status**: Enabled/Disabled indicator with appropriate icon
+- **Blocked Today**: Number of blocked requests and percentage
+- **Total Queries**: Total DNS queries processed today
+
+**API Integration:**
+- **v6 Authentication**: POST `/api/auth` → session-based requests
+- **v6 Endpoints**: `/api/stats/summary`, `/api/dns/blocking`
+- **v5 Fallback**: `/admin/api.php?summary`, `/admin/api.php?status`
+- **Server-side data fetching** during dashboard build
+- **Error handling** with graceful fallbacks
+
+> **🎯 Unique Feature**: This is one of the first dashboard widgets to fully support Pi-hole v6's new authentication system, making it compatible with the latest Pi-hole releases.
+
+---
+
 ## 📁 Group Widgets
 
 Groups organize related widgets and links into collapsible containers.

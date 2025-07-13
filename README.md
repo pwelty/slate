@@ -41,6 +41,7 @@ Slate is a **self-hosted personal dashboard** that brings together all your serv
 - **📋 Todoist** - Recent tasks with priority indicators
 - **📚 Trilium** - Recent notes from your Trilium instance
 - **🔖 Linkwarden** - Recent bookmarks and collections
+- **🛡️ Pi-hole** - Network ad blocking statistics with **full v6+ support**
 - **🔗 Links** - Service shortcuts with status monitoring
 - **📊 Status Summary** - System health overview
 - **📝 Text** - Custom messages and information
@@ -165,6 +166,16 @@ Slate includes server-side integrations for popular services:
     apiKey: "your-openweather-key"
     units: "fahrenheit"
 ```
+
+### **🛡️ Pi-hole** (NEW!)
+```yaml
+- type: "pihole"
+  config:
+    title: "Pi-hole"
+    baseUrl: "https://pihole.example.com"
+    apiToken: "your-application-password"  # v6+ app password
+```
+> **First dashboard with Pi-hole v6+ support!** Works with both legacy v5 and modern v6 authentication.
 
 ## 🎨 Themes
 
