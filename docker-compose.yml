@@ -20,15 +20,22 @@ services:
   slate:
     build: 
       context: .
-      dockerfile: docker/Dockerfile
+      dockerfile: Dockerfile
     container_name: slate
     restart: unless-stopped
     network_mode: "service:slate-tailscale"  # Share network with Tailscale
     volumes:
-      - ./slate-config:/app/config
+      - ./config:/app/config
+      - ./dist:/app/dist
     environment:
-      - NODE_ENV=production
+      - PYTHONUNBUFFERED=1
       - HOSTNAME=127.0.0.1  # Bind to localhost specifically
-      - PORT=80
+      - PORT=5173
+      - THEME=${THEME:-dark}
     depends_on:
       - slate-tailscale
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

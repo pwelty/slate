@@ -1,0 +1,112 @@
+# Slate Dashboard Configuration Template
+# =====================================
+# 
+# Copy this file to dashboard.yaml and customize for your setup
+# 
+# Structure:
+# - dashboard: Global dashboard settings (title, subtitle, theme, etc.)
+# - components: Array of all widgets and groups to render
+#
+
+# Global Dashboard Settings
+dashboard:
+  title: "Slate"
+  subtitle: "Personal Dashboard"
+  version: "2.0.0"
+  theme: "dark"        # Default theme (can override with --theme or SLATE_THEME env var)
+
+components:
+  # HEADER ROW - Logo and Clock
+  - id: "slate-logo"
+    type: "widget"
+    widget: "image"
+    position: 
+      row: 1
+      column: 1
+      width: 2
+      height: 1
+    config:
+      src: "images/slate_logo_821_286.png"
+      alt: "Slate Logo"
+      height: "60px"
+      objectFit: "contain"
+      className: "logo-widget"
+      
+  - id: "header-clock"
+    type: "clock"
+    position: 
+      row: 1
+      column: 10
+      width: 3
+      height: 1
+    config:
+      format: "12h"
+      showDate: true
+      centered: true
+      
+  # Example text widget
+  - id: "welcome-text"
+    type: "text"
+    position: 
+      row: 1
+      column: 3
+      width: 4
+      height: 1
+    config:
+      title: "Welcome"
+      content: "Welcome to your Slate dashboard!"
+      alignment: "center"
+      size: "medium"
+      
+  # Example link group
+  - id: "dev-group"
+    type: "group"
+    title: "Development"
+    position: 
+      row: 2
+      column: 1
+      width: 6
+      height: 1
+    collapsed: false
+    items:
+      - type: "link"
+        name: "GitHub"
+        url: "https://github.com"
+        icon: "🐙"
+        description: "Code repository"
+        statusCheck: false
+        
+      - type: "link"
+        name: "GitLab"
+        url: "https://gitlab.com"
+        icon: "🦊"
+        description: "Alternative Git hosting"
+        statusCheck: false
+
+  # Example weather widget (requires API key)
+  - id: "weather-widget"
+    type: "widget"
+    widget: "weather"
+    position: 
+      row: 3
+      column: 10
+      width: 3
+      height: 1
+    config:
+      title: "Your City"
+      location: "YOUR_ZIP_CODE"      # Replace with your zip code
+      displayName: "Your City, State"
+      units: "fahrenheit"            # or "celsius"
+      apiKey: "YOUR_OPENWEATHER_API_KEY"  # Get from openweathermap.org
+
+# Icon mapping
+icons:
+  github: "🐙"
+  gitlab: "🦊"
+  docker: "🐳"
+  search: "🔍"
+  bookmark: "🔖"
+  archive: "📦"
+  database: "🗄️"
+  shield: "🛡️"
+  network: "🌐"
