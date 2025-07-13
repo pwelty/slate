@@ -70,7 +70,7 @@ schema:
 # Extend the base widget template
 extends: "widget"
 
-# Data processing for RSS feeds
+# Data processing for RSS feeds - following modern widget standards
 dataProcessing:
   generateData: |
     import feedparser
@@ -161,49 +161,47 @@ dataProcessing:
                     grouped_items[feed_name] = []
                 grouped_items[feed_name].append(item)
             
+            # Modern widget standard: flat structure directly in template context
             result = {
-                'rss': {
-                    'status': 'success',
-                    'grouped_items': grouped_items,
-                    'total_items': len(all_items),
-                    'feed_count': len(feeds_config)
-                }
+                'items': all_items,
+                'grouped_items': grouped_items,
+                'total_items': len(all_items),
+                'feed_count': len(feeds_config),
+                'status': 'success'
             }
         else:
+            # Modern widget standard: flat structure directly in template context
             result = {
-                'rss': {
-                    'status': 'success',
-                    'items': all_items,
-                    'total_items': len(all_items),
-                    'feed_count': len(feeds_config)
-                }
+                'items': all_items,
+                'total_items': len(all_items),
+                'feed_count': len(feeds_config),
+                'status': 'success'
             }
             
     except Exception as e:
+        # Modern widget standard: flat structure directly in template context
         result = {
-            'rss': {
-                'status': 'error',
-                'error': str(e),
-                'items': [],
-                'total_items': 0,
-                'feed_count': 0
-            }
+            'items': [],
+            'total_items': 0,
+            'feed_count': 0,
+            'status': 'error',
+            'error': str(e)
         }
 
-# Widget body content
+# Widget body content - following modern widget standards
 widget-body: |
-  {% if rss.status == 'success' %}
+  {% if status == 'success' %}
     <div class="rss-widget">
       <div class="rss-header">
-        <span class="rss-count">{{ rss.total_items }} items from {{ rss.feed_count }} feeds</span>
+        <span class="rss-count">{{ total_items }} items from {{ feed_count }} feeds</span>
       </div>
       
       <div class="rss-content">
-        {% if groupByFeed and rss.grouped_items %}
-          {% for feed_name, items in rss.grouped_items.items() %}
+        {% if groupByFeed and grouped_items %}
+          {% for feed_name, feed_items in grouped_items.items() %}
             <div class="rss-feed-group">
               <h4 class="rss-feed-title">{{ feed_name }}</h4>
-              {% for item in items %}
+              {% for item in feed_items %}
                 <div class="rss-item">
                   <a href="{{ item.url }}" target="_blank" class="rss-item-link">
                     <div class="rss-item-title">{{ item.title }}</div>
@@ -219,10 +217,10 @@ widget-body: |
             </div>
           {% endfor %}
         {% else %}
-          {% for item in rss.items %}
+          {% for item in items %}
             <div class="rss-item">
               <a href="{{ item.url }}" target="_blank" class="rss-item-link">
-                <div class="rss-item-header">
+                <div class="rss-item-content">
                   <div class="rss-item-title">{{ item.title }}</div>
                   <div class="rss-item-meta">
                     {% if item.date %}
@@ -231,9 +229,6 @@ widget-body: |
                     <span class="rss-item-source">{{ item.feed_name }}</span>
                   </div>
                 </div>
-                {% if item.description %}
-                  <div class="rss-item-description">{{ item.description }}</div>
-                {% endif %}
               </a>
             </div>
           {% endfor %}
@@ -244,8 +239,8 @@ widget-body: |
     <div class="rss-error">
       <div class="error-icon">📡</div>
       <div class="error-message">
-        {% if rss.error %}
-          Error: {{ rss.error }}
+        {% if error %}
+          Error: {{ error }}
         {% else %}
           No RSS data available
         {% endif %}
@@ -295,14 +290,16 @@ css: |
   }
   
   .rss-item {
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
     border-radius: var(--radius);
     background: var(--bg-secondary);
     transition: all 0.2s ease;
+    border-left: 3px solid transparent;
   }
   
   .rss-item:hover {
     background: var(--bg-tertiary);
+    border-left-color: var(--accent);
     transform: translateX(2px);
   }
   
@@ -310,15 +307,14 @@ css: |
     display: block;
     text-decoration: none;
     color: inherit;
-    padding: 0.75rem;
+    padding: 0.5rem 0.75rem;
   }
   
-  .rss-item-header {
+  .rss-item-content {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    gap: 0.5rem;
-    margin-bottom: 0.25rem;
+    align-items: center;
+    gap: 0.75rem;
   }
   
   .rss-item-title {
@@ -326,6 +322,11 @@ css: |
     color: var(--text-primary);
     line-height: 1.3;
     flex: 1;
+    font-size: 0.9rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
   
   .rss-item-meta {
@@ -334,19 +335,23 @@ css: |
     align-items: flex-end;
     gap: 0.25rem;
     flex-shrink: 0;
+    min-width: 100px;
   }
   
   .rss-item-date {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: var(--text-secondary);
     white-space: nowrap;
+    opacity: 0.8;
   }
   
   .rss-item-source {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: var(--accent);
-    font-weight: 500;
+    font-weight: 600;
     white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
   
   .rss-item-description {
