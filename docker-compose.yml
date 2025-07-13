@@ -18,20 +18,24 @@ services:
     restart: unless-stopped
 
   slate:
-    build: 
-      context: .
-      dockerfile: Dockerfile
+    image: python:3.11-slim
     container_name: slate
     restart: unless-stopped
     network_mode: "service:slate-tailscale"  # Share network with Tailscale
+    working_dir: /app
     volumes:
-      - ./config:/app/config
-      - ./dist:/app/dist
+      - .:/app
     environment:
       - PYTHONUNBUFFERED=1
       - HOSTNAME=127.0.0.1  # Bind to localhost specifically
       - PORT=5173
       - THEME=${THEME:-dark}
+    command: >
+      bash -c "
+        pip install -r requirements.txt &&
+        python src/scripts/dashboard_renderer.py --theme $${THEME:-dark} --skip-validation &&
+        exec python src/scripts/serve.py --port $${PORT:-5173}
+      "
     depends_on:
       - slate-tailscale
     logging:

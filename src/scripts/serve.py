@@ -23,7 +23,7 @@ def serve_dashboard(port=5173):
     """Serve the dashboard using Python's built-in HTTP server"""
     
     # Get dist directory path but don't change to it yet
-    project_root = Path(__file__).parent
+    project_root = Path(__file__).parent.parent.parent
     dist_dir = project_root / "dist"
     if not dist_dir.exists():
         print("❌ dist/ directory not found. Run the build script first:")

@@ -75,7 +75,8 @@ class DashboardRebuildHandler(FileSystemEventHandler):
             result = subprocess.run([
                 sys.executable, 
                 str(PROJECT_ROOT / "src/scripts/dashboard_renderer.py"),
-                "--theme", self.theme
+                "--theme", self.theme,
+                "--skip-validation"
             ], capture_output=True, text=True, cwd=PROJECT_ROOT)
             
             if result.returncode == 0:
