@@ -192,15 +192,15 @@ dataProcessing:
 
 # Widget body content
 widget-body: |
-  {% if data.rss.status == 'success' %}
+  {% if rss.status == 'success' %}
     <div class="rss-widget">
       <div class="rss-header">
-        <span class="rss-count">{{ data.rss.total_items }} items from {{ data.rss.feed_count }} feeds</span>
+        <span class="rss-count">{{ rss.total_items }} items from {{ rss.feed_count }} feeds</span>
       </div>
       
       <div class="rss-content">
-        {% if config.groupByFeed and data.rss.grouped_items %}
-          {% for feed_name, items in data.rss.grouped_items.items() %}
+        {% if groupByFeed and rss.grouped_items %}
+          {% for feed_name, items in rss.grouped_items.items() %}
             <div class="rss-feed-group">
               <h4 class="rss-feed-title">{{ feed_name }}</h4>
               {% for item in items %}
@@ -219,7 +219,7 @@ widget-body: |
             </div>
           {% endfor %}
         {% else %}
-          {% for item in data.rss.items %}
+          {% for item in rss.items %}
             <div class="rss-item">
               <a href="{{ item.url }}" target="_blank" class="rss-item-link">
                 <div class="rss-item-header">
@@ -244,8 +244,8 @@ widget-body: |
     <div class="rss-error">
       <div class="error-icon">📡</div>
       <div class="error-message">
-        {% if data.rss.error %}
-          Error: {{ data.rss.error }}
+        {% if rss.error %}
+          Error: {{ rss.error }}
         {% else %}
           No RSS data available
         {% endif %}
