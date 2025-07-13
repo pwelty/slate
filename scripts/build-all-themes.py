@@ -57,9 +57,37 @@ def build_theme_css(theme_name):
     
     print(f"   ✓ Theme CSS built: {theme_file}")
 
+def run_validations():
+    """Run validation suite before building themes"""
+    print("🔍 Running validation suite...")
+    
+    validation_scripts = [
+        ("Theme Definitions", PROJECT_ROOT / "src/scripts/test_themes.py"),
+        ("Dashboard Configuration", PROJECT_ROOT / "src/scripts/test_dashboard.py")
+    ]
+    
+    for name, script_path in validation_scripts:
+        if not script_path.exists():
+            print(f"⚠️  Warning: {name} validation script not found")
+            continue
+            
+        print(f"   Validating {name}...")
+        try:
+            result = os.system(f"cd {PROJECT_ROOT} && python {script_path}")
+            if result != 0:
+                raise Exception(f"{name} validation failed")
+            print(f"   ✅ {name} validation passed")
+        except Exception as e:
+            raise Exception(f"Validation failed: {e}")
+    
+    print("✅ All validations passed!")
+
 def main():
     """Build all themes"""
     print("🚀 Building all theme CSS files...")
+    
+    # Run validations first
+    run_validations()
     
     # Load dashboard config
     config = load_yaml(PROJECT_ROOT / "config" / "dashboard.yaml")
