@@ -13,33 +13,121 @@ Slate aims to be the simplest, most reliable self-hosted dashboard for personal 
 
 ## Release Philosophy
 
-### Current Status: v1.0 - Core Platform
-- ✅ **Stable foundation**: Flat configuration, plugin architecture
-- ✅ **Essential widgets**: Clock, weather, links, service previews
-- ✅ **Theme system**: Multiple themes with granular controls
-- ✅ **Docker deployment**: Tailscale integration for secure access
-- ✅ **13 widget types**: Comprehensive service integrations
+Each version follows a coherent theme to maintain focused development goals and clear user-facing value.
 
-### v1.1 - Polish & Stability (Q2 2024)
-- [ ] **Bug fixes**: Address any post-launch issues
-- [ ] **Performance optimization**: Reduce bundle size, improve loading
-- [ ] **Documentation**: User guides, video tutorials
-- [ ] **Testing**: Automated test suite implementation
-- [ ] **A11y improvements**: Better accessibility support
+### v0.8 - "Private Beta" 
+**Theme: Core Functionality & Friends Testing**
+- Essential fixes for basic functionality
+- Core stability for testing
+- Product identity foundation
+- 5-10 close friends/colleagues as testers
+- Duration: 2-4 weeks
 
-### v1.2 - Enhanced Widgets (Q3 2024)
-- [ ] **System monitoring**: CPU, RAM, disk usage widgets
-- [ ] **Calendar integration**: Display upcoming events
-- [ ] **RSS/News feeds**: Latest headlines widget
-- [ ] **Network monitoring**: Internet speed, uptime tracking
-- [ ] **Cryptocurrency**: Price tracking for popular coins
+**Issues:**
+- #3 - Fix interstitial {{ }} visible in live server during build
+- #4 - Setup proper logging system instead of print statements  
+- #5 - Validate weather widget YAML conforms to modern widget definitions
+- #8 - Implement proper dependency management and requirements.txt
+- #21 - Create product name
 
-### v2.0 - Advanced Features (Q4 2024)
-- [ ] **Multi-dashboard**: Multiple pages/views
-- [ ] **Search functionality**: Global search across all services
-- [ ] **Keyboard navigation**: Full keyboard shortcuts
-- [ ] **Config versioning**: Track and rollback configuration changes
-- [ ] **Import/export**: Share configurations between installations
+### v0.9 - "Soft Launch"
+**Theme: Polish & Deployment Ready**
+- Complete deployment solutions
+- Documentation and user experience
+- Expanded testing group (25-50 people)
+- Duration: 4-6 weeks
+
+**Issues:**
+- #22 - Create product landing page
+- #24 - Add product differentiators
+- #30 - Setup proper Docker and Tailscale sidecar for deployment
+- Roadmap documentation structure and content
+- Product positioning and messaging
+- Beta feedback incorporation
+
+### v1.0 - "Public Launch"
+**Theme: Production Ready & Public Release**
+- Public-facing launch materials
+- Community onboarding
+- Marketing campaign execution
+- General availability
+
+**Issues:**
+- Final polish from beta feedback
+- Public launch materials
+- Community documentation
+- Marketing asset completion
+
+### v1.5 - "Deployment Ready"
+**Theme: Production Deployment & Developer Experience**
+- Complete deployment solutions
+- Enhanced developer workflow
+- Quality user documentation
+- Hot reload and iteration speed
+
+**Issues:**
+- #1 - Better radar provider
+- #2 - Add deployment support for static hosting platforms
+- #6 - Add comprehensive error handling and user feedback for build failures
+- #7 - Create widget development documentation and templates
+- #17 - Create integration tests for complete build pipeline
+- #20 - Add comprehensive user documentation
+- #29 - Hot Reload for Development
+
+### v2.0 - "Advanced Features"
+**Theme: Enhanced Functionality & Quality Tooling**
+- Advanced widget ecosystem
+- Comprehensive validation systems
+- Visual tooling and previews
+- Developer productivity features
+
+**Issues:**
+- #9 - Add Raindrop dynamic widget
+- #10 - Add theme validation for missing/broken CSS variables
+- #12 - Add dashboard layout validation and grid optimization
+- #13 - [DISCUSS] Should we put user-created/supplied themes in a different directory away from /src?
+- #16 - Add visual regression testing for theme rendering
+- #23 - Add API documentation for widget development
+
+### v3.0 - "Scale & Monitor"
+**Theme: Performance, Monitoring & Enterprise Features**
+- Performance optimization and monitoring
+- Backup and recovery systems
+- Advanced deployment features
+
+**Issues:**
+- #11 - Add widget hot-swapping without full rebuild
+- #14 - Create automated theme screenshot generation for documentation
+- #15 - Implement widget dependency management and conflict detection
+- #18 - Add performance monitoring and optimization
+- #19 - Create backup/restore system for dashboard configurations
+
+### No Target/Someday
+**Theme: Future Considerations**
+- Experimental features
+- Community marketplace
+- Advanced UI systems
+
+**Issues:**
+- #25 - Widget marketplace/gallery system
+- #27 - Theme Preview System
+- #28 - Configuration Validation UI
+
+## Development Principles
+
+1. **Coherent Releases**: Each version has a clear theme and user-facing value
+2. **Progressive Enhancement**: Build solid foundation before advanced features
+3. **Developer Experience**: Maintain focus on ease of development and deployment
+4. **Quality First**: Validation, testing, and documentation are first-class concerns
+5. **Static Site Focus**: Leverage SSG as core differentiator throughout development
+
+## Key Differentiators
+
+- **Static Site Generation**: No server required, fast CDN deployment
+- **Visual Appeal**: Focus on beautiful, customizable dashboards
+- **Developer-Friendly**: Easy widget development, hot reload, comprehensive docs
+- **Self-Hosted**: Complete ownership and privacy of dashboard data
+- **Extensible**: Plugin-based architecture for widgets and themes
 
 ## Planned Features
 
