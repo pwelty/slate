@@ -923,8 +923,8 @@ def run_validation_suite():
     
     print("✅ All validations passed! Proceeding with build...")
 
-def render_dashboard(theme_name=None, skip_validation=False):
-    """Render the complete dashboard"""
+def render_dashboard(theme_name=None, skip_validation=False, atomic=True):
+    """Render the complete dashboard with atomic builds to prevent template variable exposure"""
     
     # Step 0: Run validation suite first (unless skipped)
     if not skip_validation:
@@ -942,7 +942,74 @@ def render_dashboard(theme_name=None, skip_validation=False):
     
     print(f"🚀 Rendering dashboard with {theme_name} theme...")
     
-    # Step 1: Copy template to dist
+    if atomic:
+        # Atomic build: build everything in temp directory, then swap atomically
+        render_dashboard_atomic(theme_name, dashboard_config)
+    else:
+        # Legacy build: direct to dist (may show template variables during build)
+        render_dashboard_legacy(theme_name, dashboard_config)
+
+def render_dashboard_atomic(theme_name, dashboard_config):
+    """Atomic build implementation - prevents template variable exposure"""
+    import tempfile
+    
+    # Create temporary build directory
+    with tempfile.TemporaryDirectory(prefix='slate-build-') as temp_build_dir:
+        temp_dist = Path(temp_build_dir) / "dist"
+        temp_dist.mkdir(exist_ok=True)
+        
+        print("🔨 Building in temporary directory (atomic mode)...")
+        
+        # Step 1: Copy template to TEMP directory (not exposed to web server)
+        copy_template_to_dir(temp_dist)
+        
+        # Generate build timestamp for cache busting
+        import time
+        build_timestamp = int(time.time() * 1000)  # Milliseconds for more precision
+        
+        # Step 2: Build all themes in temp directory
+        built_themes = build_all_themes(THEMES_DIR, temp_dist)
+        
+        # Step 2a: Copy theme JS files to temp directory
+        copy_theme_js_files_to_dir(temp_dist)
+        
+        # Set the current theme CSS link
+        theme_css = f'<link rel="stylesheet" href="css/theme-{theme_name}.css?v={build_timestamp}">'
+        
+        # Load theme JS if the current theme has effects-js
+        theme_js = ""
+        current_theme_config = load_theme_from_renderer(theme_name, THEMES_DIR)
+        if current_theme_config and 'effects-js' in current_theme_config:
+            js_filename = current_theme_config['effects-js']
+            theme_js = f'<script src="js/{js_filename}?v={build_timestamp}"></script>'
+        
+        # Step 3: Build effects CSS
+        effects_css = build_effects_css().replace('css/base-effects.css">', f'css/base-effects.css?v={build_timestamp}">')
+        
+        # Step 5: Generate grid configuration CSS
+        grid_css = generate_grid_css(dashboard_config)
+        
+        # Step 6: Render widgets
+        widgets_content, widgets_css, widgets_js, widget_includes = render_widgets_and_groups(dashboard_config, build_timestamp)
+        
+        # Step 7: Render final HTML in temp directory
+        render_final_html_in_dir(temp_dist, theme_name, dashboard_config, theme_css, theme_js, 
+                                 effects_css, grid_css, widgets_content, widgets_css, widgets_js, 
+                                 widget_includes, build_timestamp, built_themes)
+        
+        # Step 8: Atomic swap - replace entire dist directory
+        print("🔄 Atomically swapping build directories...")
+        atomic_swap_dist_directory(DIST_DIR, temp_dist)
+        
+        print(f"✅ Dashboard rendered successfully!")
+        print(f"   📄 Output: {DIST_DIR / 'index.html'}")
+        print(f"   🌐 Serve with: python3 serve.py")
+
+def render_dashboard_legacy(theme_name, dashboard_config):
+    """Legacy build implementation - may show template variables during build"""
+    print("⚠️  Using legacy build mode (may show template variables during build)")
+    
+    # Step 1: Copy template to dist (EXPOSES TEMPLATE VARIABLES)
     copy_template_to_dist()
     
     # Generate build timestamp for cache busting
@@ -1048,6 +1115,208 @@ def render_dashboard(theme_name=None, skip_validation=False):
     print(f"   📄 Output: {final_index_file}")
     print(f"   🌐 Serve with: python3 serve.py")
 
+# Helper functions for atomic builds
+
+def copy_template_to_dist():
+    """Copy template to dist directory (legacy build helper)"""
+    copy_template_to_dir(DIST_DIR)
+
+def copy_template_to_dir(target_dir):
+    """Copy template to specified directory (atomic build helper)"""
+    print(f"📁 Copying template to {target_dir}...")
+    
+    # Create necessary subdirectories
+    for subdir in ['css', 'js', 'images']:
+        (target_dir / subdir).mkdir(exist_ok=True)
+    
+    # Copy template files
+    shutil.copytree(TEMPLATE_DIR, target_dir, dirs_exist_ok=True)
+    print(f"   ✓ Template copied to {target_dir}")
+    
+    # Copy theme preview
+    preview_template = TEMPLATE_DIR / "preview.html"
+    if preview_template.exists():
+        shutil.copy2(preview_template, target_dir / "preview.html")
+        print(f"   ✓ Theme preview copied to {target_dir}/preview.html")
+
+def generate_theme_switcher_js_content(themes):
+    """Generate theme switcher JavaScript content"""
+    themes_array = ', '.join([f'"{theme}"' for theme in themes])
+    return f"""
+// Theme Switcher for Slate Dashboard
+// Auto-generated list of available themes
+
+const availableThemes = [{themes_array}];
+
+// Theme switching functionality
+document.addEventListener('DOMContentLoaded', function() {{
+    const themeSelector = document.getElementById('theme-selector');
+    if (!themeSelector) return;
+    
+    themeSelector.addEventListener('change', function(e) {{
+        const newTheme = e.target.value;
+        switchTheme(newTheme);
+    }});
+}});
+
+function switchTheme(themeName) {{
+    // Update body class
+    document.body.className = document.body.className.replace(/theme-\\w+/g, '');
+    document.body.classList.add('theme-' + themeName);
+    
+    // Update theme CSS link
+    const themeLink = document.querySelector('link[href*="theme-"]');
+    if (themeLink) {{
+        const timestamp = new Date().getTime();
+        themeLink.href = `css/theme-${{themeName}}.css?v=${{timestamp}}`;
+    }}
+    
+    // Store preference
+    localStorage.setItem('selectedTheme', themeName);
+    
+    // Update current theme display
+    const currentThemeSpan = document.querySelector('.current-theme');
+    if (currentThemeSpan) {{
+        currentThemeSpan.textContent = themeName.charAt(0).toUpperCase() + themeName.slice(1).replace('-', ' ');
+    }}
+}}
+
+// Load saved theme on page load
+document.addEventListener('DOMContentLoaded', function() {{
+    const savedTheme = localStorage.getItem('selectedTheme');
+    if (savedTheme && availableThemes.includes(savedTheme)) {{
+        switchTheme(savedTheme);
+        const selector = document.getElementById('theme-selector');
+        if (selector) {{
+            selector.value = savedTheme;
+        }}
+    }}
+}});
+""".strip()
+
+def copy_theme_js_files_to_dir(target_dir):
+    """Copy theme JS files to specified directory (atomic build helper)"""
+    print("📜 Copying theme JS files...")
+    
+    js_dir = target_dir / "js"
+    js_dir.mkdir(exist_ok=True)
+    
+    theme_js_files = []
+    themes = get_available_themes(THEMES_DIR)
+    
+    for theme_name in themes:
+        theme_config = load_theme_from_renderer(theme_name, THEMES_DIR)
+        if theme_config and 'effects-js' in theme_config:
+            js_filename = theme_config['effects-js']
+            source_path = THEMES_DIR / js_filename
+            if source_path.exists():
+                target_path = js_dir / js_filename
+                shutil.copy2(source_path, target_path)
+                theme_js_files.append(js_filename)
+                print(f"   ✓ Theme JS copied: {js_filename}")
+    
+    # Generate theme switcher
+    switcher_js = generate_theme_switcher_js_content(themes)
+    with open(js_dir / "theme-switcher.js", 'w') as f:
+        f.write(switcher_js)
+    print(f"   ✓ Theme switcher generated with {len(themes)} themes: {', '.join(themes)}")
+    print("   ✓ Theme JS files processed")
+
+def render_widgets_and_groups(dashboard_config, build_timestamp):
+    """Render widgets and groups, returning all components (atomic build helper)"""
+    widgets_result = render_widgets(dashboard_config)
+    return widgets_result["html"], "", "", ""
+
+def render_final_html_in_dir(target_dir, theme_name, dashboard_config, theme_css, theme_js, 
+                            effects_css, grid_css, widgets_content, widgets_css, widgets_js, 
+                            widget_includes, build_timestamp, built_themes):
+    """Render final HTML template in specified directory (atomic build helper)"""
+    # Step 7: Load index.html template from target directory
+    index_template_file = target_dir / "index.html"
+    with open(index_template_file, 'r') as f:
+        template_content = f.read()
+    
+    # Step 8: Replace placeholders
+    template = Template(template_content)
+    
+    # Get dashboard info
+    dashboard_info = dashboard_config.get('dashboard', {})
+    title = dashboard_info.get('title', 'Slate Dashboard')
+    subtitle = dashboard_info.get('subtitle', 'Personal Dashboard')
+    
+    # Create footer message with proper HTML formatting
+    footer_message = f"""
+        <span>&copy; 2025 {title}</span>
+        <span class="separator">•</span>
+        <span>Built with Slate Dashboard System</span>
+        <span class="separator">•</span>
+        <span>Theme: <span class="current-theme">{theme_name.title()}</span></span>
+    """.strip()
+    
+    # Generate dynamic theme options for the footer selector
+    available_themes = get_available_themes(THEMES_DIR)
+    theme_options = []
+    for theme_id in available_themes:
+        theme_info = get_theme_info(theme_id, THEMES_DIR)
+        if theme_info:
+            theme_display_name = theme_info['name']
+            selected = 'selected' if theme_id == theme_name else ''
+            theme_options.append(f'<option value="{theme_id}" {selected}>{theme_display_name}</option>')
+        else:
+            # Fallback to theme ID as display name
+            selected = 'selected' if theme_id == theme_name else ''
+            display_name = theme_id.replace('-', ' ').title()
+            theme_options.append(f'<option value="{theme_id}" {selected}>{display_name}</option>')
+    
+    theme_options_html = '\n                            '.join(theme_options)
+    
+    # Render final HTML
+    rendered_html = template.render(
+        title=title,
+        subtitle=subtitle,
+        theme_name=theme_name,
+        theme_css=theme_css,
+        effects_css=effects_css,
+        custom_css=grid_css,
+        widgets_content=widgets_content,
+        footer_message=footer_message,
+        theme_options=theme_options_html,
+        effect_manager_js="",
+        theme_js=theme_js,
+        widget_css="",  # No global widget CSS - all inline now
+        widget_js="",   # No global widget JS - all inline now
+        build_timestamp=build_timestamp
+    )
+    
+    # Step 9: Write final index.html to target directory
+    final_index_file = target_dir / "index.html"
+    with open(final_index_file, 'w') as f:
+        f.write(rendered_html)
+
+def atomic_swap_dist_directory(live_dist_dir, temp_dist_dir):
+    """Atomically replace live directory with temp directory"""
+    backup_dir = live_dist_dir.parent / f"{live_dist_dir.name}.backup"
+    
+    try:
+        # Create backup of current dist if it exists
+        if live_dist_dir.exists():
+            if backup_dir.exists():
+                shutil.rmtree(backup_dir)
+            shutil.move(str(live_dist_dir), str(backup_dir))
+        
+        # Move temp to live location
+        shutil.move(str(temp_dist_dir), str(live_dist_dir))
+        
+        # Cleanup backup after successful swap
+        if backup_dir.exists():
+            shutil.rmtree(backup_dir)
+            
+    except Exception as e:
+        # Rollback on error
+        if backup_dir.exists() and not live_dist_dir.exists():
+            shutil.move(str(backup_dir), str(live_dist_dir))
+        raise Exception(f"Atomic swap failed: {e}")
+
 if __name__ == "__main__":
     import argparse
     
@@ -1055,11 +1324,13 @@ if __name__ == "__main__":
     parser.add_argument('--theme', default=None, help='Theme to use (default: read from config)')
     parser.add_argument('--skip-validation', action='store_true', 
                        help='Skip validation tests (not recommended for production)')
+    parser.add_argument('--legacy-build', action='store_true',
+                       help='Use legacy build mode (may show template variables during build)')
     
     args = parser.parse_args()
     
     try:
-        render_dashboard(args.theme, skip_validation=args.skip_validation)
+        render_dashboard(args.theme, skip_validation=args.skip_validation, atomic=not args.legacy_build)
     except Exception as e:
         print(f"❌ Error: {e}")
         import traceback
