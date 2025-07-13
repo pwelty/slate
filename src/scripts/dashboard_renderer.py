@@ -11,6 +11,7 @@ import json
 import shutil
 from pathlib import Path
 import argparse
+import subprocess
 
 try:
     from jinja2 import Template
@@ -892,8 +893,50 @@ function init{function_name.title()}Widget(element, config) {{
     
     return ""
 
-def render_dashboard(theme_name=None):
+def run_validation_suite():
+    """Run all validation tests before building"""
+    print("🔍 Running validation suite before build...")
+    
+    PROJECT_ROOT = Path(__file__).parent.parent.parent
+    validation_scripts = [
+        ("Dashboard Configuration", PROJECT_ROOT / "src/scripts/test_dashboard.py"),
+        ("Widget Definitions", PROJECT_ROOT / "src/scripts/test_widgets.py"),
+        ("Theme Definitions", PROJECT_ROOT / "src/scripts/test_themes.py")
+    ]
+    
+    for name, script_path in validation_scripts:
+        if not script_path.exists():
+            print(f"⚠️  Warning: {name} validation script not found: {script_path}")
+            continue
+            
+        print(f"   Validating {name}...")
+        try:
+            result = subprocess.run([sys.executable, str(script_path)], 
+                                  capture_output=True, text=True, timeout=60)
+            
+            if result.returncode != 0:
+                print(f"❌ {name} validation failed!")
+                print("STDOUT:", result.stdout)
+                print("STDERR:", result.stderr)
+                raise Exception(f"{name} validation failed with code {result.returncode}")
+            else:
+                print(f"   ✅ {name} validation passed")
+                
+        except subprocess.TimeoutExpired:
+            raise Exception(f"{name} validation timed out")
+        except Exception as e:
+            raise Exception(f"Failed to run {name} validation: {e}")
+    
+    print("✅ All validations passed! Proceeding with build...")
+
+def render_dashboard(theme_name=None, skip_validation=False):
     """Render the complete dashboard"""
+    
+    # Step 0: Run validation suite first (unless skipped)
+    if not skip_validation:
+        run_validation_suite()
+    else:
+        print("⚠️  Skipping validation suite (--skip-validation flag used)")
     
     # Step 4: Load dashboard configuration first to get theme
     dashboard_config = load_dashboard_config_local()
@@ -1016,11 +1059,13 @@ if __name__ == "__main__":
     
     parser = argparse.ArgumentParser(description='Slate Dashboard Builder')
     parser.add_argument('--theme', default=None, help='Theme to use (default: read from config)')
+    parser.add_argument('--skip-validation', action='store_true', 
+                       help='Skip validation tests (not recommended for production)')
     
     args = parser.parse_args()
     
     try:
-        render_dashboard(args.theme)
+        render_dashboard(args.theme, skip_validation=args.skip_validation)
     except Exception as e:
         print(f"❌ Error: {e}")
         import traceback
