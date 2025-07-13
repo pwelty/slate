@@ -36,6 +36,19 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
+# Application logs (Slate Dashboard)
+slate.log
+slate-*.log
+dashboard.log
+dashboard-*.log
+build.log
+build-*.log
+validation.log
+validation-*.log
+*.log.*
+*.log.gz
+*.log.bz2
+
 # OS Generated Files
 .DS_Store
 .DS_Store?

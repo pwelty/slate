@@ -17,6 +17,10 @@ import subprocess
 from jinja2 import Template
 import requests
 
+# Slate logging system
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from utils.logging_config import get_logger, setup_logging
+
 from theme_renderer import (
     get_available_themes, load_theme as load_theme_from_renderer, build_all_themes, 
     get_theme_info, build_theme_css
@@ -36,6 +40,9 @@ THEMES_DIR = PROJECT_ROOT / "src" / "themes"
 WIDGETS_DIR = PROJECT_ROOT / "src" / "widgets"
 CONFIG_DIR = PROJECT_ROOT / "config"
 DIST_DIR = PROJECT_ROOT / "dist"
+
+# Initialize logger
+logger = get_logger(__name__)
 
 def load_yaml(file_path):
     """Load a YAML file"""
@@ -889,7 +896,7 @@ function init{function_name.title()}Widget(element, config) {{
 
 def run_validation_suite():
     """Run all validation tests before building"""
-    print("🔍 Running validation suite before build...")
+    logger.info("Running validation suite before build", emoji="🔍")
     
     PROJECT_ROOT = Path(__file__).parent.parent.parent
     validation_scripts = [
@@ -900,28 +907,37 @@ def run_validation_suite():
     
     for name, script_path in validation_scripts:
         if not script_path.exists():
-            print(f"⚠️  Warning: {name} validation script not found: {script_path}")
+            logger.warning(f"Validation script not found: {script_path}", 
+                         component=name, emoji="⚠️")
             continue
             
-        print(f"   Validating {name}...")
+        logger.info(f"Validating {name}...", component=name)
         try:
             result = subprocess.run([sys.executable, str(script_path)], 
                                   capture_output=True, text=True, timeout=60)
             
             if result.returncode != 0:
-                print(f"❌ {name} validation failed!")
-                print("STDOUT:", result.stdout)
-                print("STDERR:", result.stderr)
+                logger.error(f"{name} validation failed!", 
+                           component=name, 
+                           return_code=result.returncode,
+                           stdout=result.stdout,
+                           stderr=result.stderr,
+                           emoji="❌")
                 raise Exception(f"{name} validation failed with code {result.returncode}")
             else:
-                print(f"   ✅ {name} validation passed")
+                logger.info(f"{name} validation passed", 
+                          component=name, emoji="✅")
                 
         except subprocess.TimeoutExpired:
-            raise Exception(f"{name} validation timed out")
+            logger.error(f"{name} validation timed out after 60 seconds", 
+                       component=name, emoji="❌")
+            raise Exception(f"{name} validation timeout")
         except Exception as e:
+            logger.error(f"Error running {name} validation", 
+                       component=name, error=str(e), emoji="❌")
             raise Exception(f"Failed to run {name} validation: {e}")
     
-    print("✅ All validations passed! Proceeding with build...")
+    logger.info("All validations passed! Proceeding with build", emoji="✅")
 
 def render_dashboard(theme_name=None, skip_validation=False, atomic=True):
     """Render the complete dashboard with atomic builds to prevent template variable exposure"""
@@ -930,7 +946,7 @@ def render_dashboard(theme_name=None, skip_validation=False, atomic=True):
     if not skip_validation:
         run_validation_suite()
     else:
-        print("⚠️  Skipping validation suite (--skip-validation flag used)")
+        logger.warning("Skipping validation suite (--skip-validation flag used)", emoji="⚠️")
     
     # Step 4: Load dashboard configuration first to get theme
     dashboard_config = load_dashboard_config_local()
@@ -940,7 +956,8 @@ def render_dashboard(theme_name=None, skip_validation=False, atomic=True):
         # Try environment variable first, then dashboard config, then fallback
         theme_name = os.environ.get('SLATE_THEME') or dashboard_config.get('dashboard', {}).get('theme', 'dark')
     
-    print(f"🚀 Rendering dashboard with {theme_name} theme...")
+    logger.info(f"Rendering dashboard with {theme_name} theme", 
+               theme=theme_name, emoji="🚀")
     
     if atomic:
         # Atomic build: build everything in temp directory, then swap atomically
@@ -958,7 +975,8 @@ def render_dashboard_atomic(theme_name, dashboard_config):
         temp_dist = Path(temp_build_dir) / "dist"
         temp_dist.mkdir(exist_ok=True)
         
-        print("🔨 Building in temporary directory (atomic mode)...")
+        logger.info("Building in temporary directory (atomic mode)", 
+                   build_dir=str(temp_dist), emoji="🔨")
         
         # Step 1: Copy template to TEMP directory (not exposed to web server)
         copy_template_to_dir(temp_dist)
@@ -998,16 +1016,17 @@ def render_dashboard_atomic(theme_name, dashboard_config):
                                  widget_includes, build_timestamp, built_themes)
         
         # Step 8: Atomic swap - replace entire dist directory
-        print("🔄 Atomically swapping build directories...")
+        logger.info("Atomically swapping build directories", 
+                   source=str(temp_dist), target=str(DIST_DIR), emoji="🔄")
         atomic_swap_dist_directory(DIST_DIR, temp_dist)
         
-        print(f"✅ Dashboard rendered successfully!")
-        print(f"   📄 Output: {DIST_DIR / 'index.html'}")
-        print(f"   🌐 Serve with: python3 serve.py")
+        logger.info("Dashboard rendered successfully!", 
+                   output=str(DIST_DIR / 'index.html'), emoji="✅")
+        logger.info("Serve with: python3 serve.py", emoji="🌐")
 
 def render_dashboard_legacy(theme_name, dashboard_config):
     """Legacy build implementation - may show template variables during build"""
-    print("⚠️  Using legacy build mode (may show template variables during build)")
+    logger.warning("Using legacy build mode (may show template variables during build)", emoji="⚠️")
     
     # Step 1: Copy template to dist (EXPOSES TEMPLATE VARIABLES)
     copy_template_to_dist()
@@ -1111,9 +1130,9 @@ def render_dashboard_legacy(theme_name, dashboard_config):
     # Atomic move to final location
     temp_path.replace(final_index_file)
     
-    print(f"✅ Dashboard rendered successfully!")
-    print(f"   📄 Output: {final_index_file}")
-    print(f"   🌐 Serve with: python3 serve.py")
+    logger.info("Dashboard rendered successfully!", 
+               output=str(final_index_file), emoji="✅")
+    logger.info("Serve with: python3 serve.py", emoji="🌐")
 
 # Helper functions for atomic builds
 
@@ -1329,10 +1348,18 @@ if __name__ == "__main__":
     
     args = parser.parse_args()
     
+    # Setup logging based on environment
+    if os.getenv('CI'):
+        setup_logging(level='INFO', format_type='console')
+    elif args.legacy_build:
+        setup_logging(level='INFO', format_type='legacy')  # Exact print() compatibility
+    else:
+        setup_logging()  # Use defaults
+    
     try:
         render_dashboard(args.theme, skip_validation=args.skip_validation, atomic=not args.legacy_build)
     except Exception as e:
-        print(f"❌ Error: {e}")
+        logger.error(f"Dashboard rendering failed: {e}", error=str(e), emoji="❌")
         import traceback
         traceback.print_exc()
         sys.exit(1) 
