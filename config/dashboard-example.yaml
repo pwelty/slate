@@ -99,6 +99,33 @@ components:
       units: "fahrenheit"            # or "celsius"
       apiKey: "YOUR_OPENWEATHER_API_KEY"  # Get from openweathermap.org
 
+  # Example Pi-hole widget (requires application password)
+  # First FOSS dashboard with Pi-hole v6+ support!
+  - id: "pihole-widget"
+    type: "widget"
+    widget: "pihole"
+    position: 
+      row: 4
+      column: 1
+      width: 6
+      height: 1
+    config:
+      title: "Pi-hole"
+      baseUrl: "https://pihole.example.com"  # Replace with your Pi-hole URL (without /admin)
+      apiToken: "YOUR_PIHOLE_APP_PASSWORD"   # For v6+: generate in Settings → Web Interface/API
+      updateInterval: 300000                 # Update every 5 minutes
+  # 
+  # Pi-hole Setup Instructions:
+  # 1. For Pi-hole v6+ (recommended):
+  #    - Go to Pi-hole admin → Settings → Web Interface/API
+  #    - Toggle "Basic" to "Expert" mode  
+  #    - Click "Configure app password"
+  #    - Copy the generated password and use as apiToken
+  #
+  # 2. For Pi-hole v5 (legacy):
+  #    - Use your admin password as apiToken
+  #    - Widget automatically detects API version
+
 # Icon mapping
 icons:
   github: "🐙"
