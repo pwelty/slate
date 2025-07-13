@@ -276,10 +276,24 @@ tailscale serve / http://localhost:5173
 - 🌐 **Clean URLs** - No ports, just https://slate.TSNAME.ts.net
 - ⚡ **Fast setup** - Working in minutes
 
-### **Docker** (Coming Soon)
+### **Docker** 🐳
 ```bash
-docker-compose up --build
+# 1. Copy environment and config templates
+cp .env.example .env
+cp config/dashboard-example.yaml config/dashboard.yaml
+
+# 2. Edit .env with your Tailscale auth key
+# 3. Edit config/dashboard.yaml with your widgets and services
+
+# 4. Start the dashboard
+docker-compose up -d
+
+# Access at https://your-hostname.YOUR-TAILNET.ts.net
 ```
+
+**Required files:**
+- `.env` - Tailscale auth key and API keys for widgets
+- `config/dashboard.yaml` - Your dashboard layout and widget configuration
 
 ## 🎯 Why Slate?
 
