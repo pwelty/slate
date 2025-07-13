@@ -1,0 +1,248 @@
+# Pi-hole Widget Definition
+# ========================
+
+metadata:
+  type: "api"
+  description: "Pi-hole ad blocking statistics"
+  version: "1.0.0"
+  author: "Slate Dashboard"
+
+# Configuration schema
+schema:
+  title:
+    type: "string"
+    required: false
+    default: "Pi-hole"
+    description: "Widget title"
+  
+  baseUrl:
+    type: "string"
+    required: true
+    description: "Pi-hole admin URL (e.g., https://pi-hole.squirrel-corn.ts.net)"
+  
+  apiToken:
+    type: "string"
+    required: false
+    description: "Pi-hole API token (optional if auth disabled for API)"
+    default: ""
+  
+  updateInterval:
+    type: "integer"
+    required: false
+    default: 300000
+    description: "Update interval in milliseconds (default: 5 minutes)"
+
+# Widget capabilities
+capabilities:
+  realTimeUpdates: true
+  userInteraction: false
+  apiIntegration: true
+  caching: true
+  responsive: true
+
+# Extend the base widget template
+extends: "widget"
+
+# Data processing function to generate Pi-hole data
+dataProcessing:
+  generateData: |
+    import requests
+    import json
+    
+    try:
+        # Extract configuration
+        base_url = config.get('baseUrl', '').rstrip('/')
+        api_token = config.get('apiToken', '')
+        
+        if not base_url:
+            result = {
+                'pihole': {
+                    'status': 'error',
+                    'queries_today': '--',
+                    'blocked_today': '--',
+                    'blocked_percentage': '--',
+                    'icon': '❌'
+                }
+            }
+        else:
+            # First authenticate to get session ID (Pi-hole v6+)
+            auth_url = f"{base_url}/api/auth"
+            auth_data = {"password": api_token}
+            
+            auth_response = requests.post(auth_url, json=auth_data, timeout=10)
+            auth_response.raise_for_status()
+            auth_result = auth_response.json()
+            
+            if not auth_result.get('session', {}).get('valid', False):
+                raise Exception("Authentication failed")
+            
+            sid = auth_result['session']['sid']
+            
+            # Get summary statistics
+            stats_url = f"{base_url}/api/stats/summary?sid={sid}"
+            response = requests.get(stats_url, timeout=10)
+            response.raise_for_status()
+            
+            # Parse response
+            data = response.json()
+            
+            # Extract Pi-hole statistics
+            queries_total = data.get('queries', {}).get('total', 0)
+            blocked_total = data.get('queries', {}).get('blocked', 0)
+            blocked_percentage = data.get('queries', {}).get('percent_blocked', 0.0)
+            
+            # Get blocking status
+            status_url = f"{base_url}/api/dns/blocking?sid={sid}"
+            status_response = requests.get(status_url, timeout=10)
+            status_response.raise_for_status()
+            status_data = status_response.json()
+            blocking_status = status_data.get('blocking', 'unknown')
+            
+            # Determine icon based on status
+            if blocking_status == 'enabled':
+                icon = '🛡️'
+                status = 'enabled'
+            elif blocking_status == 'disabled':
+                icon = '⚠️'
+                status = 'disabled'
+            else:
+                icon = '❓'
+                status = 'unknown'
+            
+            result = {
+                'pihole': {
+                    'status': status,
+                    'queries_today': f"{queries_total:,}",
+                    'blocked_today': f"{blocked_total:,}",
+                    'blocked_percentage': f"{blocked_percentage:.1f}",
+                    'icon': icon
+                }
+            }
+            
+    except Exception as e:
+        result = {
+            'pihole': {
+                'status': 'error',
+                'queries_today': '--',
+                'blocked_today': '--',
+                'blocked_percentage': '--',
+                'icon': '❌'
+            }
+        }
+
+# Widget body content - gets injected into {{widget-body}} placeholder  
+widget-body: |
+  
+  <div class="pihole-main">
+    <div class="pihole-status">
+      <div class="pihole-icon">{{pihole.icon}}</div>
+      <div class="pihole-status-text">{{pihole.status|title}}</div>
+    </div>
+    
+    <div class="pihole-stats">
+      <div class="pihole-blocked">
+        <span class="blocked-count">{{pihole.blocked_today}}</span>
+        <span class="blocked-percentage">({{pihole.blocked_percentage}}%)</span>
+      </div>
+      <div class="pihole-blocked-label">Blocked Today</div>
+    </div>
+  </div>
+  
+  <div class="pihole-footer">
+    <div class="pihole-queries">{{pihole.queries_today}} total queries</div>
+  </div>
+
+# Widget-specific CSS - uses theme variables for consistency
+css: |
+  .pihole-content {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .pihole-content .widget-body {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    gap: 0.75rem;
+  }
+  
+  .pihole-main {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .pihole-status {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+  }
+  
+  .pihole-icon {
+    font-size: 1.75rem;
+    line-height: 1;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+  }
+  
+  .pihole-status-text {
+    font-size: 0.7rem;
+    color: var(--text-secondary, #cccccc);
+    font-weight: var(--font-weight-medium, 500);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  
+  .pihole-stats {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
+  }
+  
+  .pihole-blocked {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+  
+  .blocked-count {
+    font-size: 1.75rem;
+    font-weight: var(--font-weight-bold, 700);
+    color: var(--text-primary, #ffffff);
+    line-height: 0.9;
+  }
+  
+  .blocked-percentage {
+    font-size: 1rem;
+    color: var(--color-accent, #00ccaa);
+    font-weight: var(--font-weight-medium, 500);
+  }
+  
+  .pihole-blocked-label {
+    font-size: 0.7rem;
+    color: var(--text-secondary, #cccccc);
+    font-weight: var(--font-weight-medium, 500);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  
+  .pihole-footer {
+    display: flex;
+    justify-content: center;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+  }
+  
+  .pihole-queries {
+    font-size: 0.7rem;
+    color: var(--text-secondary, #cccccc);
+    text-align: center;
+  }
+
+# Widget-specific JavaScript - gets injected into {{widget-js}} placeholder
+js: |
+  <!-- No JavaScript needed - purely server-side rendered widget -->
