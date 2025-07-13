@@ -13,15 +13,9 @@ from pathlib import Path
 import argparse
 import subprocess
 
-try:
-    from jinja2 import Template
-    import requests
-except ImportError:
-    print("Installing required dependencies...")
-    import subprocess
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "jinja2", "pyyaml", "requests"])
-    from jinja2 import Template
-    import requests
+# Required dependencies - install with: pip install -r requirements.txt
+from jinja2 import Template
+import requests
 
 from theme_renderer import (
     get_available_themes, load_theme as load_theme_from_renderer, build_all_themes, 

@@ -1,0 +1,11 @@
+# Development Dependencies for Slate Dashboard
+# Include core requirements
+-r requirements.txt
+
+# CSS validation (optional)
+cssutils==2.11.1     # CSS parsing and validation for theme testing
+
+# Future development dependencies can be added here:
+# pytest>=7.0.0      # Unit testing framework
+# black>=22.0.0       # Code formatting
+# flake8>=4.0.0       # Linting
