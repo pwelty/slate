@@ -1169,7 +1169,7 @@ const availableThemes = [{themes_array}];
 
 // Theme switching functionality
 document.addEventListener('DOMContentLoaded', function() {{
-    const themeSelector = document.getElementById('theme-selector');
+    const themeSelector = document.getElementById('footer-theme-selector');
     if (!themeSelector) return;
     
     themeSelector.addEventListener('change', function(e) {{
@@ -1205,7 +1205,7 @@ document.addEventListener('DOMContentLoaded', function() {{
     const savedTheme = localStorage.getItem('selectedTheme');
     if (savedTheme && availableThemes.includes(savedTheme)) {{
         switchTheme(savedTheme);
-        const selector = document.getElementById('theme-selector');
+        const selector = document.getElementById('footer-theme-selector');
         if (selector) {{
             selector.value = savedTheme;
         }}
