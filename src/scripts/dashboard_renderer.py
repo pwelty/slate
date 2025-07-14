@@ -994,12 +994,18 @@ def render_dashboard_atomic(theme_name, dashboard_config):
         # Set the current theme CSS link
         theme_css = f'<link rel="stylesheet" href="css/theme-{theme_name}.css?v={build_timestamp}">'
         
-        # Load theme JS if the current theme has effects-js
+        # Include ALL theme JavaScript files (for theme switching)
         theme_js = ""
-        current_theme_config = load_theme_from_renderer(theme_name, THEMES_DIR)
-        if current_theme_config and 'effects-js' in current_theme_config:
-            js_filename = current_theme_config['effects-js']
-            theme_js = f'<script src="js/{js_filename}?v={build_timestamp}"></script>'
+        all_themes = get_available_themes(THEMES_DIR)
+        theme_js_files = []
+        
+        for theme in all_themes:
+            theme_config = load_theme_from_renderer(theme, THEMES_DIR)
+            if theme_config and 'effects-js' in theme_config:
+                js_filename = theme_config['effects-js']
+                theme_js_files.append(f'<script src="js/{js_filename}?v={build_timestamp}"></script>')
+        
+        theme_js = '\n    '.join(theme_js_files)
         
         # Step 3: Build effects CSS
         effects_css = build_effects_css().replace('css/base-effects.css">', f'css/base-effects.css?v={build_timestamp}">')
@@ -1044,12 +1050,18 @@ def render_dashboard_legacy(theme_name, dashboard_config):
     # Set the current theme CSS link
     theme_css = f'<link rel="stylesheet" href="css/theme-{theme_name}.css?v={build_timestamp}">'
     
-    # Load theme JS if the current theme has effects-js
+    # Include ALL theme JavaScript files (for theme switching)
     theme_js = ""
-    current_theme_config = load_theme_from_renderer(theme_name, THEMES_DIR)
-    if current_theme_config and 'effects-js' in current_theme_config:
-        js_filename = current_theme_config['effects-js']
-        theme_js = f'<script src="js/{js_filename}?v={build_timestamp}"></script>'
+    all_themes = get_available_themes(THEMES_DIR)
+    theme_js_files = []
+    
+    for theme in all_themes:
+        theme_config = load_theme_from_renderer(theme, THEMES_DIR)
+        if theme_config and 'effects-js' in theme_config:
+            js_filename = theme_config['effects-js']
+            theme_js_files.append(f'<script src="js/{js_filename}?v={build_timestamp}"></script>')
+    
+    theme_js = '\n    '.join(theme_js_files)
     
     # Step 3: Build effects CSS
     effects_css = build_effects_css().replace('css/base-effects.css">', f'css/base-effects.css?v={build_timestamp}">')
@@ -1190,6 +1202,9 @@ function switchTheme(themeName) {{
         themeLink.href = `css/theme-${{themeName}}.css?v=${{timestamp}}`;
     }}
     
+    // Handle theme-specific JavaScript effects
+    handleThemeEffects(themeName);
+    
     // Store preference
     localStorage.setItem('selectedTheme', themeName);
     
@@ -1197,6 +1212,39 @@ function switchTheme(themeName) {{
     const currentThemeSpan = document.querySelector('.current-theme');
     if (currentThemeSpan) {{
         currentThemeSpan.textContent = themeName.charAt(0).toUpperCase() + themeName.slice(1).replace('-', ' ');
+    }}
+}}
+
+// Handle theme-specific effects when switching themes
+function handleThemeEffects(themeName) {{
+    // Remove all existing theme effects
+    if (window.TokyoNightTheme) {{
+        window.TokyoNightTheme.remove();
+    }}
+    if (window.SynthwaveTheme) {{
+        window.SynthwaveTheme.remove();
+    }}
+    if (window.OceanTheme) {{
+        window.OceanTheme.remove();
+    }}
+    
+    // Apply new theme effects
+    switch(themeName) {{
+        case 'tokyo-night':
+            if (window.TokyoNightTheme) {{
+                window.TokyoNightTheme.apply();
+            }}
+            break;
+        case 'synthwave':
+            if (window.SynthwaveTheme) {{
+                window.SynthwaveTheme.apply();
+            }}
+            break;
+        case 'ocean':
+            if (window.OceanTheme) {{
+                window.OceanTheme.apply();
+            }}
+            break;
     }}
 }}
 
