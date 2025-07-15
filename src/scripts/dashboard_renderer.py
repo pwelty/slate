@@ -1217,7 +1217,7 @@ function switchTheme(themeName) {{
 
 // Handle theme-specific effects when switching themes
 function handleThemeEffects(themeName) {{
-    // Remove all existing theme effects
+    // Remove all existing theme effects first
     if (window.TokyoNightTheme) {{
         window.TokyoNightTheme.remove();
     }}
@@ -1228,7 +1228,7 @@ function handleThemeEffects(themeName) {{
         window.OceanTheme.remove();
     }}
     
-    // Apply new theme effects
+    // Apply new theme effects only for themes that have them
     switch(themeName) {{
         case 'tokyo-night':
             if (window.TokyoNightTheme) {{
@@ -1244,6 +1244,11 @@ function handleThemeEffects(themeName) {{
             if (window.OceanTheme) {{
                 window.OceanTheme.apply();
             }}
+            break;
+        // For themes without effects (paper, dark, light, etc.), 
+        // we just remove all effects (done above)
+        default:
+            // No special effects for this theme
             break;
     }}
 }}
