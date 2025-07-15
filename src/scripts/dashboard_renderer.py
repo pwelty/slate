@@ -1217,39 +1217,29 @@ function switchTheme(themeName) {{
 
 // Handle theme-specific effects when switching themes
 function handleThemeEffects(themeName) {{
-    // Remove all existing theme effects first
-    if (window.TokyoNightTheme) {{
-        window.TokyoNightTheme.remove();
-    }}
-    if (window.SynthwaveTheme) {{
-        window.SynthwaveTheme.remove();
-    }}
-    if (window.OceanTheme) {{
-        window.OceanTheme.remove();
-    }}
+    // Remove ALL existing theme effects - search for all theme objects
+    // This ensures we clean up any theme effects even if we don't know about them
+    Object.keys(window).forEach(key => {{
+        if (key.endsWith('Theme') && window[key] && typeof window[key].remove === 'function') {{
+            try {{
+                window[key].remove();
+            }} catch (e) {{
+                console.warn(`Failed to remove effects for ${{key}}:`, e);
+            }}
+        }}
+    }});
     
-    // Apply new theme effects only for themes that have them
-    switch(themeName) {{
-        case 'tokyo-night':
-            if (window.TokyoNightTheme) {{
-                window.TokyoNightTheme.apply();
-            }}
-            break;
-        case 'synthwave':
-            if (window.SynthwaveTheme) {{
-                window.SynthwaveTheme.apply();
-            }}
-            break;
-        case 'ocean':
-            if (window.OceanTheme) {{
-                window.OceanTheme.apply();
-            }}
-            break;
-        // For themes without effects (paper, dark, light, etc.), 
-        // we just remove all effects (done above)
-        default:
-            // No special effects for this theme
-            break;
+    // Apply new theme effects based on theme name
+    const themeKey = themeName.split('-').map(word => 
+        word.charAt(0).toUpperCase() + word.slice(1)
+    ).join('') + 'Theme';
+    
+    if (window[themeKey] && typeof window[themeKey].apply === 'function') {{
+        try {{
+            window[themeKey].apply();
+        }} catch (e) {{
+            console.warn(`Failed to apply effects for ${{themeKey}}:`, e);
+        }}
     }}
 }}
 
