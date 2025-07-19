@@ -36,7 +36,7 @@ capabilities:
   apiIntegration: true
   caching: true
 
-# Server-side data fetcher configuration
+# Server-side data fetcher configuration  
 dataFetcher:
   type: "api"
   method: "GET"
@@ -48,7 +48,7 @@ dataFetcher:
     items: "results"
     fields:
       noteId: "noteId"
-      title: "title"
+      title: "title" 
       dateModified: "dateModified"
       type: "type"
       mime: "mime"
@@ -58,7 +58,7 @@ widget-body: |
   {% if items %}
     <div class="trilium-notes">
       {% for item in items %}
-        <div class="note-item" onclick="window.open('{{baseUrl}}/#{{item.noteId}}', '_blank', 'noopener,noreferrer')">
+        <div class="note-item" onclick="window.open('{{baseUrl}}', '_blank', 'noopener,noreferrer')" title="Open Trilium - Search for: {{item.title}}">
           <div class="note-title">{{item.title or 'Untitled Note'}}</div>
           <div class="note-meta">
             <span class="note-type">{{item.type or 'text'}}</span>
@@ -165,4 +165,24 @@ js: |
   // Trilium widget - for client-side functionality if needed
   function initTriliumWidget(element, config) {
     console.log('Trilium widget initialized with server-side data');
+  }
+  
+  // Function to open Trilium note with fallback search
+  function openTriliumNote(baseUrl, noteId, title) {
+    // Try simple noteId first, then fallback to search if that doesn't work
+    const noteWindow = window.open(baseUrl + '/#' + noteId, '_blank', 'noopener,noreferrer');
+    
+    // Add a small delay to check if the window was created successfully
+    setTimeout(() => {
+      try {
+        // If we can access the window location and it looks like it didn't navigate correctly,
+        // try the search approach instead
+        if (noteWindow && noteWindow.location.hash === '') {
+          noteWindow.location.hash = '#search/' + encodeURIComponent(title);
+        }
+      } catch (e) {
+        // Cross-origin error is expected, just ignore
+        console.log('Trilium note opened:', title);
+      }
+    }, 500);
   }
