@@ -276,6 +276,21 @@ def render_group_items(items):
                 item_config = item.get('config', {})
                 widget_data = fetch_widget_data(merged_widget, item_config)
                 
+                # Execute data processing function if present (same logic as standalone widgets)
+                if 'dataProcessing' in merged_widget and 'generateData' in merged_widget['dataProcessing']:
+                    try:
+                        data_function = merged_widget['dataProcessing']['generateData']
+                        processed_data = execute_data_processing(data_function, item_config)
+                        if processed_data:
+                            if widget_data:
+                                # Merge dataFetcher and dataProcessing results
+                                widget_data.update(processed_data)
+                            else:
+                                widget_data = processed_data
+                        print(f"   ✓ Executed data processing for group widget {item_type}")
+                    except Exception as e:
+                        print(f"   ⚠️  Data processing error for group widget {item_type}: {e}")
+                
                 # Prepare template context
                 template_context = {**item_config}
                 
@@ -289,6 +304,12 @@ def render_group_items(items):
                     template_context['data'] = widget_data
                     if isinstance(widget_data, list):
                         template_context['items'] = widget_data
+                    elif isinstance(widget_data, dict) and 'items' in widget_data:
+                        template_context['items'] = widget_data['items']
+                        # Also merge other data fields into template context
+                        for key, value in widget_data.items():
+                            if key != 'items':
+                                template_context[key] = value
                 
                 # Render HTML using template system (CSS/JS now handled in template)
                 rendered_html = render_widget_html_from_template(widget_definition, template_context)
