@@ -286,8 +286,14 @@ window.OceanTheme = {
     remove: removeOceanEffects
 };
 
-// Apply effects immediately when script loads (like synthwave)
+// Apply effects only if ocean theme is actually active
 // Add small delay to ensure CSS is loaded when switching themes
 setTimeout(() => {
-    applyOceanEffects();
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 
+                        localStorage.getItem('dashboard-theme') || 
+                        'dark';
+    
+    if (currentTheme === 'ocean') {
+        applyOceanEffects();
+    }
 }, 100); 

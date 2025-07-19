@@ -173,5 +173,13 @@ window.TokyoNightTheme = {
   remove: removeTokyoNightEffects
 };
 
-// Apply effects immediately when script loads
-applyTokyoNightEffects();
+// Apply effects only if tokyo-night theme is actually active
+setTimeout(() => {
+  const currentTheme = document.documentElement.getAttribute('data-theme') || 
+                      localStorage.getItem('dashboard-theme') || 
+                      'dark';
+  
+  if (currentTheme === 'tokyo-night') {
+    applyTokyoNightEffects();
+  }
+}, 100);

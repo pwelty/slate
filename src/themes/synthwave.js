@@ -364,5 +364,13 @@ window.SynthwaveTheme = {
   remove: removeSynthwaveEffects
 };
 
-// Apply effects immediately when script loads
-applySynthwaveEffects();
+// Apply effects only if synthwave theme is actually active
+setTimeout(() => {
+  const currentTheme = document.documentElement.getAttribute('data-theme') || 
+                      localStorage.getItem('dashboard-theme') || 
+                      'dark';
+  
+  if (currentTheme === 'synthwave') {
+    applySynthwaveEffects();
+  }
+}, 100);
