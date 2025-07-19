@@ -117,6 +117,19 @@ export default class ThemeSwitcherWidget {
       window.TokyoNightTheme.remove()
     }
     
+    if (window.OceanTheme && typeof window.OceanTheme.remove === 'function') {
+      window.OceanTheme.remove()
+    }
+    
+    if (window.SynthwaveTheme && typeof window.SynthwaveTheme.remove === 'function') {
+      window.SynthwaveTheme.remove()
+    }
+    
+    // Clean up effect manager effects for all themes
+    if (window.EffectManager && typeof window.EffectManager.clearThemeEffects === 'function') {
+      window.EffectManager.clearThemeEffects()
+    }
+    
     // Remove any theme-specific script tags
     const existingThemeScripts = document.querySelectorAll('script[data-theme-js]')
     existingThemeScripts.forEach(script => script.remove())
