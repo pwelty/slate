@@ -75,13 +75,8 @@ Desktop.ini
 .dockerignore
 docker-compose.override.yml
 
-# Tailscale Generated Files
-tailscale-slate/certs/
-tailscale-slate/derpmap.cached.json
-tailscale-slate/files/
-tailscale-slate/tailscaled.log*
-tailscale-slate/tailscaled.state
-tailscale-slate/serve-config/
+# Tailscale Generated Files - Exclude entire directory
+tailscale-slate/
 
 # Backup Files
 *.backup
